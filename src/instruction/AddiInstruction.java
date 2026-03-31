@@ -1,5 +1,7 @@
 package instruction;
 
-public class AddiInstruction {
+import cpu.Cpu;
+
+public class AddiInstruction implements instruction {
 
 }
