@@ -32,9 +32,9 @@ public class MSLMain {
         List<Instruction> program = List.of(
                 new LiInstruction(8, 10), // li $t0, 10
                 new LiInstruction(9, 20), // li $t1, 20
-                new AddInstruction(10, 8, 9), // add $t2, $t0, $t1
-                new AddiInstruction(10, 10, 5), // addi $t2, $t2, 5
-                new SubInstruction(11, 10, 8), // sub $t3, $t2, $t0
+                // new AddInstruction(10, 8, 9), // add $t2, $t0, $t1
+                // new AddiInstruction(10, 10, 5), // addi $t2, $t2, 5
+                // new SubInstruction(11, 10, 8), // sub $t3, $t2, $t0
                 new LiInstruction(0, 999) // li $zero, 999（無視される）
         );
 
