@@ -17,7 +17,7 @@ public final class RegisterNames {
      * @param index レジスタ番号
      * @throws IllegalArguementExeption レジスタ番号が0～31の範囲外の場合
      */
-    private static void validateRegisterIndex(int index) {
+    public static void validateRegisterIndex(int index) {
         if (index < 0 || index > 31) {
             throw new IllegalArgumentException(
                     "レジスタ番号は0～31で指定してください: " + index);

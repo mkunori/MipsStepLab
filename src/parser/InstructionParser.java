@@ -5,6 +5,7 @@ import java.util.List;
 
 import instruction.AddInstruction;
 import instruction.AddiInstruction;
+import instruction.BeqInstruction;
 import instruction.Instruction;
 import instruction.LiInstruction;
 import instruction.SubInstruction;
@@ -43,6 +44,9 @@ public class InstructionParser {
      * @return 命令オブジェクト
      */
     public Instruction parseLine(String line) {
+        // オペコードとオペランドに分割する。
+        // 例
+        // ["add $t0, $t1, $t2"] -> ["add", "$t0, $t1, $t2"]
         String[] parts = line.split("\\s+", 2);
         String opcode = parts[0];
 
@@ -50,13 +54,14 @@ public class InstructionParser {
             throw new IllegalArgumentException("オペランドがありません: " + line);
         }
 
-        String[] operand = splitOperands(parts[1]);
+        String[] operands = splitOperands(parts[1]);
 
         return switch (opcode) {
-            case "li" -> parseLi(operand, line);
-            case "add" -> parseAdd(operand, line);
-            case "addi" -> parseAddi(operand, line);
-            case "sub" -> parseSub(operand, line);
+            case "li" -> parseLi(operands, line);
+            case "add" -> parseAdd(operands, line);
+            case "addi" -> parseAddi(operands, line);
+            case "sub" -> parseSub(operands, line);
+            case "beq" -> parseBeq(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -117,6 +122,20 @@ public class InstructionParser {
     }
 
     /**
+     * beq命令を解析する。
+     */
+    private Instruction parseBeq(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("beqのオペランド数が不正です: " + line);
+        }
+
+        int left = parseRegister(operands[0]);
+        int right = parseRegister(operands[1]);
+        int targetPc = parseImmediate(operands[2]);
+        return new BeqInstruction(left, right, targetPc);
+    }
+
+    /**
      * レジスタ文字列をレジスタ番号へ変換する。
      * 
      * @param token 例: $t0
@@ -125,7 +144,9 @@ public class InstructionParser {
     private int parseRegister(String token) {
         return switch (token) {
             case "$zero" -> 0;
+            case "$at" -> 1;
             case "$v0" -> 2;
+            case "$v1" -> 3;
             case "$a0" -> 4;
             case "$a1" -> 5;
             case "$a2" -> 6;
@@ -148,6 +169,12 @@ public class InstructionParser {
             case "$s7" -> 23;
             case "$t8" -> 24;
             case "$t9" -> 25;
+            case "$k0" -> 26;
+            case "$k1" -> 27;
+            case "$gp" -> 28;
+            case "$sp" -> 29;
+            case "$fp" -> 30;
+            case "$ra" -> 31;
             default -> throw new IllegalArgumentException("未対応のレジスタ名です: " + token);
         };
     }

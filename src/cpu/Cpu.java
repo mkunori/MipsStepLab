@@ -37,6 +37,7 @@ public class Cpu {
      * @return 指定したレジスタの値
      */
     public int getRegister(int index) {
+        RegisterNames.validateRegisterIndex(index);
         return registers[index];
     }
 
@@ -47,6 +48,7 @@ public class Cpu {
      * @param value 設定する値
      */
     public void setRegister(int index, int value) {
+        RegisterNames.validateRegisterIndex(index);
 
         // MIPSの0番レジスタはzero固定なので書き込まない。
         if (index == 0) {
@@ -66,6 +68,19 @@ public class Cpu {
     }
 
     /**
+     * PCを指定した値に設定する。
+     * 
+     * @param pc 新しいOC
+     * @throws IllegalArgumentException PCが負の値の場合
+     */
+    public void setPc(int pc) {
+        if (pc < 0) {
+            throw new IllegalArgumentException("PCは0以上で指定してください: " + pc);
+        }
+        this.pc = pc;
+    }
+
+    /**
      * PCを次の命令へ進める。
      */
     public void incrementPc() {
@@ -78,8 +93,14 @@ public class Cpu {
      * @param instruction 実行する命令
      */
     public void execute(Instruction instruction) {
+        int oldPc = pc;
         instruction.execute(this);
-        incrementPc();
+
+        // beq向け対応。
+        // 分岐時は自動加算させずにpcを変える。
+        if (pc == oldPc) {
+            incrementPc();
+        }
     }
 
     /**
@@ -105,7 +126,7 @@ public class Cpu {
 
         sb.append(formatRegister(0)).append(System.lineSeparator());
         // sb.append(formatRegister(1)).append(System.lineSeparator());
-        // sb.append(formatRegister(2)).append(System.lineSeparator());
+        sb.append(formatRegister(2)).append(System.lineSeparator());
         // sb.append(formatRegister(3)).append(System.lineSeparator());
         // sb.append(formatRegister(4)).append(System.lineSeparator());
         // sb.append(formatRegister(5)).append(System.lineSeparator());

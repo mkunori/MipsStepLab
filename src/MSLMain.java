@@ -32,14 +32,21 @@ public class MSLMain {
                 "li $t1, 20",
                 "add $t2, $t0, $t1",
                 "addi $t2, $t2, 5",
-                "sub $t3, $t2, $t0");
+                "sub $t3, $t2, $t0",
+                "li $t0, 3",
+                "li $t1, 3",
+                "beq $t0, $t1, 10",
+                "li $v0, 0",
+                "li $v0, 9",
+                "li $v0, 1");
 
         List<Instruction> program = parser.parse(source);
 
         System.out.println("=== MIPS Simulator Start ===");
         System.out.println();
 
-        for (Instruction instruction : program) {
+        while (cpu.getPc() < program.size()) {
+            Instruction instruction = program.get(cpu.getPc());
             printStepHeader(cpu, instruction);
             cpu.execute(instruction);
             printCpuState(cpu);
