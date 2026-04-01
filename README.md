@@ -4,12 +4,14 @@ MIPSアセンブリ言語の基本的な命令実行を学習するためにJava
 
 - MIPS命令の動作理解
 - CPUの基本構造（レジスタ・PC）の理解
+- プログラムカウンタによる命令制御の理解
 - Interpreterパターンの体験的理解
 
 ## 現在の実装内容
 - レジスタ32本の管理
 - プログラムカウンタ（PC）
-- 命令を1つずつ順番に実行
+- PCに基づく命令フェッチ（逐次実行 / 分岐対応）
+- アセンブリ文字列のパース（Parser）
 - 実行ログの出力（PC・命令・レジスタ状態）
 
 ## 命令
@@ -19,6 +21,7 @@ MIPSアセンブリ言語の基本的な命令実行を学習するためにJava
 | add | レジスタ同士の加算 |
 | addi | レジスタ + 即値 |
 | sub | レジスタ同士の減算 |
+| beq | 条件成立時に指定PCへ分岐 |
 
 ## 命令の例
 ```text
@@ -47,6 +50,26 @@ PC = 4 : sub $t3, $t2, $t0
 $t3 = 25
 ```
 
+## パッケージ構成
+```text
+MSLMain
+
+cpu/
+├─ Cpu
+└─ RegisterNames
+
+instruction/
+├─ Instruction
+├─ LiInstruction
+├─ AddInstruction
+├─ AddiInstruction
+├─ SubInstruction
+└─ BeqInstruction
+
+parser/
+└─ InstructionParser
+```
+
 ## クラス構成
 ```mermaid
 classDiagram
@@ -57,13 +80,35 @@ classDiagram
   class AddInstruction
   class AddiInstruction
   class SubInstruction
+  class BeqInstruction
 
-  Instruction <|.. LiInstruction
-  Instruction <|.. AddInstruction
-  Instruction <|.. AddiInstruction
-  Instruction <|.. SubInstruction
+  Instruction <|.. LiInstruction : implements
+  Instruction <|.. AddInstruction : implements
+  Instruction <|.. AddiInstruction : implements
+  Instruction <|.. SubInstruction : implements
+  Instruction <|.. BeqInstruction : implements
 
-  MSLMain --> Cpu
-  MSLMain --> Instruction
-  Instruction --> Cpu
+  MSLMain --> InstructionParser : parses
+  MSLMain --> Cpu : controls
+  MSLMain --> Instruction : executes
+
+  Instruction --> Cpu : modifies state
 ```
+
+## 設計のポイント
+- Instruction：命令（式）
+- 各命令クラス：具体的な式
+- Cpu：コンテキスト（状態）
+- execute()：interpret処理
+- アセンブリ文字列から命令オブジェクトに変換
+
+## 今後の拡張予定
+- lw / sw（メモリ操作）
+- ラベル対応（beqの拡張）
+- コメント解析
+- 実行ログの改善（差分表示）
+- ステップ実行
+- テストコードの追加
+
+## 備考
+本アプリは自己学習の目的で作成しており、実際のMIPS仕様のすべてを再現しているわけではありません。  
