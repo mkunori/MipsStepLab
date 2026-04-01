@@ -1,6 +1,7 @@
 package instruction;
 
 import cpu.Cpu;
+import cpu.RegisterNames;
 
 /**
  * sub命令を表すクラス。
@@ -47,25 +48,8 @@ public class SubInstruction implements Instruction {
 
     @Override
     public String toAssembly() {
-        return "sub " + registerName(destRegister)
-                + ", " + registerName(leftRegister)
-                + ", " + registerName(rightRegister);
-    }
-
-    /**
-     * レジスタ番号を簡易的な名前へ変換する。
-     * 
-     * @param index レジスタ番号
-     * @return レジスタ名
-     */
-    private String registerName(int index) {
-        return switch (index) {
-            case 0 -> "$zero";
-            case 8 -> "$t0";
-            case 9 -> "$t1";
-            case 10 -> "$t2";
-            case 11 -> "$t3";
-            default -> "$r" + index;
-        };
+        return "sub " + RegisterNames.getName(destRegister)
+                + ", " + RegisterNames.getName(leftRegister)
+                + ", " + RegisterNames.getName(rightRegister);
     }
 }

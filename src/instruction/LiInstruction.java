@@ -1,6 +1,7 @@
 package instruction;
 
 import cpu.Cpu;
+import cpu.RegisterNames;
 
 /**
  * li(load immediate)命令を表すクラス。
@@ -39,23 +40,6 @@ public class LiInstruction implements Instruction {
 
     @Override
     public String toAssembly() {
-        return "li " + registerName(destRegister) + ", " + immediateValue;
-    }
-
-    /**
-     * レジスタ番号を簡易的な名前へ変換する。
-     *
-     * @param index レジスタ番号
-     * @return レジスタ名
-     */
-    private String registerName(int index) {
-        return switch (index) {
-            case 0 -> "$zero";
-            case 8 -> "$t0";
-            case 9 -> "$t1";
-            case 10 -> "$t2";
-            case 11 -> "$t3";
-            default -> "$r" + index;
-        };
+        return "li " + RegisterNames.getName(destRegister) + ", " + immediateValue;
     }
 }
