@@ -1,13 +1,12 @@
 # MipsStepLab
 
-MIPSアセンブリ言語の基本的な命令実行を学習するためにJavaで書いてみたCPUシミュレータです。  
-※学習目的で作ったものであり、実際のMIPS仕様のすべてを再現することは保証しません。
+MIPSアセンブリ言語の基本的な命令実行を学習するためにJavaで書いてみたCPUシミュレータです。
 
 - MIPS命令の動作理解
 - CPUの基本構造（レジスタ・PC）の理解
 - Interpreterパターンの体験的理解
 
-## 最小構成（予定）
+## 現在の実装内容
 - レジスタ32本の管理
 - プログラムカウンタ（PC）
 - 命令を1つずつ順番に実行
@@ -51,7 +50,7 @@ $t3 = 25
 ## クラス構成
 ```mermaid
 classDiagram
-  class Main
+  class MSLMain
   class Cpu
   class Instruction
   class LiInstruction
@@ -64,7 +63,7 @@ classDiagram
   Instruction <|.. AddiInstruction
   Instruction <|.. SubInstruction
 
-  Main --> Cpu
-  Main --> Instruction
+  MSLMain --> Cpu
+  MSLMain --> Instruction
   Instruction --> Cpu
 ```
