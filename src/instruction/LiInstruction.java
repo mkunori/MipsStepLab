@@ -3,7 +3,7 @@ package instruction;
 import cpu.Cpu;
 
 /**
- * li命令を表すクラス。
+ * li(load immediate)命令を表すクラス。
  * 
  * {@code li} は厳密にはMIPSの疑似命令だが、
  * とりあえず学習用として「レジスタに値を入れる」
