@@ -10,7 +10,8 @@ import cpu.Cpu;
  * 目的で用意しておくと便利なので実装している。
  * 
  * 例
- * {@code $t0 = 10}
+ * {@code li $t0, 10}
+ * {@code $t0} に10を格納している。
  */
 public class LiInstruction implements Instruction {
 

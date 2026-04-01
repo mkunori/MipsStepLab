@@ -24,7 +24,7 @@ public class SubInstruction implements Instruction {
     private final int rightRegister;
 
     /**
-     * add命令を生成する。
+     * sub命令を生成する。
      * 
      * @param destRegister  結果の書き込み先レジスタ番号
      * @param leftRegister  1つ目のレジスタ番号
