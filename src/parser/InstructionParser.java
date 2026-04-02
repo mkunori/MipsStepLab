@@ -35,12 +35,20 @@ public class InstructionParser {
                 continue;
             }
 
-            // ラベル行は最初に抽出済みなので飛ばす。
-            if (isLabelLine(normalized)) {
-                continue;
+            String instructionLine = normalized;
+
+            // ラベル行または先頭ラベル+命令部分か？
+            if (hasLabel(normalized)) {
+                // 先頭ラベル+命令部分から命令部分を取り出す
+                instructionLine = extractInstructionPart(normalized);
+
+                // 命令部分が無いならばラベル行なので飛ばす。
+                if (instructionLine.isEmpty()) {
+                    continue;
+                }
             }
 
-            instructions.add(parseLine(normalized, labels));
+            instructions.add(parseLine(instructionLine, labels));
         }
 
         return instructions;
@@ -277,7 +285,7 @@ public class InstructionParser {
     }
 
     /**
-     * ラベル表を作成する。
+     * ラベル名と命令番号の対応表を作成する。
      * 
      * @param lines アセンブリ文字列の一覧
      * @return ラベル名と命令番号の対応表
@@ -293,8 +301,8 @@ public class InstructionParser {
                 continue;
             }
 
-            if (isLabelLine(normalized)) {
-                String label = extractLabelName(normalized);
+            if (hasLabel(normalized)) {
+                String label = extractLabelNameFromLine(normalized);
 
                 if (label.isEmpty()) {
                     throw new IllegalArgumentException("空のラベルは使えません: " + normalized);
@@ -305,33 +313,18 @@ public class InstructionParser {
                 }
 
                 labels.put(label, instructionIndex);
-                continue;
+
+                String instructionPart = extractInstructionPart(normalized);
+                // ラベル行か？
+                if (instructionPart.isEmpty()) {
+                    continue;
+                }
             }
 
             instructionIndex++;
         }
 
         return labels;
-    }
-
-    /**
-     * ラベル行を判定する。
-     * 
-     * @param line 正規化済みの1行
-     * @return ラベル行ならば true
-     */
-    private boolean isLabelLine(String line) {
-        return line.endsWith(":");
-    }
-
-    /**
-     * ラベル名を抽出する。
-     * 
-     * @param line ラベル行
-     * @return 行末の「:」と空白を削除したラベル文字列
-     */
-    private String extractLabelName(String line) {
-        return line.substring(0, line.length() - 1).trim();
     }
 
     /**
@@ -353,5 +346,37 @@ public class InstructionParser {
             }
             return target;
         }
+    }
+
+    /**
+     * ラベル付き行をどうか判定する。
+     * 
+     * @param line 正規化済みの1行
+     * @return ラベル付き行ならば true
+     */
+    private boolean hasLabel(String line) {
+        return line.contains(":");
+    }
+
+    /**
+     * 行頭のラベル名を取得する。
+     * 
+     * @param line 正規化済みの1行
+     * @return ラベル名
+     */
+    private String extractLabelNameFromLine(String line) {
+        int colonIndex = line.indexOf(':');
+        return line.substring(0, colonIndex).trim();
+    }
+
+    /**
+     * 1行から命令部分を取得する。
+     * 
+     * @param line 正規化済みの1行
+     * @return 命令部分
+     */
+    private String extractInstructionPart(String line) {
+        int colonIndex = line.indexOf(':');
+        return line.substring(colonIndex + 1).trim();
     }
 }

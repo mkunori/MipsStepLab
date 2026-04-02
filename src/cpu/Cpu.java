@@ -70,7 +70,7 @@ public class Cpu {
     /**
      * PCを指定した値に設定する。
      * 
-     * @param pc 新しいOC
+     * @param pc 新しいPC
      * @throws IllegalArgumentException PCが負の値の場合
      */
     public void setPc(int pc) {

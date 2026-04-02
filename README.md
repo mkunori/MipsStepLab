@@ -1,20 +1,18 @@
 # MipsStepLab
 
-MIPSアセンブリ言語の基本的な命令実行を学習するためにJavaで書いてみたCPUシミュレータです。
-
-- MIPS命令の動作理解
-- CPUの基本構造（レジスタ・PC）の理解
-- プログラムカウンタによる命令制御の理解
-- Interpreterパターンの体験的理解
+MIPSアセンブリ言語の基本的な命令実行を学習するためにJavaで実装したCPUシミュレータです。  
+アセンブリ文字列のパース、ラベル解決、分岐・ジャンプ命令の実行を通して、CPUの動作とInterpreterパターンの理解を目的としています。
 
 ## 現在の実装内容
 - レジスタ32本の管理
 - プログラムカウンタ（PC）
-- PCに基づく命令フェッチ（逐次実行 / 分岐対応）
-- アセンブリ文字列のパース（Parser）
-- 実行ログの出力（PC・命令・レジスタ状態）
-- ラベル対応（※現在は単独行のみ）
-- コメント解析
+- PCに基づく命令フェッチと実行
+- アセンブリ文字列のパース（2パス方式）
+- ラベル収集
+- 命令生成
+- ラベルによる分岐・ジャンプ
+- コメント除去（#）
+- 実行ログの出力（PC・命令・レジスタ状態・ジャンプ検知）
 
 ## 命令
 | 命令 | 内容 |
@@ -23,33 +21,19 @@ MIPSアセンブリ言語の基本的な命令実行を学習するためにJava
 | add | レジスタ同士の加算 |
 | addi | レジスタ + 即値 |
 | sub | レジスタ同士の減算 |
-| beq | 条件成立時に指定PCへ分岐 |
+| beq | 条件成立時に指定ラベルまたはPCへ分岐 |
+| j | 指令ラベルまたはPCへ無条件ジャンプ |
 
-## 命令の例
+## 対応している構文
 ```text
-li $t0, 10
-li $t1, 20
-add $t2, $t0, $t1
-addi $t2, $t2, 5
-sub $t3, $t2, $t0
-```
+ラベル単独行
+loop:
 
-## アプリ実行の例
-```text
-PC = 0 : li $t0, 10
-$t0 = 10
+ラベル＋命令（同一行）
+loop: addi $t0, $t0, -1
 
-PC = 1 : li $t1, 20
-$t1 = 20
-
-PC = 2 : add $t2, $t0, $t1
-$t2 = 30
-
-PC = 3 : addi $t2, $t2, 5
-$t2 = 35
-
-PC = 4 : sub $t3, $t2, $t0
-$t3 = 25
+コメント
+li $t0, 10 # 初期値
 ```
 
 ## パッケージ構成
@@ -66,7 +50,8 @@ instruction/
 ├─ AddInstruction
 ├─ AddiInstruction
 ├─ SubInstruction
-└─ BeqInstruction
+├─ BeqInstruction
+└─ JumpInstruction
 
 parser/
 └─ InstructionParser
@@ -97,20 +82,31 @@ classDiagram
   MSLMain --> Instruction : executes
 
   Instruction --> Cpu : modifies state
+  InstructionParser --> Instruction : creates
+  InstructionParser --> RegisterNames : uses
 ```
 
 ## 設計のポイント
-- Instruction：命令（式）
-- 各命令クラス：具体的な式
-- Cpu：コンテキスト（状態）
-- execute()：interpret処理
-- アセンブリ文字列から命令オブジェクトに変換
+### ■ Interpreterパターン
+Instruction：抽象構文（命令）  
+各命令クラス：具体的な命令  
+Cpu：コンテキスト（状態）  
+execute()：命令の評価処理  
+
+### ■ 2パスParser
+1パス目：ラベルとPCの対応表を作成  
+2パス目：命令オブジェクトを生成  
+これにより、前方参照（後ろに定義されたラベル）にも対応しています。  
+
+### ■ PC主導の実行モデル
+for-eachではなくPCを基準に命令を取得することで、分岐・ジャンプを正しく扱える設計になっています。
 
 ## 今後の拡張予定
 - lw / sw（メモリ操作）
+- bne
+- ラベル構文の強化
 - 実行ログの改善（差分表示）
 - ステップ実行
-- テストコードの追加
 
 ## 備考
 本アプリは自己学習の目的で作成しており、実際のMIPS仕様のすべてを再現しているわけではありません。  

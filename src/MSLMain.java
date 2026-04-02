@@ -28,11 +28,11 @@ public class MSLMain {
 
         // 命令サンプル
         List<String> source = List.of(
+                "li $t0, 1",
+                "li $t1, 1",
+                "loop: beq $t0, $t1, end",
                 "li $v0, 0",
-                "j end",
-                "li $v0, 9",
-                "end:",
-                "li $v0, 1");
+                "end: li $v0, 1");
 
         List<Instruction> program = parser.parse(source);
 
@@ -41,8 +41,17 @@ public class MSLMain {
 
         while (cpu.getPc() < program.size()) {
             Instruction instruction = program.get(cpu.getPc());
+
             printStepHeader(cpu, instruction);
+
+            int oldPc = cpu.getPc();
             cpu.execute(instruction);
+            int newPc = cpu.getPc();
+
+            if (newPc != oldPc + 1) {
+                System.out.println(">>> PC changed: " + oldPc + " -> " + newPc);
+            }
+
             printCpuState(cpu);
         }
 
