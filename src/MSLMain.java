@@ -28,11 +28,23 @@ public class MSLMain {
 
         // 命令サンプル
         List<String> source = List.of(
-                "li $t0, 1",
-                "li $t1, 1",
-                "loop: beq $t0, $t1, end",
+                "# 全命令サンプル（分岐成立）",
+
+                "li $t0, 10",
+                "li $t1, 20",
+
+                "add $t2, $t0, $t1",
+                "addi $t2, $t2, 5",
+                "sub $t3, $t2, $t0",
+                "addi $t3, $t3, -5",
+
+                "check: beq $t3, $t1, equal",
                 "li $v0, 0",
-                "end: li $v0, 1");
+                "j end",
+
+                "equal: li $v0, 1",
+
+                "end: addi $v0, $v0, 10");
 
         List<Instruction> program = parser.parse(source);
 
