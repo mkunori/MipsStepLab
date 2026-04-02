@@ -9,6 +9,7 @@ import instruction.AddInstruction;
 import instruction.AddiInstruction;
 import instruction.BeqInstruction;
 import instruction.Instruction;
+import instruction.JumpInstruction;
 import instruction.LiInstruction;
 import instruction.SubInstruction;
 
@@ -71,6 +72,7 @@ public class InstructionParser {
             case "addi" -> parseAddi(operands, line);
             case "sub" -> parseSub(operands, line);
             case "beq" -> parseBeq(operands, line, labels);
+            case "j" -> parseJump(operands, line, labels);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -78,8 +80,9 @@ public class InstructionParser {
     /**
      * li命令を解析する。
      * 
-     * @param operands オペランド
-     * @param line     正規化済みの1行
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return LiInstruction
      */
     private Instruction parseLi(String[] operands, String line) {
         if (operands.length != 2) {
@@ -94,8 +97,9 @@ public class InstructionParser {
     /**
      * add命令を解析する。
      * 
-     * @param operands オペランド
-     * @param line     正規化済みの1行
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return AddInstruction
      */
     private Instruction parseAdd(String[] operands, String line) {
         if (operands.length != 3) {
@@ -111,8 +115,9 @@ public class InstructionParser {
     /**
      * addi命令を解析する。
      * 
-     * @param operands オペランド
-     * @param line     正規化済みの1行
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return AddiInstruction
      */
     private Instruction parseAddi(String[] operands, String line) {
         if (operands.length != 3) {
@@ -128,8 +133,9 @@ public class InstructionParser {
     /**
      * sub命令を解析する。
      * 
-     * @param operands オペランド
-     * @param line     正規化済みの1行
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SubInstruction
      */
     private Instruction parseSub(String[] operands, String line) {
         if (operands.length != 3) {
@@ -145,9 +151,10 @@ public class InstructionParser {
     /**
      * beq命令を解析する。
      * 
-     * @param operands オペランド
-     * @param line     正規化済みの1行
-     * @param labels   ラベル名と命令番号の対応表
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return BeqInstruction
      */
     private Instruction parseBeq(String[] operands, String line, Map<String, Integer> labels) {
         if (operands.length != 3) {
@@ -159,6 +166,23 @@ public class InstructionParser {
         int targetPc = resolveTarget(operands[2], labels);
 
         return new BeqInstruction(left, right, targetPc);
+    }
+
+    /**
+     * j命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return JumpInstruction
+     */
+    private Instruction parseJump(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 1) {
+            throw new IllegalArgumentException("jのオペランド数が不正です: " + line);
+        }
+
+        int targetPc = resolveTarget(operands[0], labels);
+        return new JumpInstruction(targetPc);
     }
 
     /**

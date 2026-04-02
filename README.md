@@ -83,12 +83,14 @@ classDiagram
   class AddiInstruction
   class SubInstruction
   class BeqInstruction
+  class JumpInstruction
 
   Instruction <|.. LiInstruction : implements
   Instruction <|.. AddInstruction : implements
   Instruction <|.. AddiInstruction : implements
   Instruction <|.. SubInstruction : implements
   Instruction <|.. BeqInstruction : implements
+  Instruction <|.. JumpInstruction : implements
 
   MSLMain --> InstructionParser : parses
   MSLMain --> Cpu : controls
