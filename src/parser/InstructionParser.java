@@ -1,7 +1,9 @@
 package parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import instruction.AddInstruction;
 import instruction.AddiInstruction;
@@ -18,10 +20,11 @@ public class InstructionParser {
     /**
      * 複数行のアセンブリ文字列を命令オブジェクトの一覧へ変換する。
      * 
-     * @param lines      アセンブリ文字列の一覧
-     * @param 命令オブジェクト一覧
+     * @param lines アセンブリ文字列の一覧
+     * @return 命令オブジェクト一覧
      */
     public List<Instruction> parse(List<String> lines) {
+        Map<String, Integer> labels = collectLabels(lines);
         List<Instruction> instructions = new ArrayList<>();
 
         for (String line : lines) {
@@ -31,7 +34,12 @@ public class InstructionParser {
                 continue;
             }
 
-            instructions.add(parseLine(normalized));
+            // ラベル行は最初に抽出済みなので飛ばす。
+            if (isLabelLine(normalized)) {
+                continue;
+            }
+
+            instructions.add(parseLine(normalized, labels));
         }
 
         return instructions;
@@ -40,13 +48,14 @@ public class InstructionParser {
     /**
      * 1行のアセンブリ文字列を命令オブジェクトへ変換する。
      * 
-     * @param line 正規化済みの1行
+     * @param line   正規化済みの1行
+     * @param labels ラベル名と命令番号の対応表
      * @return 命令オブジェクト
      */
-    public Instruction parseLine(String line) {
+    public Instruction parseLine(String line, Map<String, Integer> labels) {
         // オペコードとオペランドに分割する。
         // 例
-        // ["add $t0, $t1, $t2"] -> ["add", "$t0, $t1, $t2"]
+        // "add $t0, $t1, $t2" -> ["add", "$t0, $t1, $t2"]
         String[] parts = line.split("\\s+", 2);
         String opcode = parts[0];
 
@@ -61,13 +70,16 @@ public class InstructionParser {
             case "add" -> parseAdd(operands, line);
             case "addi" -> parseAddi(operands, line);
             case "sub" -> parseSub(operands, line);
-            case "beq" -> parseBeq(operands, line);
+            case "beq" -> parseBeq(operands, line, labels);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
 
     /**
      * li命令を解析する。
+     * 
+     * @param operands オペランド
+     * @param line     正規化済みの1行
      */
     private Instruction parseLi(String[] operands, String line) {
         if (operands.length != 2) {
@@ -81,6 +93,9 @@ public class InstructionParser {
 
     /**
      * add命令を解析する。
+     * 
+     * @param operands オペランド
+     * @param line     正規化済みの1行
      */
     private Instruction parseAdd(String[] operands, String line) {
         if (operands.length != 3) {
@@ -95,6 +110,9 @@ public class InstructionParser {
 
     /**
      * addi命令を解析する。
+     * 
+     * @param operands オペランド
+     * @param line     正規化済みの1行
      */
     private Instruction parseAddi(String[] operands, String line) {
         if (operands.length != 3) {
@@ -109,6 +127,9 @@ public class InstructionParser {
 
     /**
      * sub命令を解析する。
+     * 
+     * @param operands オペランド
+     * @param line     正規化済みの1行
      */
     private Instruction parseSub(String[] operands, String line) {
         if (operands.length != 3) {
@@ -123,15 +144,20 @@ public class InstructionParser {
 
     /**
      * beq命令を解析する。
+     * 
+     * @param operands オペランド
+     * @param line     正規化済みの1行
+     * @param labels   ラベル名と命令番号の対応表
      */
-    private Instruction parseBeq(String[] operands, String line) {
+    private Instruction parseBeq(String[] operands, String line, Map<String, Integer> labels) {
         if (operands.length != 3) {
             throw new IllegalArgumentException("beqのオペランド数が不正です: " + line);
         }
 
         int left = parseRegister(operands[0]);
         int right = parseRegister(operands[1]);
-        int targetPc = parseImmediate(operands[2]);
+        int targetPc = resolveTarget(operands[2], labels);
+
         return new BeqInstruction(left, right, targetPc);
     }
 
@@ -213,12 +239,95 @@ public class InstructionParser {
     /**
      * 1行を正規化する。
      * 
-     * 前後空白を除去する。
+     * 前後空白とコメント文字列を除去する。
      * 
      * @param line 元の文字列
      * @return 正規化後の文字列
      */
     private String normalize(String line) {
+        int commentIndex = line.indexOf('#');
+        if (commentIndex >= 0) {
+            line = line.substring(0, commentIndex);
+        }
         return line.trim();
+    }
+
+    /**
+     * ラベル表を作成する。
+     * 
+     * @param lines アセンブリ文字列の一覧
+     * @return ラベル名と命令番号の対応表
+     */
+    private Map<String, Integer> collectLabels(List<String> lines) {
+        Map<String, Integer> labels = new HashMap<>();
+        int instructionIndex = 0;
+
+        for (String line : lines) {
+            String normalized = normalize(line);
+
+            if (normalized.isEmpty()) {
+                continue;
+            }
+
+            if (isLabelLine(normalized)) {
+                String label = extractLabelName(normalized);
+
+                if (label.isEmpty()) {
+                    throw new IllegalArgumentException("空のラベルは使えません: " + normalized);
+                }
+
+                if (labels.containsKey(label)) {
+                    throw new IllegalArgumentException("ラベルが重複しています: " + label);
+                }
+
+                labels.put(label, instructionIndex);
+                continue;
+            }
+
+            instructionIndex++;
+        }
+
+        return labels;
+    }
+
+    /**
+     * ラベル行を判定する。
+     * 
+     * @param line 正規化済みの1行
+     * @return ラベル行ならば true
+     */
+    private boolean isLabelLine(String line) {
+        return line.endsWith(":");
+    }
+
+    /**
+     * ラベル名を抽出する。
+     * 
+     * @param line ラベル行
+     * @return 行末の「:」と空白を削除したラベル文字列
+     */
+    private String extractLabelName(String line) {
+        return line.substring(0, line.length() - 1).trim();
+    }
+
+    /**
+     * 分岐先を命令番号で取得する。
+     * 
+     * @param token  分岐先の命令番号またはラベル名
+     * @param labels ラベル名と命令番号の対応表
+     * @return 分岐先の命令番号
+     */
+    private int resolveTarget(String token, Map<String, Integer> labels) {
+        try {
+            // 分岐先が即値
+            return Integer.parseInt(token);
+        } catch (NumberFormatException e) {
+            // 分岐先がラベル
+            Integer target = labels.get(token);
+            if (target == null) {
+                throw new IllegalArgumentException("未定義のラベルです: " + token);
+            }
+            return target;
+        }
     }
 }

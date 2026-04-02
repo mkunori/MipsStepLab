@@ -28,16 +28,13 @@ public class MSLMain {
 
         // 命令サンプル
         List<String> source = List.of(
-                "li $t0, 10",
-                "li $t1, 20",
-                "add $t2, $t0, $t1",
-                "addi $t2, $t2, 5",
-                "sub $t3, $t2, $t0",
                 "li $t0, 3",
                 "li $t1, 3",
-                "beq $t0, $t1, 10",
+                "start:",
+                "beq $t0, $t1, equal    #Jump to equal",
                 "li $v0, 0",
                 "li $v0, 9",
+                "equal:",
                 "li $v0, 1");
 
         List<Instruction> program = parser.parse(source);
