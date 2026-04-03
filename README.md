@@ -13,6 +13,8 @@ MIPSアセンブリ言語の基本的な命令実行を学習するためにJava
 - ラベルによる分岐・ジャンプ
 - コメント除去（#）
 - 実行ログの出力（PC・命令・レジスタ状態・ジャンプ検知）
+- メモリ256wordの管理
+- lw / sw（メモリ操作）
 
 ## 命令
 | 命令 | 内容 |
@@ -23,6 +25,8 @@ MIPSアセンブリ言語の基本的な命令実行を学習するためにJava
 | sub | レジスタ同士の減算 |
 | beq | 条件成立時に指定ラベルまたはPCへ分岐 |
 | j | 指令ラベルまたはPCへ無条件ジャンプ |
+| sw | 指定のメモリへレジスタを書き込み |
+| lw | 指定のメモリからレジスタを読み出し |
 
 ## 対応している構文
 ```text
@@ -51,6 +55,8 @@ instruction/
 ├─ AddiInstruction
 ├─ SubInstruction
 ├─ BeqInstruction
+├─ SwInstruction
+├─ LwInstruction
 └─ JumpInstruction
 
 parser/
@@ -69,6 +75,8 @@ classDiagram
   class SubInstruction
   class BeqInstruction
   class JumpInstruction
+  class SwInstruction
+  class LwInstruction
 
   Instruction <|.. LiInstruction : implements
   Instruction <|.. AddInstruction : implements
@@ -76,6 +84,8 @@ classDiagram
   Instruction <|.. SubInstruction : implements
   Instruction <|.. BeqInstruction : implements
   Instruction <|.. JumpInstruction : implements
+  Instruction <|.. SwInstruction : implements
+  Instruction <|.. LwInstruction : implements
 
   MSLMain --> InstructionParser : parses
   MSLMain --> Cpu : controls
@@ -102,7 +112,6 @@ execute()：命令の評価処理
 for-eachではなくPCを基準に命令を取得することで、分岐・ジャンプを正しく扱える設計になっています。
 
 ## 今後の拡張予定
-- lw / sw（メモリ操作）
 - bne
 - ラベル構文の強化
 - 実行ログの改善（差分表示）

@@ -11,7 +11,9 @@ import instruction.BeqInstruction;
 import instruction.Instruction;
 import instruction.JumpInstruction;
 import instruction.LiInstruction;
+import instruction.LwInstruction;
 import instruction.SubInstruction;
+import instruction.SwInstruction;
 
 /**
  * アセンブリ風の文字列をInstructionに変換するパーサ。
@@ -81,6 +83,8 @@ public class InstructionParser {
             case "sub" -> parseSub(operands, line);
             case "beq" -> parseBeq(operands, line, labels);
             case "j" -> parseJump(operands, line, labels);
+            case "lw" -> parseLw(operands, line);
+            case "sw" -> parseSw(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -191,6 +195,42 @@ public class InstructionParser {
 
         int targetPc = resolveTarget(operands[0], labels);
         return new JumpInstruction(targetPc);
+    }
+
+    /**
+     * lw命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return LwInstruction
+     */
+    private Instruction parseLw(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("lwのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
+
+        return new LwInstruction(dest, memoryOperand.offset(), memoryOperand.baseRegister());
+    }
+
+    /**
+     * sw命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SwInstruction
+     */
+    private Instruction parseSw(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("swのオペランド数が不正です: " + line);
+        }
+
+        int src = parseRegister(operands[0]);
+        MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
+
+        return new SwInstruction(src, memoryOperand.offset(), memoryOperand.baseRegister());
     }
 
     /**
@@ -378,5 +418,37 @@ public class InstructionParser {
     private String extractInstructionPart(String line) {
         int colonIndex = line.indexOf(':');
         return line.substring(colonIndex + 1).trim();
+    }
+
+    /**
+     * メモリStore/Loadのオペランドを解析する。
+     * 
+     * @param token レジスタ文字列
+     * @return MemoryOperand
+     */
+    private MemoryOperand parseMemoryOperand(String token) {
+        int leftParenIndex = token.indexOf('(');
+        int rightParenIndex = token.indexOf(')');
+
+        if (leftParenIndex < 0 || rightParenIndex < 0 || leftParenIndex >= rightParenIndex) {
+            throw new IllegalArgumentException("メモリオペランドの形式が不正です: " + token);
+        }
+
+        String offsetPart = token.substring(0, leftParenIndex).trim();
+        String registerPart = token.substring(leftParenIndex + 1, rightParenIndex).trim();
+
+        int offset = parseImmediate(offsetPart);
+        int baseRegister = parseRegister(registerPart);
+
+        return new MemoryOperand(offset, baseRegister);
+    }
+
+    /**
+     * メモリオペランドのレコードクラス
+     * 
+     * @param offset       メモリ位置のオフセット
+     * @param baseRegister メモリ位置のベース
+     */
+    private record MemoryOperand(int offset, int baseRegister) {
     }
 }

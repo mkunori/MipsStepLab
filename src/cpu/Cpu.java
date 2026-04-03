@@ -7,6 +7,7 @@ import instruction.Instruction;
  * 
  * このCPUは以下の要素を保持する。
  * - 32本の汎用レジスタ
+ * - 256wordのメモリ領域
  * - PC（プログラムカウンタ）
  */
 public class Cpu {
@@ -21,6 +22,13 @@ public class Cpu {
      * 9番 = {@code $t1}
      */
     private final int[] registers = new int[32];
+
+    /**
+     * MIPSのメモリ領域。
+     * 
+     * 1要素を1wordとして扱う。
+     */
+    private final int[] memory = new int[256];
 
     /**
      * MIPSのプログラムカウンタ。
@@ -56,6 +64,28 @@ public class Cpu {
         }
 
         registers[index] = value;
+    }
+
+    /**
+     * メモリから値を読み込む。
+     * 
+     * @param address メモリアドレス
+     * @return 指定アドレスの値
+     */
+    public int loadWord(int address) {
+        validateMemoryAddress(address);
+        return memory[address];
+    }
+
+    /**
+     * メモリへ値を書き込む。
+     * 
+     * @param address メモリアドレス
+     * @param value   書き込む値
+     */
+    public void storeWord(int address, int value) {
+        validateMemoryAddress(address);
+        memory[address] = value;
     }
 
     /**
@@ -96,8 +126,8 @@ public class Cpu {
         int oldPc = pc;
         instruction.execute(this);
 
-        // beq向け対応。
-        // 分岐時は自動加算させずにpcを変える。
+        // 分岐・ジャンプ命令向け対応。
+        // 命令実行中にPCが変更されなかった場合のみ、自動で次の命令へ進める。
         if (pc == oldPc) {
             incrementPc();
         }
@@ -158,5 +188,29 @@ public class Cpu {
         // sb.append(formatRegister(31)).append(System.lineSeparator());
 
         return sb.toString();
+    }
+
+    /**
+     * 指定したメモリ位置の内容を表示文字列にする。
+     * 
+     * @param address メモリアドレス
+     * @return 表示文字列
+     */
+    public String formatMemory(int address) {
+        validateMemoryAddress(address);
+        return "mem[" + address + "] = " + memory[address];
+    }
+
+    /**
+     * メモリアドレスが有効かどうか検証する。
+     * 
+     * @param address メモリアドレス
+     * @throws IllegalArgumentException メモリアドレスが0～255の範囲外の場合
+     */
+    public void validateMemoryAddress(int address) {
+        if (address < 0 || address >= memory.length) {
+            throw new IllegalArgumentException(
+                    "メモリアドレスは0～255で指定してください: " + address);
+        }
     }
 }
