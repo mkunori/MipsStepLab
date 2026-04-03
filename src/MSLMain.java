@@ -72,11 +72,11 @@ public class MSLMain {
             int[] registersBefore = cpu.copyRegisters();
             int[] memoryBefore = cpu.copyMemory();
 
-            currentPc = cpu.getPc();
             cpu.execute(instruction);
             int newPc = cpu.getPc();
 
-            printDebugView(step, currentPc, instruction, cpu, newPc, registersBefore, memoryBefore);
+            printDebugView(step, currentPc, instruction, cpu, newPc,
+                    registersBefore, memoryBefore, program);
 
             step++;
         }
@@ -92,9 +92,11 @@ public class MSLMain {
      * @param newPc           実行後PC
      * @param registersBefore 実行前のレジスタ状態
      * @param memoryBefore    実行前のメモリ状態
+     * @param program         命令リスト
      */
     private static void printDebugView(int step, int currentPc, Instruction instruction,
-            Cpu cpu, int newPc, int[] registersBefore, int[] memoryBefore) {
+            Cpu cpu, int newPc, int[] registersBefore, int[] memoryBefore,
+            List<Instruction> program) {
 
         System.out.println("==================================================");
         System.out.println("STEP " + step);
@@ -117,6 +119,10 @@ public class MSLMain {
         System.out.println("CHANGES");
         printRegisterDiff(cpu, registersBefore);
         printMemoryDiff(cpu, memoryBefore, 0, 3);
+
+        System.out.println("--------------------------------------------------");
+        System.out.println("NEXT");
+        printNextInstruction(program, newPc);
 
         System.out.println("==================================================");
         System.out.println();
@@ -209,6 +215,22 @@ public class MSLMain {
 
         if (!changed) {
             System.out.println("no memory changes");
+        }
+    }
+
+    /**
+     * 次に実行される命令を表示する。
+     * 
+     * @param program 命令一覧
+     * @param nextPc  次に実行されるPC
+     */
+    private static void printNextInstruction(List<Instruction> program, int nextPc) {
+        if (nextPc >= 0 && nextPc < program.size()) {
+            System.out.println("NEXT PC   : " + nextPc);
+            System.out.println("NEXT INST : " + program.get(nextPc).toAssembly());
+        } else {
+            System.out.println("NEXT PC   : " + nextPc);
+            System.out.println("NEXT INST : <end>");
         }
     }
 }
