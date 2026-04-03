@@ -1,20 +1,19 @@
 # MipsStepLab
 
 MIPSアセンブリ言語の基本的な命令実行を学習するためにJavaで実装したCPUシミュレータです。  
-アセンブリ文字列のパース、ラベル解決、分岐・ジャンプ命令の実行を通して、CPUの動作とInterpreterパターンの理解を目的としています。
+アセンブリ文字列のパース、ラベル解決、分岐・ジャンプ命令、メモリ操作の実行を通して、CPUの動作とInterpreterパターンの理解を目的としています。  
 
 ## 現在の実装内容
 - レジスタ32本の管理
 - プログラムカウンタ（PC）
+- 簡易メモリ（int配列によるword単位管理）
 - PCに基づく命令フェッチと実行
 - アセンブリ文字列のパース（2パス方式）
-- ラベル収集
-- 命令生成
+  - ラベル収集
+  - 命令生成
 - ラベルによる分岐・ジャンプ
 - コメント除去（#）
 - 実行ログの出力（PC・命令・レジスタ状態・ジャンプ検知）
-- メモリ256wordの管理
-- lw / sw（メモリ操作）
 
 ## 命令
 | 命令 | 内容 |
@@ -23,10 +22,11 @@ MIPSアセンブリ言語の基本的な命令実行を学習するためにJava
 | add | レジスタ同士の加算 |
 | addi | レジスタ + 即値 |
 | sub | レジスタ同士の減算 |
-| beq | 条件成立時に指定ラベルまたはPCへ分岐 |
-| j | 指令ラベルまたはPCへ無条件ジャンプ |
-| sw | 指定のメモリへレジスタを書き込み |
-| lw | 指定のメモリからレジスタを読み出し |
+| beq | 等しい場合に分岐 |
+| bne | 等しくない場合に分岐 |
+| j | 無条件ジャンプ |
+| sw | レジスタの値をメモリへ書き込み |
+| lw | メモリからレジスタへ書き込み |
 
 ## 対応している構文
 ```text
@@ -55,6 +55,7 @@ instruction/
 ├─ AddiInstruction
 ├─ SubInstruction
 ├─ BeqInstruction
+├─ BneInstruction
 ├─ SwInstruction
 ├─ LwInstruction
 └─ JumpInstruction
@@ -74,6 +75,7 @@ classDiagram
   class AddiInstruction
   class SubInstruction
   class BeqInstruction
+  class BneInstruction
   class JumpInstruction
   class SwInstruction
   class LwInstruction
@@ -83,6 +85,7 @@ classDiagram
   Instruction <|.. AddiInstruction : implements
   Instruction <|.. SubInstruction : implements
   Instruction <|.. BeqInstruction : implements
+  Instruction <|.. BneInstruction : implements
   Instruction <|.. JumpInstruction : implements
   Instruction <|.. SwInstruction : implements
   Instruction <|.. LwInstruction : implements
@@ -111,11 +114,16 @@ execute()：命令の評価処理
 ### ■ PC主導の実行モデル
 for-eachではなくPCを基準に命令を取得することで、分岐・ジャンプを正しく扱える設計になっています。
 
+### ■ メモリアクセス（簡略化）
+- int[] によるword単位の簡易メモリ
+- アドレスは base + offset で計算
+- 実際のMIPSとは異なり、バイト単位ではなく配列インデックスとして扱う
+
 ## 今後の拡張予定
-- bne
-- ラベル構文の強化
-- 実行ログの改善（差分表示）
-- ステップ実行
+- メモリ操作の拡張（アラインメント・バイト単位）
+- 分岐命令の追加（bgt, blt など）
+- ステップ実行機能
+- デバッグログの強化
 
 ## 備考
 本アプリは自己学習の目的で作成しており、実際のMIPS仕様のすべてを再現しているわけではありません。  

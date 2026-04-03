@@ -38,13 +38,13 @@ public class MSLMain {
                 "sub $t3, $t2, $t0",
                 "addi $t3, $t3, -5",
 
-                "check: beq $t3, $t1, equal",
+                "check1: beq $t3, $t1, equal",
                 "li $v0, 0",
-                "j end",
+                "j end1",
 
                 "equal: li $v0, 1",
 
-                "end: addi $v0, $v0, 10",
+                "end1: addi $v0, $v0, 10",
 
                 "li $t0, 123",
                 "li $t1, 10",
@@ -54,7 +54,17 @@ public class MSLMain {
 
                 "addi $t2, $t2, 7",
                 "sw $t2, 1($t1)",
-                "lw $v0, 1($t1)");
+                "lw $v0, 1($t1)",
+
+                "li $t0, 10",
+                "li $t1, 20",
+
+                "check2: bne $t0, $t1, notEqual",
+                "li $v0, 0",
+                "j end2",
+
+                "notEqual: li $v0, 1",
+                "end2: addi $v0, $v0, 10");
 
         List<Instruction> program = parser.parse(source);
 

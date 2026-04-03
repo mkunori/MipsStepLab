@@ -8,6 +8,7 @@ import java.util.Map;
 import instruction.AddInstruction;
 import instruction.AddiInstruction;
 import instruction.BeqInstruction;
+import instruction.BneInstruction;
 import instruction.Instruction;
 import instruction.JumpInstruction;
 import instruction.LiInstruction;
@@ -82,6 +83,7 @@ public class InstructionParser {
             case "addi" -> parseAddi(operands, line);
             case "sub" -> parseSub(operands, line);
             case "beq" -> parseBeq(operands, line, labels);
+            case "bne" -> parseBne(operands, line, labels);
             case "j" -> parseJump(operands, line, labels);
             case "lw" -> parseLw(operands, line);
             case "sw" -> parseSw(operands, line);
@@ -178,6 +180,26 @@ public class InstructionParser {
         int targetPc = resolveTarget(operands[2], labels);
 
         return new BeqInstruction(left, right, targetPc);
+    }
+
+    /**
+     * bne命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return BneInstruction
+     */
+    private Instruction parseBne(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("bneのオペランド数が不正です: " + line);
+        }
+
+        int left = parseRegister(operands[0]);
+        int right = parseRegister(operands[1]);
+        int targetPc = resolveTarget(operands[2], labels);
+
+        return new BneInstruction(left, right, targetPc);
     }
 
     /**
