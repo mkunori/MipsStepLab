@@ -137,7 +137,7 @@ public class Cpu {
      * 指定したレジスタの内容を文字列で返す。
      * 
      * @param index レジスタ番号
-     * @return 例: {@code $t0   = 10}
+     * @return 例: {@code $t0 = 10}
      */
     public String formatRegister(int index) {
         return RegisterNames.getName(index) + " = " + getRegister(index);
@@ -147,7 +147,7 @@ public class Cpu {
      * レジスタ内容を桁揃えした文字列で返す。
      * 
      * @param index レジスタ番号
-     * @return 例: $t0 = 10
+     * @return 例: {@code $t0   = 10}
      */
     public String formatRegisterAligned(int index) {
         RegisterNames.validateRegisterIndex(index);
@@ -176,5 +176,23 @@ public class Cpu {
             throw new IllegalArgumentException(
                     "メモリアドレスは0～255で指定してください: " + address);
         }
+    }
+
+    /**
+     * 現在のレジスタ状態をコピーして返す。
+     * 
+     * @return レジスタ配列のコピー
+     */
+    public int[] copyRegisters() {
+        return registers.clone();
+    }
+
+    /**
+     * 現在のメモリ状態をコピーして返す。
+     * 
+     * @return メモリ状態のコピー
+     */
+    public int[] copyMemory() {
+        return memory.clone();
     }
 }

@@ -1,6 +1,7 @@
 import java.util.List;
 
 import cpu.Cpu;
+import cpu.RegisterNames;
 import instruction.Instruction;
 import parser.InstructionParser;
 
@@ -68,11 +69,14 @@ public class MSLMain {
             int currentPc = cpu.getPc();
             Instruction instruction = program.get(currentPc);
 
-            int oldPc = cpu.getPc();
+            int[] registersBefore = cpu.copyRegisters();
+            int[] memoryBefore = cpu.copyMemory();
+
+            currentPc = cpu.getPc();
             cpu.execute(instruction);
             int newPc = cpu.getPc();
 
-            printDebugView(step, oldPc, instruction, cpu, oldPc, newPc);
+            printDebugView(step, currentPc, instruction, cpu, newPc, registersBefore, memoryBefore);
 
             step++;
         }
@@ -81,15 +85,16 @@ public class MSLMain {
     /**
      * デバッグビュー風の表示を行う。
      * 
-     * @param step        ステップ番号
-     * @param currentPc   実行前PC
-     * @param instruction 実行した命令
-     * @param cpu         実行後のCPU
-     * @param oldPc       実行前PC
-     * @param newPc       実行後PC
+     * @param step            ステップ番号
+     * @param currentPc       実行前PC
+     * @param instruction     実行した命令
+     * @param cpu             実行後のCPU
+     * @param newPc           実行後PC
+     * @param registersBefore 実行前のレジスタ状態
+     * @param memoryBefore    実行前のメモリ状態
      */
     private static void printDebugView(int step, int currentPc, Instruction instruction,
-            Cpu cpu, int oldPc, int newPc) {
+            Cpu cpu, int newPc, int[] registersBefore, int[] memoryBefore) {
 
         System.out.println("==================================================");
         System.out.println("STEP " + step);
@@ -106,7 +111,12 @@ public class MSLMain {
 
         System.out.println("--------------------------------------------------");
         System.out.println("EVENT");
-        printEvent(oldPc, newPc);
+        printEvent(currentPc, newPc);
+
+        System.out.println("--------------------------------------------------");
+        System.out.println("CHANGES");
+        printRegisterDiff(cpu, registersBefore);
+        printMemoryDiff(cpu, memoryBefore, 0, 3);
 
         System.out.println("==================================================");
         System.out.println();
@@ -149,6 +159,56 @@ public class MSLMain {
             System.out.println("PC changed: " + oldPc + " -> " + newPc);
         } else {
             System.out.println("sequential execution");
+        }
+    }
+
+    /**
+     * 変化したレジスタを表示する。
+     * 
+     * @param cpu    実行後のCPU
+     * @param before 実行前のレジスタ状態
+     */
+    private static void printRegisterDiff(Cpu cpu, int[] before) {
+        boolean changed = false;
+
+        for (int i = 0; i < before.length; i++) {
+            int afterValue = cpu.getRegister(i);
+
+            if (before[i] != afterValue) {
+                System.out.println(RegisterNames.getName(i)
+                        + " : " + before[i] + " -> " + afterValue);
+                changed = true;
+            }
+        }
+
+        if (!changed) {
+            System.out.println("no register changes");
+        }
+    }
+
+    /**
+     * 指定範囲で変化したメモリを表示する。
+     * 
+     * @param cpu    実行後のCPU
+     * @param before 実行前のメモリ状態
+     * @param start  開始アドレス
+     * @param end    終了アドレス
+     */
+    private static void printMemoryDiff(Cpu cpu, int[] before, int start, int end) {
+        boolean changed = false;
+
+        for (int i = start; i <= end; i++) {
+            int afterValue = cpu.loadWord(i);
+
+            if (before[i] != afterValue) {
+                System.out.println("mem[" + i + "] : "
+                        + before[i] + " -> " + afterValue);
+                changed = true;
+            }
+        }
+
+        if (!changed) {
+            System.out.println("no memory changes");
         }
     }
 }
