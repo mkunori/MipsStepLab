@@ -21,45 +21,10 @@ public class MSLMain {
         Cpu cpu = new Cpu();
         InstructionParser parser = new InstructionParser();
 
-        // 命令サンプル
-        List<String> source = List.of(
-                "# 全命令サンプル（分岐成立）",
-
-                "li $t0, 10",
-                "li $t1, 20",
-
-                "add $t2, $t0, $t1",
-                "addi $t2, $t2, 5",
-                "sub $t3, $t2, $t0",
-                "addi $t3, $t3, -5",
-
-                "check1: beq $t3, $t1, equal",
-                "li $v0, 0",
-                "j end1",
-
-                "equal: li $v0, 1",
-
-                "end1: addi $v0, $v0, 10",
-
-                "li $t0, 123",
-                "li $t1, 10",
-
-                "sw $t0, 0($t1)",
-                "lw $t2, 0($t1)",
-
-                "addi $t2, $t2, 7",
-                "sw $t2, 1($t1)",
-                "lw $v0, 1($t1)",
-
-                "li $t0, 10",
-                "li $t1, 20",
-
-                "check2: bne $t0, $t1, notEqual",
-                "li $v0, 0",
-                "j end2",
-
-                "notEqual: li $v0, 1",
-                "end2: addi $v0, $v0, 10");
+        // 実行するサンプルを選ぶ
+        List<String> source = createFullSample();
+        // List<String> source = createBranchSample();
+        // List<String> source = createMemorySample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -232,5 +197,92 @@ public class MSLMain {
             System.out.println("NEXT PC   : " + nextPc);
             System.out.println("NEXT INST : <end>");
         }
+    }
+
+    /**
+     * 分岐命令の動作確認用サンプルを返す。
+     * 
+     * {@code beq}、{@code bne}、{@code j} の動作を確認するためのサンプル。
+     * 
+     * @return 分岐サンプル
+     */
+    private static List<String> createBranchSample() {
+        return List.of(
+                "# 分岐サンプル",
+                "# beq, bne, j の確認",
+
+                "li $t0, 10",
+                "li $t1, 10",
+
+                "# beq成立",
+                "beq $t0, $t1, equal",
+                "li $v0, 0",
+                "j afterEqual",
+
+                "equal: li $v0, 1",
+                "afterEqual: addi $v0, $v0, 10",
+
+                "li $t0, 3",
+                "li $t1, 5",
+
+                "# bne成立",
+                "bne $t0, $t1, notEqual",
+                "li $v0, 100",
+                "j end",
+
+                "notEqual: addi $v0, $v0, 20",
+                "end: addi $v0, $v0, 1");
+    }
+
+    /**
+     * メモリ操作の動作確認用サンプルを返す。
+     * 
+     * {@code sw} でメモリへ格納し、{@code lw} で読み戻して
+     * 値を加工する流れを確認するためのサンプル。
+     * 
+     * @return メモリサンプル
+     */
+    private static List<String> createMemorySample() {
+        return List.of(
+                "# メモリサンプル",
+                "# lw, sw の確認",
+
+                "li $t0, 10", // ベースアドレス
+                "li $t1, 3", // 保存する値
+
+                "sw $t1, 0($t0)", // mem[10] = 3
+                "lw $t2, 0($t0)", // $t2 = 3
+                "addi $t2, $t2, 7", // $t2 = 10
+                "sw $t2, 1($t0)", // mem[11] = 10
+                "lw $v0, 1($t0)" // $v0 = 10
+        );
+    }
+
+    /**
+     * 代表サンプルを返す。
+     * 
+     * 1から5までの値を順番にメモリへ保存するループ。
+     * 分岐、加算、メモリ操作を組み合わせて、
+     * 現在の命令セットでできることを自然な流れで確認できる。
+     * 
+     * @return 代表サンプル
+     */
+    private static List<String> createFullSample() {
+        return List.of(
+                "# 代表サンプル",
+                "# 1から5までをメモリに順に保存する",
+                "# 結果: mem[0] = 1, mem[1] = 2, ..., mem[4] = 5",
+
+                "li $t0, 0", // 書き込み先アドレス
+                "li $t1, 1", // 書き込む値
+                "li $t2, 6", // 終了判定用（6になったら終了）
+
+                "loop: sw $t1, 0($t0)",
+                "addi $t0, $t0, 1",
+                "addi $t1, $t1, 1",
+                "bne $t1, $t2, loop",
+
+                "# 最後に mem[4] を読んで確認",
+                "lw $v0, 4($zero)");
     }
 }
