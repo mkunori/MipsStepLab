@@ -137,57 +137,21 @@ public class Cpu {
      * 指定したレジスタの内容を文字列で返す。
      * 
      * @param index レジスタ番号
-     * @return 例: {@code $t0 = 10}
+     * @return 例: {@code $t0   = 10}
      */
     public String formatRegister(int index) {
         return RegisterNames.getName(index) + " = " + getRegister(index);
     }
 
     /**
-     * 主要レジスタの内容をまとめた文字列を返す。
-     *
-     * 実行結果の確認をしやすくするため、
-     * とりあえず学習でよく使うレジスタだけを表示する。
-     *
-     * @return レジスタ一覧の文字列
+     * レジスタ内容を桁揃えした文字列で返す。
+     * 
+     * @param index レジスタ番号
+     * @return 例: $t0 = 10
      */
-    public String dumpRegisters() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(formatRegister(0)).append(System.lineSeparator());
-        // sb.append(formatRegister(1)).append(System.lineSeparator());
-        sb.append(formatRegister(2)).append(System.lineSeparator());
-        // sb.append(formatRegister(3)).append(System.lineSeparator());
-        // sb.append(formatRegister(4)).append(System.lineSeparator());
-        // sb.append(formatRegister(5)).append(System.lineSeparator());
-        // sb.append(formatRegister(6)).append(System.lineSeparator());
-        // sb.append(formatRegister(7)).append(System.lineSeparator());
-        sb.append(formatRegister(8)).append(System.lineSeparator());
-        sb.append(formatRegister(9)).append(System.lineSeparator());
-        sb.append(formatRegister(10)).append(System.lineSeparator());
-        sb.append(formatRegister(11)).append(System.lineSeparator());
-        // sb.append(formatRegister(12)).append(System.lineSeparator());
-        // sb.append(formatRegister(13)).append(System.lineSeparator());
-        // sb.append(formatRegister(14)).append(System.lineSeparator());
-        // sb.append(formatRegister(15)).append(System.lineSeparator());
-        // sb.append(formatRegister(16)).append(System.lineSeparator());
-        // sb.append(formatRegister(17)).append(System.lineSeparator());
-        // sb.append(formatRegister(18)).append(System.lineSeparator());
-        // sb.append(formatRegister(19)).append(System.lineSeparator());
-        // sb.append(formatRegister(20)).append(System.lineSeparator());
-        // sb.append(formatRegister(21)).append(System.lineSeparator());
-        // sb.append(formatRegister(22)).append(System.lineSeparator());
-        // sb.append(formatRegister(23)).append(System.lineSeparator());
-        // sb.append(formatRegister(24)).append(System.lineSeparator());
-        // sb.append(formatRegister(25)).append(System.lineSeparator());
-        // sb.append(formatRegister(26)).append(System.lineSeparator());
-        // sb.append(formatRegister(27)).append(System.lineSeparator());
-        // sb.append(formatRegister(28)).append(System.lineSeparator());
-        // sb.append(formatRegister(29)).append(System.lineSeparator());
-        // sb.append(formatRegister(30)).append(System.lineSeparator());
-        // sb.append(formatRegister(31)).append(System.lineSeparator());
-
-        return sb.toString();
+    public String formatRegisterAligned(int index) {
+        RegisterNames.validateRegisterIndex(index);
+        return String.format("%-5s = %d", RegisterNames.getName(index), getRegister(index));
     }
 
     /**

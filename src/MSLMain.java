@@ -6,15 +6,9 @@ import parser.InstructionParser;
 
 /**
  * MIPS風シミュレータの動作確認を行うメインクラス。
- *
- * 一旦は最小構成として、命令オブジェクトをあらかじめ並べた
- * サンプルプログラムを実行する。
  * 
- * 実行のたびに以下を表示する。
- * - 現在のPC
- * - 実行する命令
- * - 実行後の主要レジスタ状態
- * 
+ * アセンブリ文字列をパースして命令列を生成し、
+ * デバッグビュー風の表示で1ステップずつ実行結果を確認する。
  */
 public class MSLMain {
     /**
@@ -68,47 +62,93 @@ public class MSLMain {
 
         List<Instruction> program = parser.parse(source);
 
-        System.out.println("=== MIPS Simulator Start ===");
-        System.out.println();
+        int step = 1;
 
         while (cpu.getPc() < program.size()) {
-            Instruction instruction = program.get(cpu.getPc());
-
-            printStepHeader(cpu, instruction);
+            int currentPc = cpu.getPc();
+            Instruction instruction = program.get(currentPc);
 
             int oldPc = cpu.getPc();
             cpu.execute(instruction);
             int newPc = cpu.getPc();
 
-            if (newPc != oldPc + 1) {
-                System.out.println(">>> PC changed: " + oldPc + " -> " + newPc);
-            }
+            printDebugView(step, oldPc, instruction, cpu, oldPc, newPc);
 
-            printCpuState(cpu);
+            step++;
         }
-
-        System.out.println(cpu.formatMemory(10));
-        System.out.println(cpu.formatMemory(11));
-
-        System.out.println("=== Finished ===");
     }
 
     /**
-     * 実行前の見出しを表示する。
-     *
-     * @param cpu         現在のCPU
-     * @param instruction これから実行する命令
+     * デバッグビュー風の表示を行う。
+     * 
+     * @param step        ステップ番号
+     * @param currentPc   実行前PC
+     * @param instruction 実行した命令
+     * @param cpu         実行後のCPU
+     * @param oldPc       実行前PC
+     * @param newPc       実行後PC
      */
-    private static void printStepHeader(Cpu cpu, Instruction instruction) {
-        System.out.println("PC = " + cpu.getPc() + " : " + instruction.toAssembly());
+    private static void printDebugView(int step, int currentPc, Instruction instruction,
+            Cpu cpu, int oldPc, int newPc) {
+
+        System.out.println("==================================================");
+        System.out.println("STEP " + step);
+        System.out.println("PC      : " + currentPc);
+        System.out.println("INSTR   : " + instruction.toAssembly());
+
+        System.out.println("--------------------------------------------------");
+        System.out.println("REGISTERS");
+        printRegisters(cpu);
+
+        System.out.println("--------------------------------------------------");
+        System.out.println("MEMORY");
+        printMemory(cpu, 0, 3);
+
+        System.out.println("--------------------------------------------------");
+        System.out.println("EVENT");
+        printEvent(oldPc, newPc);
+
+        System.out.println("==================================================");
+        System.out.println();
     }
 
     /**
-     * 実行後のCPU状態を表示する。
-     *
-     * @param cpu 実行後のCPU
+     * 主要レジスタを表示する。
+     * 
+     * @param cpu CPU
      */
-    private static void printCpuState(Cpu cpu) {
-        System.out.println(cpu.dumpRegisters());
+    private static void printRegisters(Cpu cpu) {
+        int[] targets = { 0, 2, 8, 9, 10, 11 };
+
+        for (int index : targets) {
+            System.out.println(cpu.formatRegisterAligned(index));
+        }
+    }
+
+    /**
+     * 指定範囲のメモリを表示する。
+     * 
+     * @param cpu   CPU
+     * @param start 開始アドレス
+     * @param end   終了アドレス
+     */
+    private static void printMemory(Cpu cpu, int start, int end) {
+        for (int i = start; i <= end; i++) {
+            System.out.println(cpu.formatMemory(i));
+        }
+    }
+
+    /**
+     * PC変化イベントを表示する。
+     * 
+     * @param oldPc 実行前PC
+     * @param newPc 実行後PC
+     */
+    private static void printEvent(int oldPc, int newPc) {
+        if (newPc != oldPc + 1) {
+            System.out.println("PC changed: " + oldPc + " -> " + newPc);
+        } else {
+            System.out.println("sequential execution");
+        }
     }
 }
