@@ -10,13 +10,17 @@ import org.junit.jupiter.api.Test;
 
 import cpu.Cpu;
 import instruction.AddiInstruction;
+import instruction.AndInstruction;
 import instruction.BeqInstruction;
 import instruction.BneInstruction;
 import instruction.Instruction;
 import instruction.JumpInstruction;
 import instruction.LiInstruction;
 import instruction.LwInstruction;
+import instruction.NorInstruction;
+import instruction.OrInstruction;
 import instruction.SwInstruction;
+import instruction.XorInstruction;
 
 /**
  * InstructionParserクラスのテスト。
@@ -179,6 +183,94 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(2, cpu.getPc());
+    }
+
+    /**
+     * and命令を正しくパースできることを確認する。
+     */
+    @Test
+    void and命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "and $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(AndInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 12); // 1100
+        cpu.setRegister(9, 10); // 1010
+
+        program.get(0).execute(cpu);
+
+        assertEquals(8, cpu.getRegister(10));
+    }
+
+    /**
+     * or命令を正しくパースできることを確認する。
+     */
+    @Test
+    void or命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "or $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(OrInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 12); // 1100
+        cpu.setRegister(9, 10); // 1010
+
+        program.get(0).execute(cpu);
+
+        assertEquals(14, cpu.getRegister(10));
+    }
+
+    /**
+     * xor命令を正しくパースできることを確認する。
+     */
+    @Test
+    void xor命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "xor $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(XorInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 12);
+        cpu.setRegister(9, 10);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(6, cpu.getRegister(10));
+    }
+
+    /**
+     * nor命令を正しくパースできることを確認する。
+     */
+    @Test
+    void nor命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "nor $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(NorInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 12);
+        cpu.setRegister(9, 10);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-15, cpu.getRegister(10));
     }
 
     /**

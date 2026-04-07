@@ -7,14 +7,18 @@ import java.util.Map;
 
 import instruction.AddInstruction;
 import instruction.AddiInstruction;
+import instruction.AndInstruction;
 import instruction.BeqInstruction;
 import instruction.BneInstruction;
 import instruction.Instruction;
 import instruction.JumpInstruction;
 import instruction.LiInstruction;
 import instruction.LwInstruction;
+import instruction.NorInstruction;
+import instruction.OrInstruction;
 import instruction.SubInstruction;
 import instruction.SwInstruction;
+import instruction.XorInstruction;
 
 /**
  * アセンブリ風の文字列をInstructionに変換するパーサ。
@@ -87,6 +91,10 @@ public class InstructionParser {
             case "j" -> parseJump(operands, line, labels);
             case "lw" -> parseLw(operands, line);
             case "sw" -> parseSw(operands, line);
+            case "and" -> parseAnd(operands, line);
+            case "or" -> parseOr(operands, line);
+            case "xor" -> parseXor(operands, line);
+            case "nor" -> parseNor(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -253,6 +261,82 @@ public class InstructionParser {
         MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
 
         return new SwInstruction(src, memoryOperand.offset(), memoryOperand.baseRegister());
+    }
+
+    /**
+     * and命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return AndInstruction
+     */
+    private Instruction parseAnd(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("andのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseRegister(operands[2]);
+
+        return new AndInstruction(dest, left, right);
+    }
+
+    /**
+     * or命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return OrInstruction
+     */
+    private Instruction parseOr(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("orのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseRegister(operands[2]);
+
+        return new OrInstruction(dest, left, right);
+    }
+
+    /**
+     * xor命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return XorInstruction
+     */
+    private Instruction parseXor(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("xorのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseRegister(operands[2]);
+
+        return new XorInstruction(dest, left, right);
+    }
+
+    /**
+     * nor命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return NorInstruction
+     */
+    private Instruction parseNor(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("norのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseRegister(operands[2]);
+
+        return new NorInstruction(dest, left, right);
     }
 
     /**
