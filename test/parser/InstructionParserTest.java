@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import cpu.Cpu;
 import instruction.AddiInstruction;
 import instruction.AndInstruction;
+import instruction.AndiInstruction;
 import instruction.BeqInstruction;
 import instruction.BneInstruction;
 import instruction.Instruction;
@@ -19,8 +20,10 @@ import instruction.LiInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
+import instruction.OriInstruction;
 import instruction.SwInstruction;
 import instruction.XorInstruction;
+import instruction.XoriInstruction;
 
 /**
  * InstructionParserクラスのテスト。
@@ -271,6 +274,69 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(-15, cpu.getRegister(10));
+    }
+
+    /**
+     * andi命令を正しくパースできることを確認する。
+     */
+    @Test
+    void andi命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "andi $t1, $t0, 10"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(AndiInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 12);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(8, cpu.getRegister(9));
+    }
+
+    /**
+     * ori命令を正しくパースできることを確認する。
+     */
+    @Test
+    void ori命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "ori $t1, $t0, 10"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(OriInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 12);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(14, cpu.getRegister(9));
+    }
+
+    /**
+     * xori命令を正しくパースできることを確認する。
+     */
+    @Test
+    void xori命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "xori $t1, $t0, 10"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(XoriInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 12);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(6, cpu.getRegister(9));
     }
 
     /**

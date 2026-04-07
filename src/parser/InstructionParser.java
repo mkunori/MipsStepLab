@@ -5,20 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import instruction.AddInstruction;
-import instruction.AddiInstruction;
-import instruction.AndInstruction;
-import instruction.BeqInstruction;
-import instruction.BneInstruction;
-import instruction.Instruction;
-import instruction.JumpInstruction;
-import instruction.LiInstruction;
-import instruction.LwInstruction;
-import instruction.NorInstruction;
-import instruction.OrInstruction;
-import instruction.SubInstruction;
-import instruction.SwInstruction;
-import instruction.XorInstruction;
+import instruction.*;
 
 /**
  * アセンブリ風の文字列をInstructionに変換するパーサ。
@@ -95,6 +82,9 @@ public class InstructionParser {
             case "or" -> parseOr(operands, line);
             case "xor" -> parseXor(operands, line);
             case "nor" -> parseNor(operands, line);
+            case "andi" -> parseAndi(operands, line);
+            case "ori" -> parseOri(operands, line);
+            case "xori" -> parseXori(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -337,6 +327,63 @@ public class InstructionParser {
         int right = parseRegister(operands[2]);
 
         return new NorInstruction(dest, left, right);
+    }
+
+    /**
+     * andi命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return AndiInstruction
+     */
+    private Instruction parseAndi(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("andiのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseImmediate(operands[2]);
+
+        return new AndiInstruction(dest, left, right);
+    }
+
+    /**
+     * ori命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return OriInstruction
+     */
+    private Instruction parseOri(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("oriのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseImmediate(operands[2]);
+
+        return new OriInstruction(dest, left, right);
+    }
+
+    /**
+     * xori命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return XoriInstruction
+     */
+    private Instruction parseXori(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("xoriのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseImmediate(operands[2]);
+
+        return new XoriInstruction(dest, left, right);
     }
 
     /**
