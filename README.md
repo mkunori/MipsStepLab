@@ -74,47 +74,21 @@ parser/
 └─ InstructionParser
 ```
 
-## クラス構成
+## 全体構成図
 ```mermaid
 classDiagram
-  class MSLMain
-  class Cpu
-  class Instruction
-  class LiInstruction
-  class AddInstruction
-  class AddiInstruction
-  class SubInstruction
-  class BeqInstruction
-  class BneInstruction
-  class JumpInstruction
-  class SwInstruction
-  class LwInstruction
-  class AndInstruction
-  class OrInstruction
-  class XorInstruction
-  class NorInstruction
+    class MSLMain
+    class Cpu
+    class Instruction
+    class InstructionParser
+    class RegisterNames
 
-  Instruction <|.. LiInstruction : implements
-  Instruction <|.. AddInstruction : implements
-  Instruction <|.. AddiInstruction : implements
-  Instruction <|.. SubInstruction : implements
-  Instruction <|.. BeqInstruction : implements
-  Instruction <|.. BneInstruction : implements
-  Instruction <|.. JumpInstruction : implements
-  Instruction <|.. SwInstruction : implements
-  Instruction <|.. LwInstruction : implements
-  Instruction <|.. AndInstruction : implements
-  Instruction <|.. OrInstruction : implements
-  Instruction <|.. XorInstruction : implements
-  Instruction <|.. NorInstruction : implements
-
-  MSLMain --> InstructionParser : parses
-  MSLMain --> Cpu : controls
-  MSLMain --> Instruction : executes
-
-  Instruction --> Cpu : modifies state
-  InstructionParser --> Instruction : creates
-  InstructionParser --> RegisterNames : uses
+    MSLMain --> InstructionParser : parses
+    MSLMain --> Cpu : controls
+    MSLMain --> Instruction : executes
+    Instruction --> Cpu : modifies state
+    InstructionParser --> Instruction : creates
+    InstructionParser --> RegisterNames : uses
 ```
 
 ## 設計のポイント
