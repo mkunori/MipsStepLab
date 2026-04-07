@@ -8,7 +8,7 @@ import cpu.RegisterNames;
  * 
  * base + offset で求めたメモリ位置から値を読み込み、レジスタへ格納する。
  * 
- * 例
+ * 例:
  * {@code sw $t0, 4($t1)}
  * メモリ位置 {@code $t1 + 4} の値を {@code $t0} に読み込む。
  */

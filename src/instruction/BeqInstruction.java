@@ -8,7 +8,7 @@ import cpu.RegisterNames;
  * 
  * 2つのレジスタ値が等しい場合に、指定のPCへ分岐する。
  * 
- * 例
+ * 例:
  * {@code beq $t0, $t1, 5}
  * {@code $t0} と {@code $t1} が等しい場合 PC=5 へ分岐する。
  */

@@ -9,7 +9,7 @@ import cpu.RegisterNames;
  * 2つのレジスタの値を加算し、
  * その結果を別のレジスタへ格納する。
  * 
- * 例
+ * 例:
  * {@code add $t2, $t0, $t1}
  * {@code $t0 + $t1} の結果を {@code $t2} に格納している。
  */

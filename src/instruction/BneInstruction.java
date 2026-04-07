@@ -8,7 +8,7 @@ import cpu.RegisterNames;
  * 
  * 2つのレジスタ値が等しくない場合に、指定のPCへ分岐する。
  * 
- * 例
+ * 例:
  * {@code bne $t0, $t1, loop}
  * {@code $t0} と {@code $t1} が異なる場合、ラベル {@code loop} に対応する位置へ分岐する。
  */

@@ -4,7 +4,7 @@ import cpu.Cpu;
 
 /**
  * j(jump)命令を表すクラス。
- *
+ * 
  * 指定したPCへ無条件にジャンプする。
  */
 public class JumpInstruction implements Instruction {

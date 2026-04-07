@@ -8,7 +8,7 @@ import cpu.RegisterNames;
  * 
  * レジスタの値を、base + offset で求めたメモリ位置へ格納する。
  * 
- * 例
+ * 例:
  * {@code sw $t0, 4($t1)}
  * {@code $t0} の値をメモリ位置 {@code $t1 + 4} に格納している。
  */

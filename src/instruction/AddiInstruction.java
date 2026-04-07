@@ -8,7 +8,7 @@ import cpu.RegisterNames;
  * 
  * レジスタの値に即値を加算し、その結果をレジスタへ格納する。
  * 
- * 例
+ * 例:
  * {@code addi $t3, $t2, 5}
  * {@code $t2 + 5} の結果を {@code $t3} に格納している。
  */

@@ -5,10 +5,10 @@ import cpu.RegisterNames;
 
 /**
  * and命令を表すクラス。
- *
+ * 
  * 2つのレジスタの値に対してビット単位のAND演算を行い、
  * 結果を指定したレジスタへ格納する。
- *
+ * 
  * 例:
  * {@code and $t0, $t1, $t2}
  * {@code $t1} と {@code $t2} のAND演算結果を {@code $t0} に格納する。

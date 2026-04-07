@@ -9,7 +9,7 @@ import cpu.RegisterNames;
  * 2つのレジスタの値を減算し、
  * その結果を別のレジスタへ格納する。
  * 
- * 例
+ * 例:
  * {@code sub $t3, $t2, $t0}
  * {@code $t2 - $t0} の結果を {@code $t3} に格納している。
  */
