@@ -85,6 +85,9 @@ public class InstructionParser {
             case "andi" -> parseAndi(operands, line);
             case "ori" -> parseOri(operands, line);
             case "xori" -> parseXori(operands, line);
+            case "sll" -> parseSll(operands, line);
+            case "srl" -> parseSrl(operands, line);
+            case "sra" -> parseSra(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -384,6 +387,63 @@ public class InstructionParser {
         int right = parseImmediate(operands[2]);
 
         return new XoriInstruction(dest, left, right);
+    }
+
+    /**
+     * sll命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SllInstruction
+     */
+    private Instruction parseSll(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("sllのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int src = parseRegister(operands[1]);
+        int shift = parseImmediate(operands[2]);
+
+        return new SllInstruction(dest, src, shift);
+    }
+
+    /**
+     * srl命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SrlInstruction
+     */
+    private Instruction parseSrl(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("srlのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int src = parseRegister(operands[1]);
+        int shift = parseImmediate(operands[2]);
+
+        return new SrlInstruction(dest, src, shift);
+    }
+
+    /**
+     * sra命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SraInstruction
+     */
+    private Instruction parseSra(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("sraのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int src = parseRegister(operands[1]);
+        int shift = parseImmediate(operands[2]);
+
+        return new SraInstruction(dest, src, shift);
     }
 
     /**

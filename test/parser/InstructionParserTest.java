@@ -9,21 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import cpu.Cpu;
-import instruction.AddiInstruction;
-import instruction.AndInstruction;
-import instruction.AndiInstruction;
-import instruction.BeqInstruction;
-import instruction.BneInstruction;
-import instruction.Instruction;
-import instruction.JumpInstruction;
-import instruction.LiInstruction;
-import instruction.LwInstruction;
-import instruction.NorInstruction;
-import instruction.OrInstruction;
-import instruction.OriInstruction;
-import instruction.SwInstruction;
-import instruction.XorInstruction;
-import instruction.XoriInstruction;
+import instruction.*;
 
 /**
  * InstructionParserクラスのテスト。
@@ -337,6 +323,69 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(6, cpu.getRegister(9));
+    }
+
+    /**
+     * sll命令を正しくパースできることを確認する。
+     */
+    @Test
+    void sll命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sll $t1, $t0, 2"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SllInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 3);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(12, cpu.getRegister(9));
+    }
+
+    /**
+     * srl命令を正しくパースできることを確認する。
+     */
+    @Test
+    void srl命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "srl $t1, $t0, 2"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SrlInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 12);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(3, cpu.getRegister(9));
+    }
+
+    /**
+     * sra命令を正しくパースできることを確認する。
+     */
+    @Test
+    void sra命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sra $t1, $t0, 2"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SraInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -8);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-2, cpu.getRegister(9));
     }
 
     /**
