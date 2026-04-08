@@ -1,0 +1,60 @@
+package instruction;
+
+import cpu.Cpu;
+import cpu.RegisterNames;
+
+/**
+ * slt(set on less than)命令を表すクラス。
+ * 
+ * 2つのレジスタの値を比較し、
+ * 左辺が右辺より小さい場合は1、
+ * そうでない場合は0を指定したレジスタへ格納する。
+ * 
+ * 例:
+ * {@code slt $t0, $t1, $t2}
+ * {@code $t1 < $t2} なら {@code $t0 = 1}、
+ * そうでなければ {@code $t0 = 0} となる。
+ */
+public class SltInstruction implements Instruction {
+
+    /** 結果の書き込み先レジスタ番号 */
+    private final int destRegister;
+
+    /** 比較する左辺レジスタ番号 */
+    private final int leftRegister;
+
+    /** 比較する右辺レジスタ番号 */
+    private final int rightRegister;
+
+    /**
+     * slt命令を生成する。
+     *
+     * @param destRegister  結果の書き込み先レジスタ番号
+     * @param leftRegister  比較する左辺レジスタ番号
+     * @param rightRegister 比較する右辺レジスタ番号
+     */
+    public SltInstruction(int destRegister, int leftRegister, int rightRegister) {
+        this.destRegister = destRegister;
+        this.leftRegister = leftRegister;
+        this.rightRegister = rightRegister;
+    }
+
+    @Override
+    public void execute(Cpu cpu) {
+        int leftValue = cpu.getRegister(leftRegister);
+        int rightValue = cpu.getRegister(rightRegister);
+        int result = (leftValue < rightValue) ? 1 : 0;
+
+        cpu.setRegister(destRegister, result);
+    }
+
+    @Override
+    public String toAssembly() {
+        return "slt "
+                + RegisterNames.getName(destRegister)
+                + ", "
+                + RegisterNames.getName(leftRegister)
+                + ", "
+                + RegisterNames.getName(rightRegister);
+    }
+}

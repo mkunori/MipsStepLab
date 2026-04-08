@@ -88,6 +88,8 @@ public class InstructionParser {
             case "sll" -> parseSll(operands, line);
             case "srl" -> parseSrl(operands, line);
             case "sra" -> parseSra(operands, line);
+            case "slt" -> parseSlt(operands, line);
+            case "slti" -> parseSlti(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -444,6 +446,44 @@ public class InstructionParser {
         int shift = parseImmediate(operands[2]);
 
         return new SraInstruction(dest, src, shift);
+    }
+
+    /**
+     * slt命令を解析する。
+     *
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SltInstruction
+     */
+    private Instruction parseSlt(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("sltのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseRegister(operands[2]);
+
+        return new SltInstruction(dest, left, right);
+    }
+
+    /**
+     * slti命令を解析する。
+     *
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SltiInstruction
+     */
+    private Instruction parseSlti(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("sltiのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int src = parseRegister(operands[1]);
+        int imm = parseImmediate(operands[2]);
+
+        return new SltiInstruction(dest, src, imm);
     }
 
     /**

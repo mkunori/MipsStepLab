@@ -389,6 +389,49 @@ class InstructionParserTest {
     }
 
     /**
+     * slt命令を正しくパースできることを確認する。
+     */
+    @Test
+    void slt命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "slt $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SltInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 3);
+        cpu.setRegister(9, 5);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(1, cpu.getRegister(10));
+    }
+
+    /**
+     * slti命令を正しくパースできることを確認する。
+     */
+    @Test
+    void slti命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "slti $t1, $t0, 5"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SltiInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 3);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(1, cpu.getRegister(9));
+    }
+
+    /**
      * ラベル付き命令を正しくパースできることを確認する。
      */
     @Test
