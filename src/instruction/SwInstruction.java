@@ -55,7 +55,7 @@ public class SwInstruction implements Instruction {
      * 
      * @return 書き込み元のレジスタ番号
      */
-    public int getSourceRegister() {
+    public int getSrcRegister() {
         return srcRegister;
     }
 

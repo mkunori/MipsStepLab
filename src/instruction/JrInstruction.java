@@ -11,15 +11,15 @@ import cpu.RegisterNames;
 public class JrInstruction implements Instruction {
 
     /** ジャンプ先を保持するレジスタ番号 */
-    private final int sourceRegister;
+    private final int srcRegister;
 
     /**
      * jr命令を生成する。
      * 
-     * @param sourceRegister ジャンプ先PCを保持するレジスタ番号
+     * @param srcRegister ジャンプ先PCを保持するレジスタ番号
      */
-    public JrInstruction(int sourceRegister) {
-        this.sourceRegister = sourceRegister;
+    public JrInstruction(int srcRegister) {
+        this.srcRegister = srcRegister;
     }
 
     /**
@@ -27,18 +27,18 @@ public class JrInstruction implements Instruction {
      * 
      * @return レジスタ番号
      */
-    public int getSourceRegister() {
-        return sourceRegister;
+    public int getSrcRegister() {
+        return srcRegister;
     }
 
     @Override
     public void execute(Cpu cpu) {
-        int targetPc = cpu.getRegister(sourceRegister);
+        int targetPc = cpu.getRegister(srcRegister);
         cpu.setPc(targetPc);
     }
 
     @Override
     public String toAssembly() {
-        return "jr " + RegisterNames.getName(sourceRegister);
+        return "jr " + RegisterNames.getName(srcRegister);
     }
 }
