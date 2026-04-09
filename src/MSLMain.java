@@ -156,7 +156,7 @@ public class MSLMain {
     }
 
     /**
-     * and / or / xor / andi / nor の動作確認用サンプルを返す。
+     * and / or / xor / nor / andi / ori / xori の動作確認用サンプルを返す。
      * 
      * @return 論理サンプル
      */
@@ -169,6 +169,8 @@ public class MSLMain {
                 "or $t3, $t0, $t1",
                 "xor $t4, $t0, $t1",
                 "nor $t2, $t0, $t1",
-                "andi $t3, $t0, 6");
+                "andi $t3, $t0, 6",
+                "ori $t4, $t0, 3",
+                "xori $t2, $t0, 7");
     }
 }

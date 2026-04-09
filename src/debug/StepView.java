@@ -17,9 +17,11 @@ import instruction.JumpInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
+import instruction.OriInstruction;
 import instruction.SubInstruction;
 import instruction.SwInstruction;
 import instruction.XorInstruction;
+import instruction.XoriInstruction;
 
 /**
  * ステップ実行時の表示を担当するクラス。
@@ -259,6 +261,26 @@ public class StepView {
             System.out.println("logic: " + destName + " = " + srcName
                     + " & " + andiInstruction.getImmediateValue());
             System.out.println("result: " + cpu.getRegister(andiInstruction.getDestRegister()));
+            return;
+        }
+
+        if (instruction instanceof OriInstruction oriInstruction) {
+            String destName = RegisterNames.getName(oriInstruction.getDestRegister());
+            String srcName = RegisterNames.getName(oriInstruction.getSrcRegister());
+
+            System.out.println("logic: " + destName + " = " + srcName
+                    + " | " + oriInstruction.getImmediateValue());
+            System.out.println("result: " + cpu.getRegister(oriInstruction.getDestRegister()));
+            return;
+        }
+
+        if (instruction instanceof XoriInstruction xoriInstruction) {
+            String destName = RegisterNames.getName(xoriInstruction.getDestRegister());
+            String srcName = RegisterNames.getName(xoriInstruction.getSrcRegister());
+
+            System.out.println("logic: " + destName + " = " + srcName
+                    + " ^ " + xoriInstruction.getImmediateValue());
+            System.out.println("result: " + cpu.getRegister(xoriInstruction.getDestRegister()));
             return;
         }
 

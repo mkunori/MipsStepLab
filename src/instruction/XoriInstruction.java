@@ -53,4 +53,31 @@ public class XoriInstruction implements Instruction {
                 + ", "
                 + immediateValue;
     }
+
+    /**
+     * 結果を書き込む先のレジスタ番号を取得する。
+     * 
+     * @return 結果を書き込む先のレジスタ番号
+     */
+    public int getDestRegister() {
+        return destRegister;
+    }
+
+    /**
+     * XOR元のレジスタ番号を取得する。
+     * 
+     * @return XOR元のレジスタ番号
+     */
+    public int getSrcRegister() {
+        return srcRegister;
+    }
+
+    /**
+     * XORする即値を取得する。
+     * 
+     * @return XORする即値
+     */
+    public int getImmediateValue() {
+        return immediateValue;
+    }
 }
