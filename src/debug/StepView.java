@@ -4,7 +4,22 @@ import java.util.List;
 
 import cpu.Cpu;
 import cpu.RegisterNames;
-import instruction.*;
+import instruction.AddInstruction;
+import instruction.AddiInstruction;
+import instruction.AndInstruction;
+import instruction.AndiInstruction;
+import instruction.BeqInstruction;
+import instruction.BneInstruction;
+import instruction.Instruction;
+import instruction.JalInstruction;
+import instruction.JrInstruction;
+import instruction.JumpInstruction;
+import instruction.LwInstruction;
+import instruction.NorInstruction;
+import instruction.OrInstruction;
+import instruction.SubInstruction;
+import instruction.SwInstruction;
+import instruction.XorInstruction;
 
 /**
  * ステップ実行時の表示を担当するクラス。
@@ -194,6 +209,56 @@ public class StepView {
 
             System.out.println("arithmetic: " + destName + " = " + leftName + " - " + rightName);
             System.out.println("result: " + cpu.getRegister(subInstruction.getDestRegister()));
+            return;
+        }
+
+        if (instruction instanceof AndInstruction andInstruction) {
+            String destName = RegisterNames.getName(andInstruction.getDestRegister());
+            String leftName = RegisterNames.getName(andInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(andInstruction.getRightRegister());
+
+            System.out.println("logic: " + destName + " = " + leftName + " & " + rightName);
+            System.out.println("result: " + cpu.getRegister(andInstruction.getDestRegister()));
+            return;
+        }
+
+        if (instruction instanceof OrInstruction orInstruction) {
+            String destName = RegisterNames.getName(orInstruction.getDestRegister());
+            String leftName = RegisterNames.getName(orInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(orInstruction.getRightRegister());
+
+            System.out.println("logic: " + destName + " = " + leftName + " | " + rightName);
+            System.out.println("result: " + cpu.getRegister(orInstruction.getDestRegister()));
+            return;
+        }
+
+        if (instruction instanceof XorInstruction xorInstruction) {
+            String destName = RegisterNames.getName(xorInstruction.getDestRegister());
+            String leftName = RegisterNames.getName(xorInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(xorInstruction.getRightRegister());
+
+            System.out.println("logic: " + destName + " = " + leftName + " ^ " + rightName);
+            System.out.println("result: " + cpu.getRegister(xorInstruction.getDestRegister()));
+            return;
+        }
+
+        if (instruction instanceof NorInstruction norInstruction) {
+            String destName = RegisterNames.getName(norInstruction.getDestRegister());
+            String leftName = RegisterNames.getName(norInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(norInstruction.getRightRegister());
+
+            System.out.println("logic: " + destName + " = ~(" + leftName + " | " + rightName + ")");
+            System.out.println("result: " + cpu.getRegister(norInstruction.getDestRegister()));
+            return;
+        }
+
+        if (instruction instanceof AndiInstruction andiInstruction) {
+            String destName = RegisterNames.getName(andiInstruction.getDestRegister());
+            String srcName = RegisterNames.getName(andiInstruction.getSrcRegister());
+
+            System.out.println("logic: " + destName + " = " + srcName
+                    + " & " + andiInstruction.getImmediateValue());
+            System.out.println("result: " + cpu.getRegister(andiInstruction.getDestRegister()));
             return;
         }
 

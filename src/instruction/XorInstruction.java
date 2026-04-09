@@ -27,7 +27,7 @@ public class XorInstruction implements Instruction {
     /**
      * xor命令を生成する。
      * 
-     * @param destRegister  結果の書き込み先レジスタ番号
+     * @param destRegister  結果を書き込む先のレジスタ番号
      * @param leftRegister  1つ目の入力レジスタ番号
      * @param rightRegister 2つ目の入力レジスタ番号
      */
@@ -54,5 +54,32 @@ public class XorInstruction implements Instruction {
                 + RegisterNames.getName(leftRegister)
                 + ", "
                 + RegisterNames.getName(rightRegister);
+    }
+
+    /**
+     * 結果を書き込む先のレジスタ番号を取得する。
+     * 
+     * @return 結果を書き込む先のレジスタ番号
+     */
+    public int getDestRegister() {
+        return destRegister;
+    }
+
+    /**
+     * 1つ目の入力レジスタ番号を取得する。
+     * 
+     * @return 1つ目の入力レジスタ番号
+     */
+    public int getLeftRegister() {
+        return leftRegister;
+    }
+
+    /**
+     * 2つ目の入力レジスタ番号を取得する。
+     * 
+     * @return 2つ目の入力レジスタ番号
+     */
+    public int getRightRegister() {
+        return rightRegister;
     }
 }

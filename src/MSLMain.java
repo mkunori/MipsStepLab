@@ -27,7 +27,8 @@ public class MSLMain {
         // List<String> source = createBranchSample();
         // List<String> source = createMemorySample();
         // List<String> source = createCallSample();
-        List<String> source = createArithmeticSample();
+        // List<String> source = createArithmeticSample();
+        List<String> source = createLogicSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -152,5 +153,22 @@ public class MSLMain {
                 "add $t2, $t0, $t1",
                 "sub $t3, $t0, $t1",
                 "addi $t4, $t1, 7");
+    }
+
+    /**
+     * and / or / xor / andi / nor の動作確認用サンプルを返す。
+     * 
+     * @return 論理サンプル
+     */
+    private static List<String> createLogicSample() {
+        return List.of(
+                "# 論理サンプル",
+                "li $t0, 10",
+                "li $t1, 5",
+                "and $t2, $t0, $t1",
+                "or $t3, $t0, $t1",
+                "xor $t4, $t0, $t1",
+                "nor $t2, $t0, $t1",
+                "andi $t3, $t0, 6");
     }
 }

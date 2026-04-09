@@ -53,4 +53,31 @@ public class AndiInstruction implements Instruction {
                 + ", "
                 + immediateValue;
     }
+
+    /**
+     * 結果を書き込む先のレジスタ番号を取得する。
+     * 
+     * @return 結果を書き込む先のレジスタ番号
+     */
+    public int getDestRegister() {
+        return destRegister;
+    }
+
+    /**
+     * AND元のレジスタ番号を取得する。
+     * 
+     * @return AND元のレジスタ番号
+     */
+    public int getSrcRegister() {
+        return srcRegister;
+    }
+
+    /**
+     * ANDする即値を取得する。
+     * 
+     * @return ANDする即値
+     */
+    public int getImmediateValue() {
+        return immediateValue;
+    }
 }
