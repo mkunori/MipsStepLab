@@ -56,4 +56,31 @@ public class SltiInstruction implements Instruction {
                 + ", "
                 + immediateValue;
     }
+
+    /**
+     * 結果の書き込み先レジスタ番号を取得する。
+     *
+     * @return 結果の書き込み先レジスタ番号
+     */
+    public int getDestRegister() {
+        return destRegister;
+    }
+
+    /**
+     * 比較するレジスタ番号を取得する。
+     *
+     * @return 比較するレジスタ番号
+     */
+    public int getSrcRegister() {
+        return srcRegister;
+    }
+
+    /**
+     * 比較する即値を取得する。
+     *
+     * @return 比較する即値
+     */
+    public int getImmediateValue() {
+        return immediateValue;
+    }
 }

@@ -57,4 +57,31 @@ public class SltInstruction implements Instruction {
                 + ", "
                 + RegisterNames.getName(rightRegister);
     }
+
+    /**
+     * 結果の書き込み先レジスタ番号を取得する。
+     *
+     * @return 結果の書き込み先レジスタ番号
+     */
+    public int getDestRegister() {
+        return destRegister;
+    }
+
+    /**
+     * 比較する左辺レジスタ番号を取得する。
+     *
+     * @return 比較する左辺レジスタ番号
+     */
+    public int getLeftRegister() {
+        return leftRegister;
+    }
+
+    /**
+     * 比較する右辺レジスタ番号を取得する。
+     *
+     * @return 比較する右辺レジスタ番号
+     */
+    public int getRightRegister() {
+        return rightRegister;
+    }
 }

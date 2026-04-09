@@ -18,6 +18,8 @@ import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
+import instruction.SltInstruction;
+import instruction.SltiInstruction;
 import instruction.SubInstruction;
 import instruction.SwInstruction;
 import instruction.XorInstruction;
@@ -122,6 +124,10 @@ public class StepView {
         }
 
         if (printLogicEvent(instruction, cpu)) {
+            return;
+        }
+
+        if (printComparisonEvent(instruction, cpu)) {
             return;
         }
 
@@ -344,6 +350,37 @@ public class StepView {
             System.out.println("logic: " + destName + " = " + srcName
                     + " ^ " + xoriInstruction.getImmediateValue());
             System.out.println("result: " + cpu.getRegister(xoriInstruction.getDestRegister()));
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 比較命令系のイベントを表示する。
+     *
+     * @param instruction 命令
+     * @param cpu         CPU
+     * @return 対応するイベントがあれば true
+     */
+    private boolean printComparisonEvent(Instruction instruction, Cpu cpu) {
+        if (instruction instanceof SltInstruction sltInstruction) {
+            String destName = RegisterNames.getName(sltInstruction.getDestRegister());
+            String leftName = RegisterNames.getName(sltInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(sltInstruction.getRightRegister());
+
+            System.out.println("compare: " + destName + " = (" + leftName + " < " + rightName + ")");
+            System.out.println("result: " + cpu.getRegister(sltInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof SltiInstruction sltiInstruction) {
+            String destName = RegisterNames.getName(sltiInstruction.getDestRegister());
+            String srcName = RegisterNames.getName(sltiInstruction.getSrcRegister());
+
+            System.out.println("compare: " + destName + " = (" + srcName + " < "
+                    + sltiInstruction.getImmediateValue() + ")");
+            System.out.println("result: " + cpu.getRegister(sltiInstruction.getDestRegister()));
             return true;
         }
 

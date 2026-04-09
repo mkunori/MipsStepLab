@@ -28,7 +28,8 @@ public class MSLMain {
         // List<String> source = createMemorySample();
         // List<String> source = createCallSample();
         // List<String> source = createArithmeticSample();
-        List<String> source = createLogicSample();
+        // List<String> source = createLogicSample();
+        List<String> source = createComparisonSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -172,5 +173,20 @@ public class MSLMain {
                 "andi $t3, $t0, 6",
                 "ori $t4, $t0, 3",
                 "xori $t2, $t0, 7");
+    }
+
+    /**
+     * slt / slti の動作確認用サンプルを返す。
+     * 
+     * @return 比較サンプル
+     */
+    private static List<String> createComparisonSample() {
+        return List.of(
+                "# 比較サンプル",
+                "li $t0, 3",
+                "li $t1, 5",
+                "slt $t2, $t0, $t1",
+                "slti $t3, $t0, 2",
+                "slti $t4, $t0, 5");
     }
 }
