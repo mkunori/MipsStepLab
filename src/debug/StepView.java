@@ -86,6 +86,8 @@ public class StepView {
     /**
      * PC変化イベントを表示する。
      * 
+     * $ra を使う場合は、関数からの戻りとして扱う。
+     * 
      * @param instruction 命令
      * @param cpu         CPU
      * @param oldPc       実行前PC
@@ -98,8 +100,16 @@ public class StepView {
             return;
         }
 
-        if (instruction instanceof JrInstruction) {
-            System.out.println("return: jump to register target");
+        if (instruction instanceof JrInstruction jrInstruction) {
+            int registerIndex = jrInstruction.getSourceRegister();
+            String registerName = RegisterNames.getName(registerIndex);
+
+            if ("$ra".equals(registerName)) {
+                System.out.println("return: jump to $ra");
+            } else {
+                System.out.println("jump register: " + registerName);
+            }
+
             System.out.println("jump to: PC " + newPc);
             return;
         }
