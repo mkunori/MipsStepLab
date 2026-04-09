@@ -25,8 +25,8 @@ public class MSLMain {
         // 実行するサンプルを選ぶ
         // List<String> source = createFullSample();
         // List<String> source = createBranchSample();
-        // List<String> source = createMemorySample();
-        List<String> source = createCallSample();
+        List<String> source = createMemorySample();
+        // List<String> source = createCallSample();
 
         List<Instruction> program = parser.parse(source);
 

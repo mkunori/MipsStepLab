@@ -9,7 +9,7 @@ import cpu.RegisterNames;
  * base + offset で求めたメモリ位置から値を読み込み、レジスタへ格納する。
  * 
  * 例:
- * {@code sw $t0, 4($t1)}
+ * {@code lw $t0, 4($t1)}
  * メモリ位置 {@code $t1 + 4} の値を {@code $t0} に読み込む。
  */
 public class LwInstruction implements Instruction {
@@ -48,5 +48,32 @@ public class LwInstruction implements Instruction {
         return "lw " + RegisterNames.getName(destRegister)
                 + ", " + offset
                 + "(" + RegisterNames.getName(baseRegister) + ")";
+    }
+
+    /**
+     * 読み込み先のレジスタ番号を取得する。
+     * 
+     * @return 読み込み先のレジスタ番号
+     */
+    public int getDestRegister() {
+        return destRegister;
+    }
+
+    /**
+     * ベースレジスタ番号を取得する。
+     * 
+     * @return ベースレジスタ番号
+     */
+    public int getBaseRegister() {
+        return baseRegister;
+    }
+
+    /**
+     * オフセット値を取得する。
+     * 
+     * @return オフセット値
+     */
+    public int getOffset() {
+        return offset;
     }
 }

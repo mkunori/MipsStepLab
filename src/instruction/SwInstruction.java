@@ -49,4 +49,31 @@ public class SwInstruction implements Instruction {
                 + ", " + offset
                 + "(" + RegisterNames.getName(baseRegister) + ")";
     }
+
+    /**
+     * 書き込み元のレジスタ番号を取得する。
+     * 
+     * @return 書き込み元のレジスタ番号
+     */
+    public int getSourceRegister() {
+        return srcRegister;
+    }
+
+    /**
+     * ベースレジスタ番号を取得する。
+     * 
+     * @return ベースレジスタ番号
+     */
+    public int getBaseRegister() {
+        return baseRegister;
+    }
+
+    /**
+     * オフセット値を取得する。
+     * 
+     * @return オフセット値
+     */
+    public int getOffset() {
+        return offset;
+    }
 }

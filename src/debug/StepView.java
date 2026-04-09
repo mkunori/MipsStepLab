@@ -140,6 +140,33 @@ public class StepView {
             return;
         }
 
+        if (instruction instanceof LwInstruction lwInstruction) {
+            int targetRegister = lwInstruction.getDestRegister();
+            int baseRegister = lwInstruction.getBaseRegister();
+            int offset = lwInstruction.getOffset();
+
+            int address = cpu.getRegister(baseRegister) + offset;
+            String targetName = RegisterNames.getName(targetRegister);
+
+            System.out.println("load word: " + targetName + " = mem[" + address + "]");
+            System.out.println("loaded value: " + cpu.getRegister(targetRegister));
+            return;
+        }
+
+        if (instruction instanceof SwInstruction swInstruction) {
+            int sourceRegister = swInstruction.getSourceRegister();
+            int baseRegister = swInstruction.getBaseRegister();
+            int offset = swInstruction.getOffset();
+
+            int address = cpu.getRegister(baseRegister) + offset;
+            String sourceName = RegisterNames.getName(sourceRegister);
+
+            System.out.println("store word: mem[" + address + "] = " + cpu.loadWord(address));
+            System.out.println(
+                    "stored from: " + sourceName + " (" + cpu.getRegister(swInstruction.getSourceRegister()) + ")");
+            return;
+        }
+
         if (newPc != oldPc + 1) {
             System.out.println("PC changed: " + oldPc + " -> " + newPc);
         } else {
