@@ -54,6 +54,20 @@ loop: addi $t0, $t0, -1
 li $t0, 10 # 初期値
 ```
 
+## 関数呼び出しデモ
+```text
+main:
+  addi $t0, $zero, 10
+  jal func
+  j end
+
+func:
+  addi $t0, $t0, 5
+  jr $ra
+
+end:
+```
+
 ## パッケージ構成
 ```text
 MSLMain
