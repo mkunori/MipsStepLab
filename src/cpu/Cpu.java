@@ -33,10 +33,17 @@ public class Cpu {
     /**
      * MIPSのプログラムカウンタ。
      * 
-     * 一旦は実メモリアドレスではなく、
+     * 実メモリアドレスではなく、
      * 「何番目の命令を実行しているか」を表す番号として扱う。
      */
     private int pc;
+
+    /**
+     * 命令実行中にPCが明示的に変更されたかどうか。
+     * 
+     * 分岐命令やジャンプ命令では true になる。
+     */
+    private boolean pcChanged;
 
     /**
      * レジスタの値を取得する。
@@ -107,7 +114,9 @@ public class Cpu {
         if (pc < 0) {
             throw new IllegalArgumentException("PCは0以上で指定してください: " + pc);
         }
+
         this.pc = pc;
+        this.pcChanged = true;
     }
 
     /**
@@ -123,12 +132,13 @@ public class Cpu {
      * @param instruction 実行する命令
      */
     public void execute(Instruction instruction) {
-        int oldPc = pc;
+        pcChanged = false;
+
         instruction.execute(this);
 
         // 分岐・ジャンプ命令向け対応。
         // 命令実行中にPCが変更されなかった場合のみ、自動で次の命令へ進める。
-        if (pc == oldPc) {
+        if (!pcChanged) {
             incrementPc();
         }
     }

@@ -175,6 +175,51 @@ class InstructionParserTest {
     }
 
     /**
+     * jal命令でラベルを正しく解決できることを確認する。
+     */
+    @Test
+    void jal命令でラベルを解決できる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "jal func",
+                "li $v0, 0",
+                "func: li $v0, 1"));
+
+        assertEquals(3, program.size());
+        assertInstanceOf(JalInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setPc(0);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(1, cpu.getRegister(31));
+        assertEquals(2, cpu.getPc());
+    }
+
+    /**
+     * jr命令を正しくパースできることを確認する。
+     */
+    @Test
+    void jr命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "jr $ra"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(JrInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(31, 5);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(5, cpu.getPc());
+    }
+
+    /**
      * and命令を正しくパースできることを確認する。
      */
     @Test

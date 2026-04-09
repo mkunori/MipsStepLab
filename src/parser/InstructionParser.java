@@ -76,6 +76,8 @@ public class InstructionParser {
             case "beq" -> parseBeq(operands, line, labels);
             case "bne" -> parseBne(operands, line, labels);
             case "j" -> parseJump(operands, line, labels);
+            case "jal" -> parseJal(operands, line, labels);
+            case "jr" -> parseJr(operands, line);
             case "lw" -> parseLw(operands, line);
             case "sw" -> parseSw(operands, line);
             case "and" -> parseAnd(operands, line);
@@ -220,6 +222,39 @@ public class InstructionParser {
 
         int targetPc = resolveTarget(operands[0], labels);
         return new JumpInstruction(targetPc);
+    }
+
+    /**
+     * jal命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return JalInstruction
+     */
+    private Instruction parseJal(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 1) {
+            throw new IllegalArgumentException("jalのオペランド数が不正です: " + line);
+        }
+
+        int targetPc = resolveTarget(operands[0], labels);
+        return new JalInstruction(targetPc);
+    }
+
+    /**
+     * jr命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return JrInstruction
+     */
+    private Instruction parseJr(String[] operands, String line) {
+        if (operands.length != 1) {
+            throw new IllegalArgumentException("jrのオペランド数が不正です: " + line);
+        }
+
+        int sourceRegister = parseRegister(operands[0]);
+        return new JrInstruction(sourceRegister);
     }
 
     /**
