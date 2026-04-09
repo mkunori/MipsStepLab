@@ -50,4 +50,31 @@ public class AddiInstruction implements Instruction {
                 + ", " + RegisterNames.getName(srcRegister)
                 + ", " + immediateValue;
     }
+
+    /**
+     * 結果を書き込む先のレジスタ番号を取得する。
+     * 
+     * @return 結果を書き込む先のレジスタ番号
+     */
+    public int getDestRegister() {
+        return destRegister;
+    }
+
+    /**
+     * 加算元のレジスタ番号を取得する。
+     * 
+     * @return 加算元のレジスタ番号
+     */
+    public int getSrcRegister() {
+        return srcRegister;
+    }
+
+    /**
+     * 加算する即値を取得する。
+     * 
+     * @return 加算する即値
+     */
+    public int getImmediate() {
+        return immediateValue;
+    }
 }

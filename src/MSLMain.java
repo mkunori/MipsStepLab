@@ -25,8 +25,9 @@ public class MSLMain {
         // 実行するサンプルを選ぶ
         // List<String> source = createFullSample();
         // List<String> source = createBranchSample();
-        List<String> source = createMemorySample();
+        // List<String> source = createMemorySample();
         // List<String> source = createCallSample();
+        List<String> source = createArithmeticSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -136,5 +137,20 @@ public class MSLMain {
                 "func: addi $t0, $t0, 5",
                 "jr $ra",
                 "end: li $v0, 1");
+    }
+
+    /**
+     * add / sub / addi の動作確認用サンプルを返す。
+     * 
+     * @return 算術サンプル
+     */
+    private static List<String> createArithmeticSample() {
+        return List.of(
+                "# 算術サンプル",
+                "li $t0, 10",
+                "li $t1, 3",
+                "add $t2, $t0, $t1",
+                "sub $t3, $t0, $t1",
+                "addi $t4, $t1, 7");
     }
 }

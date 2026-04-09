@@ -63,7 +63,7 @@ public class StepView {
      * @param cpu CPU
      */
     private void printRegisters(Cpu cpu) {
-        int[] targets = { 0, 2, 8, 9, 10, 11, 31 };
+        int[] targets = { 0, 2, 8, 9, 10, 11, 12, 31 };
 
         for (int index : targets) {
             System.out.println(cpu.formatRegisterAligned(index));
@@ -101,7 +101,7 @@ public class StepView {
         }
 
         if (instruction instanceof JrInstruction jrInstruction) {
-            int registerIndex = jrInstruction.getSourceRegister();
+            int registerIndex = jrInstruction.getSrcRegister();
             String registerName = RegisterNames.getName(registerIndex);
 
             if ("$ra".equals(registerName)) {
@@ -154,16 +154,46 @@ public class StepView {
         }
 
         if (instruction instanceof SwInstruction swInstruction) {
-            int sourceRegister = swInstruction.getSourceRegister();
+            int srcRegister = swInstruction.getSrcRegister();
             int baseRegister = swInstruction.getBaseRegister();
             int offset = swInstruction.getOffset();
 
             int address = cpu.getRegister(baseRegister) + offset;
-            String sourceName = RegisterNames.getName(sourceRegister);
+            String srcName = RegisterNames.getName(srcRegister);
 
             System.out.println("store word: mem[" + address + "] = " + cpu.loadWord(address));
             System.out.println(
-                    "stored from: " + sourceName + " (" + cpu.getRegister(swInstruction.getSourceRegister()) + ")");
+                    "stored from: " + srcName + " (" + cpu.getRegister(swInstruction.getSrcRegister()) + ")");
+            return;
+        }
+
+        if (instruction instanceof AddInstruction addInstruction) {
+            String destName = RegisterNames.getName(addInstruction.getDestRegister());
+            String leftName = RegisterNames.getName(addInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(addInstruction.getRightRegister());
+
+            System.out.println("arithmetic: " + destName + " = " + leftName + " + " + rightName);
+            System.out.println("result: " + cpu.getRegister(addInstruction.getDestRegister()));
+            return;
+        }
+
+        if (instruction instanceof AddiInstruction addiInstruction) {
+            String destName = RegisterNames.getName(addiInstruction.getDestRegister());
+            String srcName = RegisterNames.getName(addiInstruction.getSrcRegister());
+
+            System.out.println("arithmetic: " + destName + " = " + srcName
+                    + " + " + addiInstruction.getImmediate());
+            System.out.println("result: " + cpu.getRegister(addiInstruction.getDestRegister()));
+            return;
+        }
+
+        if (instruction instanceof SubInstruction subInstruction) {
+            String destName = RegisterNames.getName(subInstruction.getDestRegister());
+            String leftName = RegisterNames.getName(subInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(subInstruction.getRightRegister());
+
+            System.out.println("arithmetic: " + destName + " = " + leftName + " - " + rightName);
+            System.out.println("result: " + cpu.getRegister(subInstruction.getDestRegister()));
             return;
         }
 

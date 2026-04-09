@@ -29,12 +29,12 @@ public class SubInstruction implements Instruction {
      * 
      * @param destRegister  結果の書き込み先レジスタ番号
      * @param leftRegister  1つ目のレジスタ番号
-     * @param rightRegisger 2つ目のレジスタ番号
+     * @param rightRegister 2つ目のレジスタ番号
      */
-    public SubInstruction(int destRegister, int leftRegister, int rightRegisger) {
+    public SubInstruction(int destRegister, int leftRegister, int rightRegister) {
         this.destRegister = destRegister;
         this.leftRegister = leftRegister;
-        this.rightRegister = rightRegisger;
+        this.rightRegister = rightRegister;
     }
 
     @Override
@@ -51,5 +51,32 @@ public class SubInstruction implements Instruction {
         return "sub " + RegisterNames.getName(destRegister)
                 + ", " + RegisterNames.getName(leftRegister)
                 + ", " + RegisterNames.getName(rightRegister);
+    }
+
+    /**
+     * 結果の書き込み先レジスタ番号を取得する。
+     * 
+     * @return 結果の書き込み先レジスタ番号
+     */
+    public int getDestRegister() {
+        return destRegister;
+    }
+
+    /**
+     * 1つ目のレジスタ番号を取得する。
+     * 
+     * @return 1つ目のレジスタ番号
+     */
+    public int getLeftRegister() {
+        return leftRegister;
+    }
+
+    /**
+     * 2つ目のレジスタ番号を取得する。
+     * 
+     * @return 2つ目のレジスタ番号
+     */
+    public int getRightRegister() {
+        return rightRegister;
     }
 }
