@@ -1,231 +1,161 @@
 # MipsStepLab
 
-MIPSアセンブリ言語の基本的な命令実行を学習するためにJavaで実装したCPUシミュレータです。  
-アセンブリ文字列のパース、ラベル解決、分岐・ジャンプ命令、メモリ操作の実行を通して、CPUの動作とInterpreterパターンの理解を目的としています。  
+Javaで実装した MIPSアセンブリの簡易シミュレータ兼ステップ実行デバッガです。
 
-## 現在の実装内容
-- レジスタ32本の管理
-- プログラムカウンタ（PC）
-- 簡易メモリ（int配列によるword単位管理）
-- PCに基づく命令フェッチと実行
-- アセンブリ文字列のパース（2パス方式）
-  - ラベル収集
-  - 命令生成
-- ラベルによる分岐・ジャンプ
-- コメント除去（#）
-- 実行ログの出力（PC・命令・レジスタ状態・ジャンプ検知）
-- デバッグログの強化（レジスタとメモリの差分表示）
-- ステップ実行
-- テストコードの作成
+---
 
-## 命令
-| 命令 | 内容 |
-| ---- | ---- |
-| li | レジスタに即値を代入（疑似命令）|
-| add | レジスタ同士の加算 |
-| addi | レジスタ + 即値 |
-| sub | レジスタ同士の減算 |
-| beq | 等しい場合に分岐 |
-| bne | 等しくない場合に分岐 |
-| j | 無条件ジャンプ |
-| sw | レジスタの値をメモリへ書き込み |
-| lw | メモリからレジスタへ書き込み |
-| and | レジスタ同士のビットAND演算 |
-| or | レジスタ同士のビットOR演算 |
-| xor | レジスタ同士のビットXOR演算 |
-| nor | レジスタ同士のビットNOR演算 |
-| andi | レジスタと即値のAND演算 |
-| ori | レジスタと即値のOR演算 |
-| xori | レジスタと即値のXOR演算 |
-| sll | レジスタの左シフト |
-| srl | レジスタの論理右シフト |
-| sra | レジスタの算術右シフト |
-| slt | レジスタ同士の比較 |
-| slti | レジスタと即値の比較 |
+## アプリケーション概要
 
-## 対応している構文
+MIPS風のアセンブリコードを実行し、  
+1命令ずつステップ実行しながら内部状態を可視化できるツールです。
+
+以下の情報を毎ステップ表示します：
+
+- 実行命令
+- レジスタ状態
+- メモリ状態
+- 命令の意味（EVENT）
+- レジスタ・メモリの差分
+- 次に実行される命令
+
+---
+
+## 主な機能
+
+### ステップ実行
+- 1命令ごとの実行
+- PCの遷移表示
+- 次命令の表示
+
+### レジスタ表示
+- 主要レジスタの整形表示
+- 実行前後の差分表示
+
+### メモリ表示
+- 指定範囲（0〜15）のメモリ表示
+- メモリ変更差分の表示
+
+### イベント表示
+命令ごとの動作を人間が理解しやすい形で表示します。
+
+#### 例：
+
 ```text
-ラベル単独行
-loop:
+arithmetic: $t2 = $t0 + $t1
+result: 15
 
-ラベル＋命令（同一行）
-loop: addi $t0, $t0, -1
+logic: $t3 = $t0 | 5
+result: 15
 
-コメント
-li $t0, 10 # 初期値
+load word: $t0 = mem[4]
+loaded value: 10
+
+branch taken: beq matched
+jump to: PC 8
 ```
 
-## 関数呼び出しデモ
-```text
-main:
-  addi $t0, $zero, 10
-  jal func
-  j end
+---
 
-func:
-  addi $t0, $t0, 5
-  jr $ra
+## 対応命令
 
-end:
-```
+### 算術
+- add
+- addi
+- sub
 
-## パッケージ構成
-```text
-MSLMain
+### 論理
+- and
+- or
+- xor
+- nor
+- andi
+- ori
+- xori
 
-cpu/
-├─ Cpu
-└─ RegisterNames
+### 比較
+- slt
+- slti
 
-debug/
-├─ StepRunner
-└─ StepView
+### 分岐・ジャンプ
+- beq
+- bne
+- j
+- jal
+- jr
 
-instruction/
-├─ Instruction
-├─ LiInstruction
-├─ AddInstruction
-├─ AddiInstruction
-├─ SubInstruction
-├─ BeqInstruction
-├─ BneInstruction
-├─ SwInstruction
-├─ LwInstruction
-├─ JumpInstruction
-├─ JalInstruction
-├─ JrInstruction
-├─ AndInstruction
-├─ Ornstruction
-├─ XorInstruction
-├─ NorInstruction
-├─ AndiInstruction
-├─ OriInstruction
-├─ XoriInstruction
-├─ SllInstruction
-├─ SrlInstruction
-├─ SraInstruction
-├─ SltInstruction
-└─ SltiInstruction
+### メモリアクセス
+- lw
+- sw
 
-parser/
-└─ InstructionParser
-```
+---
 
-## 全体構成図
+## 設計
+
+### 構成
+
+| クラス | 役割 |
+|--------|------|
+| Cpu | レジスタ・メモリ管理 |
+| Instruction | 命令インターフェース |
+| InstructionParser | 命令の生成 |
+| StepRunner | 実行制御 |
+| StepView | 表示処理 |
+
+---
+
+### クラス図
+
 ```mermaid
 classDiagram
-    class MSLMain
-    class Cpu
-    class Instruction
-    class InstructionParser
-    class RegisterNames
 
-    MSLMain --> InstructionParser : parses
-    MSLMain --> Cpu : controls
-    MSLMain --> Instruction : executes
-    Instruction --> Cpu : modifies state
-    InstructionParser --> Instruction : creates
-    InstructionParser --> RegisterNames : uses
+class Cpu
+class Instruction
+class InstructionParser
+class StepRunner
+class StepView
+
+Instruction <|.. AddInstruction : implements
+Instruction <|.. SubInstruction : implements
+
+InstructionParser --> Instruction : creates
+StepRunner --> Instruction : executes
+StepRunner --> Cpu : controls
+StepRunner --> StepView : updates view
+StepView --> Cpu : reads state
 ```
 
-## 設計のポイント
-### ■ Interpreterパターン
-Instruction：抽象構文（命令）  
-各命令クラス：具体的な命令  
-Cpu：コンテキスト（状態）  
-execute()：命令の評価処理  
+---
 
-### ■ 2パスParser
-1パス目：ラベルとPCの対応表を作成  
-2パス目：命令オブジェクトを生成  
-これにより、前方参照（後ろに定義されたラベル）にも対応しています。  
-
-### ■ PC主導の実行モデル
-for-eachではなくPCを基準に命令を取得することで、分岐・ジャンプを正しく扱える設計になっています。
-
-### ■ メモリアクセス（簡略化）
-- int[] によるword単位の簡易メモリ
-- アドレスは base + offset で計算
-- 実際のMIPSとは異なり、バイト単位ではなく配列インデックスとして扱う
-
-## 今後の拡張予定（仮）
-
-### ■ 命令セットの拡張
-- 分岐命令の追加
-  - `bgez`, `blez`, `bgtz`, `bltz`
-- その他
-  - `lui`
-- メモリ命令の拡張
-  - `lb`, `sb`, `lh`, `sh`
-- 擬似命令
-  - `move`, `nop` など
-- 将来的に整数命令を一通り網羅
-- 浮動小数点命令は後回し
+## 実装のポイント
+- Interpreterパターンをベースに命令をクラス化
+- ポリモーフィズムによる命令実行
+- 命令ごとのイベント表示
+- レジスタ・メモリの差分表示
 
 ---
 
-### ■ パーサの強化
-- 命令ごとの構文チェックの厳密化
-- エラーメッセージの改善（行番号付き）
-- ラベルの重複定義チェック
-- ラベル名の妥当性検証
-- 擬似命令の内部命令への展開
-- `.data` / `.text` セクション対応
-- データ定義ディレクティブ対応（`.word` など）
+## 実行例
+
+```text
+STEP 3
+PC      : 2
+INSTR   : add $t2, $t0, $t1
+
+EVENT
+arithmetic: $t2 = $t0 + $t1
+result: 15
+
+CHANGES
+$t2 : 0 -> 15
+```
 
 ---
 
-### ■ CPU / メモリモデルの強化
-- byte単位のメモリ管理
-- アラインメントの考慮
-- 命令メモリとデータメモリの分離
-- アドレス空間の整理
-- 不正アクセス時の挙動定義
-- HI / LO レジスタの対応
-- 乗算・除算命令の追加
-
----
-
-### ■ デバッグビューの強化
-- `NEXT` セクションの独立表示
-- 変更があったレジスタの強調表示
-- 変更があったメモリの強調表示
-- 表示対象レジスタの切り替え
-- 表示対象メモリ範囲の切り替え
-- 分岐成立 / 不成立の明示表示
-- 実行ログのファイル出力
-
----
-
-### ■ サンプルプログラムの充実
-- 分岐専用サンプル
-- メモリ専用サンプル
-- ループ処理サンプル
-- 全命令確認用サンプル
-- 配列操作風サンプル
-- 小規模アルゴリズム
-
----
-
-### ■ 設計改善
-- 命令クラスの共通化・整理
-- 分岐命令の共通抽象化
-- CLI表示ロジックの分離
-- サンプル管理の分離
-- Parserの責務分割
-- GUI対応を見据えた構造改善
-
----
-
-### ■ GUI化（将来）
-- レジスタ一覧の表表示
-- メモリ一覧の表表示
-- 現在実行中の命令のハイライト
-- ステップ実行ボタン
-- 連続実行 / 停止機能
-- ソースコード入力欄
-- パースエラー表示
-- 実行状態の可視化（PC・次命令など）
+## 今後の予定
+- slt / slti のイベント表示
+- 命令の追加（mult, div など）
+- ステップ実行機能の強化
+- GUI対応
 
 ---
 
