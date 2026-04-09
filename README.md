@@ -77,6 +77,10 @@ cpu/
 ├─ Cpu
 └─ RegisterNames
 
+debug/
+├─ StepRunner
+└─ StepView
+
 instruction/
 ├─ Instruction
 ├─ LiInstruction

@@ -103,18 +103,49 @@ public class StepView {
     /**
      * PC変化イベントを表示する。
      * 
-     * $ra を使う場合は、関数からの戻りとして扱う。
-     * 
      * @param instruction 命令
      * @param cpu         CPU
      * @param oldPc       実行前PC
      * @param newPc       実行後PC
      */
     private void printEvent(Instruction instruction, Cpu cpu, int oldPc, int newPc) {
+        if (printJumpEvent(instruction, cpu, oldPc, newPc)) {
+            return;
+        }
+
+        if (printMemoryEvent(instruction, cpu)) {
+            return;
+        }
+
+        if (printArithmeticEvent(instruction, cpu)) {
+            return;
+        }
+
+        if (printLogicEvent(instruction, cpu)) {
+            return;
+        }
+
+        if (newPc != oldPc + 1) {
+            System.out.println("PC changed: " + oldPc + " -> " + newPc);
+        } else {
+            System.out.println("sequential execution");
+        }
+    }
+
+    /**
+     * ジャンプ系のPC変化イベントを表示する。
+     * 
+     * @param instruction 命令
+     * @param cpu         CPU
+     * @param oldPc       実行前PC
+     * @param newPc       実行後PC
+     * @return 対応するイベントがあれば true
+     */
+    private boolean printJumpEvent(Instruction instruction, Cpu cpu, int oldPc, int newPc) {
         if (instruction instanceof JalInstruction) {
             System.out.println("call: save return address ($ra = " + cpu.getRegister(31) + ")");
             System.out.println("jump to: PC " + newPc);
-            return;
+            return true;
         }
 
         if (instruction instanceof JrInstruction jrInstruction) {
@@ -128,7 +159,7 @@ public class StepView {
             }
 
             System.out.println("jump to: PC " + newPc);
-            return;
+            return true;
         }
 
         if (instruction instanceof BeqInstruction) {
@@ -138,7 +169,7 @@ public class StepView {
             } else {
                 System.out.println("branch not taken: beq did not match");
             }
-            return;
+            return true;
         }
 
         if (instruction instanceof BneInstruction) {
@@ -148,15 +179,26 @@ public class StepView {
             } else {
                 System.out.println("branch not taken: bne did not match");
             }
-            return;
+            return true;
         }
 
         if (instruction instanceof JumpInstruction) {
             System.out.println("jump: PC changed");
             System.out.println("jump to: PC " + newPc);
-            return;
+            return true;
         }
 
+        return false;
+    }
+
+    /**
+     * メモリ操作系のイベントを表示する。
+     * 
+     * @param instruction 命令
+     * @param cpu         CPU
+     * @return 対応するイベントがあれば true
+     */
+    private boolean printMemoryEvent(Instruction instruction, Cpu cpu) {
         if (instruction instanceof LwInstruction lwInstruction) {
             int targetRegister = lwInstruction.getDestRegister();
             int baseRegister = lwInstruction.getBaseRegister();
@@ -167,7 +209,7 @@ public class StepView {
 
             System.out.println("load word: " + targetName + " = mem[" + address + "]");
             System.out.println("loaded value: " + cpu.getRegister(targetRegister));
-            return;
+            return true;
         }
 
         if (instruction instanceof SwInstruction swInstruction) {
@@ -179,11 +221,21 @@ public class StepView {
             String srcName = RegisterNames.getName(srcRegister);
 
             System.out.println("store word: mem[" + address + "] = " + cpu.loadWord(address));
-            System.out.println(
-                    "stored from: " + srcName + " (" + cpu.getRegister(swInstruction.getSrcRegister()) + ")");
-            return;
+            System.out.println("stored from: " + srcName + " (" + cpu.getRegister(srcRegister) + ")");
+            return true;
         }
 
+        return false;
+    }
+
+    /**
+     * 算術演算系のイベントを表示する。
+     * 
+     * @param instruction 命令
+     * @param cpu         CPU
+     * @return 対応するイベントがあれば true
+     */
+    private boolean printArithmeticEvent(Instruction instruction, Cpu cpu) {
         if (instruction instanceof AddInstruction addInstruction) {
             String destName = RegisterNames.getName(addInstruction.getDestRegister());
             String leftName = RegisterNames.getName(addInstruction.getLeftRegister());
@@ -191,7 +243,7 @@ public class StepView {
 
             System.out.println("arithmetic: " + destName + " = " + leftName + " + " + rightName);
             System.out.println("result: " + cpu.getRegister(addInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
         if (instruction instanceof AddiInstruction addiInstruction) {
@@ -201,7 +253,7 @@ public class StepView {
             System.out.println("arithmetic: " + destName + " = " + srcName
                     + " + " + addiInstruction.getImmediate());
             System.out.println("result: " + cpu.getRegister(addiInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
         if (instruction instanceof SubInstruction subInstruction) {
@@ -211,9 +263,20 @@ public class StepView {
 
             System.out.println("arithmetic: " + destName + " = " + leftName + " - " + rightName);
             System.out.println("result: " + cpu.getRegister(subInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
+        return false;
+    }
+
+    /**
+     * 論理演算系のイベントを表示する。
+     * 
+     * @param instruction 命令
+     * @param cpu         CPU
+     * @return 対応するイベントがあれば true
+     */
+    private boolean printLogicEvent(Instruction instruction, Cpu cpu) {
         if (instruction instanceof AndInstruction andInstruction) {
             String destName = RegisterNames.getName(andInstruction.getDestRegister());
             String leftName = RegisterNames.getName(andInstruction.getLeftRegister());
@@ -221,7 +284,7 @@ public class StepView {
 
             System.out.println("logic: " + destName + " = " + leftName + " & " + rightName);
             System.out.println("result: " + cpu.getRegister(andInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
         if (instruction instanceof OrInstruction orInstruction) {
@@ -231,7 +294,7 @@ public class StepView {
 
             System.out.println("logic: " + destName + " = " + leftName + " | " + rightName);
             System.out.println("result: " + cpu.getRegister(orInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
         if (instruction instanceof XorInstruction xorInstruction) {
@@ -241,7 +304,7 @@ public class StepView {
 
             System.out.println("logic: " + destName + " = " + leftName + " ^ " + rightName);
             System.out.println("result: " + cpu.getRegister(xorInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
         if (instruction instanceof NorInstruction norInstruction) {
@@ -251,7 +314,7 @@ public class StepView {
 
             System.out.println("logic: " + destName + " = ~(" + leftName + " | " + rightName + ")");
             System.out.println("result: " + cpu.getRegister(norInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
         if (instruction instanceof AndiInstruction andiInstruction) {
@@ -261,7 +324,7 @@ public class StepView {
             System.out.println("logic: " + destName + " = " + srcName
                     + " & " + andiInstruction.getImmediateValue());
             System.out.println("result: " + cpu.getRegister(andiInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
         if (instruction instanceof OriInstruction oriInstruction) {
@@ -271,7 +334,7 @@ public class StepView {
             System.out.println("logic: " + destName + " = " + srcName
                     + " | " + oriInstruction.getImmediateValue());
             System.out.println("result: " + cpu.getRegister(oriInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
         if (instruction instanceof XoriInstruction xoriInstruction) {
@@ -281,14 +344,10 @@ public class StepView {
             System.out.println("logic: " + destName + " = " + srcName
                     + " ^ " + xoriInstruction.getImmediateValue());
             System.out.println("result: " + cpu.getRegister(xoriInstruction.getDestRegister()));
-            return;
+            return true;
         }
 
-        if (newPc != oldPc + 1) {
-            System.out.println("PC changed: " + oldPc + " -> " + newPc);
-        } else {
-            System.out.println("sequential execution");
-        }
+        return false;
     }
 
     /**
