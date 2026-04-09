@@ -4,7 +4,7 @@ import java.util.List;
 
 import cpu.Cpu;
 import cpu.RegisterNames;
-import instruction.Instruction;
+import instruction.*;
 
 /**
  * ステップ実行時の表示を担当するクラス。
@@ -42,7 +42,7 @@ public class StepView {
 
         System.out.println("--------------------------------------------------");
         System.out.println("EVENT");
-        printEvent(currentPc, newPc);
+        printEvent(instruction, cpu, currentPc, newPc);
 
         System.out.println("--------------------------------------------------");
         System.out.println("CHANGES");
@@ -86,10 +86,50 @@ public class StepView {
     /**
      * PC変化イベントを表示する。
      * 
-     * @param oldPc 実行前PC
-     * @param newPc 実行後PC
+     * @param instruction 命令
+     * @param cpu         CPU
+     * @param oldPc       実行前PC
+     * @param newPc       実行後PC
      */
-    private void printEvent(int oldPc, int newPc) {
+    private void printEvent(Instruction instruction, Cpu cpu, int oldPc, int newPc) {
+        if (instruction instanceof JalInstruction) {
+            System.out.println("call: save return address ($ra = " + cpu.getRegister(31) + ")");
+            System.out.println("jump to: PC " + newPc);
+            return;
+        }
+
+        if (instruction instanceof JrInstruction) {
+            System.out.println("return: jump to register target");
+            System.out.println("jump to: PC " + newPc);
+            return;
+        }
+
+        if (instruction instanceof BeqInstruction) {
+            if (newPc != oldPc + 1) {
+                System.out.println("branch taken: beq matched");
+                System.out.println("jump to: PC " + newPc);
+            } else {
+                System.out.println("branch not taken: beq did not match");
+            }
+            return;
+        }
+
+        if (instruction instanceof BneInstruction) {
+            if (newPc != oldPc + 1) {
+                System.out.println("branch taken: bne matched");
+                System.out.println("jump to: PC " + newPc);
+            } else {
+                System.out.println("branch not taken: bne did not match");
+            }
+            return;
+        }
+
+        if (instruction instanceof JumpInstruction) {
+            System.out.println("jump: PC changed");
+            System.out.println("jump to: PC " + newPc);
+            return;
+        }
+
         if (newPc != oldPc + 1) {
             System.out.println("PC changed: " + oldPc + " -> " + newPc);
         } else {
