@@ -9,7 +9,31 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import cpu.Cpu;
-import instruction.*;
+
+import instruction.AddiInstruction;
+import instruction.AndInstruction;
+import instruction.AndiInstruction;
+import instruction.BeqInstruction;
+import instruction.BneInstruction;
+import instruction.Instruction;
+import instruction.JalInstruction;
+import instruction.JrInstruction;
+import instruction.JumpInstruction;
+import instruction.LiInstruction;
+import instruction.LwInstruction;
+import instruction.NorInstruction;
+import instruction.OrInstruction;
+import instruction.OriInstruction;
+import instruction.SllInstruction;
+import instruction.SltInstruction;
+import instruction.SltiInstruction;
+import instruction.SltiuInstruction;
+import instruction.SltuInstruction;
+import instruction.SraInstruction;
+import instruction.SrlInstruction;
+import instruction.SwInstruction;
+import instruction.XorInstruction;
+import instruction.XoriInstruction;
 
 /**
  * InstructionParserクラスのテスト。
@@ -467,6 +491,49 @@ class InstructionParserTest {
 
         assertEquals(1, program.size());
         assertInstanceOf(SltiInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 3);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(1, cpu.getRegister(9));
+    }
+
+    /**
+     * sltu命令を正しくパースできることを確認する。
+     */
+    @Test
+    void sltu命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sltu $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SltuInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 3);
+        cpu.setRegister(9, 5);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(1, cpu.getRegister(10));
+    }
+
+    /**
+     * sltiu命令を正しくパースできることを確認する。
+     */
+    @Test
+    void sltiu命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sltiu $t1, $t0, 5"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SltiuInstruction.class, program.get(0));
 
         Cpu cpu = new Cpu();
         cpu.setRegister(8, 3);

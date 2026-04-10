@@ -176,7 +176,7 @@ public class MSLMain {
     }
 
     /**
-     * slt / slti の動作確認用サンプルを返す。
+     * slt / slti / sltu / sltiu の動作確認用サンプルを返す。
      * 
      * @return 比較サンプル
      */
@@ -187,6 +187,14 @@ public class MSLMain {
                 "li $t1, 5",
                 "slt $t2, $t0, $t1",
                 "slti $t3, $t0, 2",
-                "slti $t4, $t0, 5");
+                "slti $t4, $t0, 5",
+
+                "# 符号なし比較サンプル",
+                "li $t0, -1",
+                "li $t1, 1",
+                "slt $t2, $t0, $t1",
+                "sltu $t3, $t0, $t1",
+                "slti $t4, $t0, 1",
+                "sltiu $t2, $t0, 1");
     }
 }

@@ -20,6 +20,8 @@ import instruction.OrInstruction;
 import instruction.OriInstruction;
 import instruction.SltInstruction;
 import instruction.SltiInstruction;
+import instruction.SltiuInstruction;
+import instruction.SltuInstruction;
 import instruction.SubInstruction;
 import instruction.SwInstruction;
 import instruction.XorInstruction;
@@ -381,6 +383,26 @@ public class StepView {
             System.out.println("compare: " + destName + " = (" + srcName + " < "
                     + sltiInstruction.getImmediateValue() + ")");
             System.out.println("result: " + cpu.getRegister(sltiInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof SltuInstruction sltuInstruction) {
+            String destName = RegisterNames.getName(sltuInstruction.getDestRegister());
+            String leftName = RegisterNames.getName(sltuInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(sltuInstruction.getRightRegister());
+
+            System.out.println("compare unsigned: " + destName + " = (" + leftName + " < " + rightName + ")");
+            System.out.println("result: " + cpu.getRegister(sltuInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof SltiuInstruction sltiuInstruction) {
+            String destName = RegisterNames.getName(sltiuInstruction.getDestRegister());
+            String srcName = RegisterNames.getName(sltiuInstruction.getSrcRegister());
+
+            System.out.println("compare unsigned: " + destName + " = (" + srcName + " < "
+                    + sltiuInstruction.getImmediateValue() + ")");
+            System.out.println("result: " + cpu.getRegister(sltiuInstruction.getDestRegister()));
             return true;
         }
 

@@ -5,7 +5,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import instruction.*;
+import instruction.AddInstruction;
+import instruction.AddiInstruction;
+import instruction.AndInstruction;
+import instruction.AndiInstruction;
+import instruction.BeqInstruction;
+import instruction.BneInstruction;
+import instruction.Instruction;
+import instruction.JalInstruction;
+import instruction.JrInstruction;
+import instruction.JumpInstruction;
+import instruction.LiInstruction;
+import instruction.LwInstruction;
+import instruction.NorInstruction;
+import instruction.OrInstruction;
+import instruction.OriInstruction;
+import instruction.SllInstruction;
+import instruction.SltInstruction;
+import instruction.SltiInstruction;
+import instruction.SltiuInstruction;
+import instruction.SltuInstruction;
+import instruction.SraInstruction;
+import instruction.SrlInstruction;
+import instruction.SubInstruction;
+import instruction.SwInstruction;
+import instruction.XorInstruction;
+import instruction.XoriInstruction;
 
 /**
  * アセンブリ風の文字列をInstructionに変換するパーサ。
@@ -92,6 +117,8 @@ public class InstructionParser {
             case "sra" -> parseSra(operands, line);
             case "slt" -> parseSlt(operands, line);
             case "slti" -> parseSlti(operands, line);
+            case "sltu" -> parseSltu(operands, line);
+            case "sltiu" -> parseSltiu(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -485,7 +512,7 @@ public class InstructionParser {
 
     /**
      * slt命令を解析する。
-     *
+     * 
      * @param operands オペランド配列
      * @param line     元の命令文字列
      * @return SltInstruction
@@ -504,7 +531,7 @@ public class InstructionParser {
 
     /**
      * slti命令を解析する。
-     *
+     * 
      * @param operands オペランド配列
      * @param line     元の命令文字列
      * @return SltiInstruction
@@ -519,6 +546,44 @@ public class InstructionParser {
         int imm = parseImmediate(operands[2]);
 
         return new SltiInstruction(dest, src, imm);
+    }
+
+    /**
+     * sltu命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SltInstruction
+     */
+    private Instruction parseSltu(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("sltuのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseRegister(operands[2]);
+
+        return new SltuInstruction(dest, left, right);
+    }
+
+    /**
+     * sltiu命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SltiInstruction
+     */
+    private Instruction parseSltiu(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("sltiuのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int src = parseRegister(operands[1]);
+        int imm = parseImmediate(operands[2]);
+
+        return new SltiuInstruction(dest, src, imm);
     }
 
     /**

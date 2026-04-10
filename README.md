@@ -75,6 +75,8 @@ jump to: PC 8
 ### 比較
 - slt
 - slti
+- sltu
+- sltiu
 
 ### 分岐・ジャンプ
 - beq
