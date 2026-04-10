@@ -26,12 +26,14 @@ import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
 import instruction.SllInstruction;
+import instruction.SllvInstruction;
 import instruction.SltInstruction;
 import instruction.SltiInstruction;
 import instruction.SltiuInstruction;
 import instruction.SltuInstruction;
 import instruction.SraInstruction;
 import instruction.SrlInstruction;
+import instruction.SrlvInstruction;
 import instruction.SwInstruction;
 import instruction.XorInstruction;
 import instruction.XoriInstruction;
@@ -436,45 +438,69 @@ class InstructionParserTest {
     }
 
     /**
-     * srl命令を正しくパースできることを確認する。
+     * sllv命令を正しくパースできることを確認する。
      */
     @Test
-    void srl命令をパースできる() {
+    void sllv命令をパースできる() {
         InstructionParser parser = new InstructionParser();
 
         List<Instruction> program = parser.parse(List.of(
-                "srl $t1, $t0, 2"));
+                "sllv $t2, $t0, $t1"));
 
         assertEquals(1, program.size());
-        assertInstanceOf(SrlInstruction.class, program.get(0));
+        assertInstanceOf(SllvInstruction.class, program.get(0));
 
         Cpu cpu = new Cpu();
-        cpu.setRegister(8, 12);
+        cpu.setRegister(8, 1); // $t0
+        cpu.setRegister(9, 3); // $t1
 
         program.get(0).execute(cpu);
 
-        assertEquals(3, cpu.getRegister(9));
+        assertEquals(8, cpu.getRegister(10));
     }
 
     /**
-     * sra命令を正しくパースできることを確認する。
+     * srlv命令を正しくパースできることを確認する。
      */
     @Test
-    void sra命令をパースできる() {
+    void srlv命令をパースできる() {
         InstructionParser parser = new InstructionParser();
 
         List<Instruction> program = parser.parse(List.of(
-                "sra $t1, $t0, 2"));
+                "srlv $t2, $t0, $t1"));
 
         assertEquals(1, program.size());
-        assertInstanceOf(SraInstruction.class, program.get(0));
+        assertInstanceOf(SrlvInstruction.class, program.get(0));
 
         Cpu cpu = new Cpu();
-        cpu.setRegister(8, -8);
+        cpu.setRegister(8, 16); // $t0
+        cpu.setRegister(9, 2); // $t1
 
         program.get(0).execute(cpu);
 
-        assertEquals(-2, cpu.getRegister(9));
+        assertEquals(4, cpu.getRegister(10));
+    }
+
+    /**
+     * srlv命令で負数を論理右シフトできることを確認する。
+     */
+    @Test
+    void srlv命令で負数を論理右シフトできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "srlv $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SrlvInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -8);
+        cpu.setRegister(9, 2);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-8 >>> 2, cpu.getRegister(10));
     }
 
     /**

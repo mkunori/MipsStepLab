@@ -22,12 +22,14 @@ import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
 import instruction.SllInstruction;
+import instruction.SllvInstruction;
 import instruction.SltInstruction;
 import instruction.SltiInstruction;
 import instruction.SltiuInstruction;
 import instruction.SltuInstruction;
 import instruction.SraInstruction;
 import instruction.SrlInstruction;
+import instruction.SrlvInstruction;
 import instruction.SubInstruction;
 import instruction.SwInstruction;
 import instruction.XorInstruction;
@@ -116,6 +118,8 @@ public class InstructionParser {
             case "lui" -> parseLui(operands, line);
             case "sll" -> parseSll(operands, line);
             case "srl" -> parseSrl(operands, line);
+            case "sllv" -> parseSllv(operands, line);
+            case "srlv" -> parseSrlv(operands, line);
             case "sra" -> parseSra(operands, line);
             case "slt" -> parseSlt(operands, line);
             case "slti" -> parseSlti(operands, line);
@@ -508,6 +512,44 @@ public class InstructionParser {
         int shift = parseImmediate(operands[2]);
 
         return new SrlInstruction(dest, src, shift);
+    }
+
+    /**
+     * sllv命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SllvInstruction
+     */
+    private Instruction parseSllv(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("sllのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int src = parseRegister(operands[1]);
+        int shift = parseRegister(operands[2]);
+
+        return new SllvInstruction(dest, src, shift);
+    }
+
+    /**
+     * srlv命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SrlvInstruction
+     */
+    private Instruction parseSrlv(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("srlのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int src = parseRegister(operands[1]);
+        int shift = parseRegister(operands[2]);
+
+        return new SrlvInstruction(dest, src, shift);
     }
 
     /**

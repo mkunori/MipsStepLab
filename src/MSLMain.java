@@ -29,7 +29,8 @@ public class MSLMain {
         // List<String> source = createCallSample();
         // List<String> source = createArithmeticSample();
         // List<String> source = createLogicSample();
-        List<String> source = createComparisonSample();
+        // List<String> source = createComparisonSample();
+        List<String> source = createVariableShiftSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -196,5 +197,16 @@ public class MSLMain {
                 "sltu $t3, $t0, $t1",
                 "slti $t4, $t0, 1",
                 "sltiu $t2, $t0, 1");
+    }
+
+    private static List<String> createVariableShiftSample() {
+        return List.of(
+                "# 可変シフトサンプル",
+                "li $t0, 3",
+                "li $t1, 1",
+                "sllv $t2, $t1, $t0",
+                "li $t3, 16",
+                "li $t4, 2",
+                "srlv $t2, $t3, $t4");
     }
 }

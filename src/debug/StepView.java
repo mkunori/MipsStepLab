@@ -19,10 +19,12 @@ import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
+import instruction.SllvInstruction;
 import instruction.SltInstruction;
 import instruction.SltiInstruction;
 import instruction.SltiuInstruction;
 import instruction.SltuInstruction;
+import instruction.SrlvInstruction;
 import instruction.SubInstruction;
 import instruction.SwInstruction;
 import instruction.XorInstruction;
@@ -123,6 +125,10 @@ public class StepView {
         }
 
         if (printArithmeticEvent(instruction, cpu)) {
+            return;
+        }
+
+        if (printShiftEvent(instruction, cpu)) {
             return;
         }
 
@@ -281,6 +287,37 @@ public class StepView {
             System.out.println("load upper: " + destName + " = "
                     + luiInstruction.getImmediateValue() + " << 16");
             System.out.println("result: " + cpu.getRegister(luiInstruction.getDestRegister()));
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * シフト命令系のイベントを表示する。
+     *
+     * @param instruction 命令
+     * @param cpu         CPU
+     * @return 対応するイベントがあれば true
+     */
+    private boolean printShiftEvent(Instruction instruction, Cpu cpu) {
+        if (instruction instanceof SllvInstruction sllvInstruction) {
+            String destName = RegisterNames.getName(sllvInstruction.getDestRegister());
+            String valueName = RegisterNames.getName(sllvInstruction.getValueRegister());
+            String shiftName = RegisterNames.getName(sllvInstruction.getShiftRegister());
+
+            System.out.println("shift: " + destName + " = " + valueName + " << " + shiftName);
+            System.out.println("result: " + cpu.getRegister(sllvInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof SrlvInstruction srlvInstruction) {
+            String destName = RegisterNames.getName(srlvInstruction.getDestRegister());
+            String valueName = RegisterNames.getName(srlvInstruction.getValueRegister());
+            String shiftName = RegisterNames.getName(srlvInstruction.getShiftRegister());
+
+            System.out.println("shift: " + destName + " = " + valueName + " >>> " + shiftName);
+            System.out.println("result: " + cpu.getRegister(srlvInstruction.getDestRegister()));
             return true;
         }
 
