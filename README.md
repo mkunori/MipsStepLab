@@ -71,6 +71,7 @@ jump to: PC 8
 - andi
 - ori
 - xori
+- lui
 
 ### 比較
 - slt

@@ -16,6 +16,7 @@ import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LiInstruction;
+import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
@@ -112,6 +113,7 @@ public class InstructionParser {
             case "andi" -> parseAndi(operands, line);
             case "ori" -> parseOri(operands, line);
             case "xori" -> parseXori(operands, line);
+            case "lui" -> parseLui(operands, line);
             case "sll" -> parseSll(operands, line);
             case "srl" -> parseSrl(operands, line);
             case "sra" -> parseSra(operands, line);
@@ -451,6 +453,23 @@ public class InstructionParser {
         int right = parseImmediate(operands[2]);
 
         return new XoriInstruction(dest, left, right);
+    }
+
+    /**
+     * lui命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return LiInstruction
+     */
+    private Instruction parseLui(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("luiのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int imm = parseImmediate(operands[1]);
+        return new LuiInstruction(dest, imm);
     }
 
     /**

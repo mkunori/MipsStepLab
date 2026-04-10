@@ -14,6 +14,7 @@ import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
+import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
@@ -271,6 +272,15 @@ public class StepView {
 
             System.out.println("arithmetic: " + destName + " = " + leftName + " - " + rightName);
             System.out.println("result: " + cpu.getRegister(subInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof LuiInstruction luiInstruction) {
+            String destName = RegisterNames.getName(luiInstruction.getDestRegister());
+
+            System.out.println("load upper: " + destName + " = "
+                    + luiInstruction.getImmediateValue() + " << 16");
+            System.out.println("result: " + cpu.getRegister(luiInstruction.getDestRegister()));
             return true;
         }
 

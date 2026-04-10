@@ -20,6 +20,7 @@ import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LiInstruction;
+import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
@@ -57,6 +58,25 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(10, cpu.getRegister(8));
+    }
+
+    /**
+     * lui命令を正しくパースできることを確認する。
+     */
+    @Test
+    void lui命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "lui $t0, 1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(LuiInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        program.get(0).execute(cpu);
+
+        assertEquals(1 << 16, cpu.getRegister(8));
     }
 
     /**
