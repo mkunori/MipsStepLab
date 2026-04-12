@@ -15,12 +15,14 @@ import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LbInstruction;
+import instruction.LhInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
 import instruction.SbInstruction;
+import instruction.ShInstruction;
 import instruction.SllvInstruction;
 import instruction.SltInstruction;
 import instruction.SltiInstruction;
@@ -265,6 +267,33 @@ public class StepView {
 
             System.out.println("store byte: mem[" + address + "] = " + (cpu.loadByte(address) & 0xFF));
             System.out.println("stored from: " + srcName + " (" + (cpu.getRegister(srcRegister) & 0xFF) + ")");
+            return true;
+        }
+
+        if (instruction instanceof LhInstruction lhInstruction) {
+            int destRegister = lhInstruction.getDestRegister();
+            int baseRegister = lhInstruction.getBaseRegister();
+            int offset = lhInstruction.getOffset();
+
+            int address = cpu.getRegister(baseRegister) + offset;
+            String destName = RegisterNames.getName(destRegister);
+
+            System.out.println("load halfword: " + destName + " = mem[" + address + ".." + (address + 1) + "]");
+            System.out.println("loaded value: " + cpu.getRegister(destRegister));
+            return true;
+        }
+
+        if (instruction instanceof ShInstruction shInstruction) {
+            int srcRegister = shInstruction.getSrcRegister();
+            int baseRegister = shInstruction.getBaseRegister();
+            int offset = shInstruction.getOffset();
+
+            int address = cpu.getRegister(baseRegister) + offset;
+            String srcName = RegisterNames.getName(srcRegister);
+
+            System.out.println("store halfword: mem[" + address + ".." + (address + 1) + "] = "
+                    + (cpu.loadHalfWord(address) & 0xFFFF));
+            System.out.println("stored from: " + srcName + " (" + (cpu.getRegister(srcRegister) & 0xFFFF) + ")");
             return true;
         }
 

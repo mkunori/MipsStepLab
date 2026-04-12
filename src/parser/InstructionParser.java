@@ -16,6 +16,7 @@ import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LbInstruction;
+import instruction.LhInstruction;
 import instruction.LiInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
@@ -23,6 +24,7 @@ import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
 import instruction.SbInstruction;
+import instruction.ShInstruction;
 import instruction.SllInstruction;
 import instruction.SllvInstruction;
 import instruction.SltInstruction;
@@ -112,6 +114,8 @@ public class InstructionParser {
             case "sw" -> parseSw(operands, line);
             case "lb" -> parseLb(operands, line);
             case "sb" -> parseSb(operands, line);
+            case "lh" -> parseLh(operands, line);
+            case "sh" -> parseSh(operands, line);
             case "and" -> parseAnd(operands, line);
             case "or" -> parseOr(operands, line);
             case "xor" -> parseXor(operands, line);
@@ -364,6 +368,42 @@ public class InstructionParser {
         MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
 
         return new SbInstruction(srcRegister, memoryOperand.offset(), memoryOperand.baseRegister());
+    }
+
+    /**
+     * lh命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return LhInstruction
+     */
+    private Instruction parseLh(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("lhのオペランド数が不正です: " + line);
+        }
+
+        int destRegister = parseRegister(operands[0]);
+        MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
+
+        return new LhInstruction(destRegister, memoryOperand.offset(), memoryOperand.baseRegister());
+    }
+
+    /**
+     * sh命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return ShInstruction
+     */
+    private Instruction parseSh(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("shのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
+
+        return new ShInstruction(srcRegister, memoryOperand.offset(), memoryOperand.baseRegister());
     }
 
     /**

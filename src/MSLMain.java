@@ -26,7 +26,8 @@ public class MSLMain {
         // List<String> source = createFullSample();
         // List<String> source = createBranchSample();
         // List<String> source = createMemorySample();
-        List<String> source = createByteMemorySample();
+        // List<String> source = createByteMemorySample();
+        List<String> source = createHalfWordMemorySample();
         // List<String> source = createCallSample();
         // List<String> source = createArithmeticSample();
         // List<String> source = createLogicSample();
@@ -111,6 +112,20 @@ public class MSLMain {
                 "li $t1, 255",
                 "sb $t1, 0($t0)",
                 "lb $t2, 0($t0)");
+    }
+
+    /**
+     * lh / sh の動作確認用サンプルを返す。
+     * 
+     * @return halfwordアクセスサンプル
+     */
+    private static List<String> createHalfWordMemorySample() {
+        return List.of(
+                "# halfwordアクセスサンプル",
+                "li $t0, 10",
+                "li $t1, 65535",
+                "sh $t1, 0($t0)",
+                "lh $t2, 0($t0)");
     }
 
     /**

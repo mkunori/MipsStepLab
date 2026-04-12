@@ -7,7 +7,7 @@ import instruction.Instruction;
  * 
  * このCPUは以下の要素を保持する。
  * - 32本の汎用レジスタ
- * - 1024byteのメモリ領域
+ * - 1024バイトのメモリ領域
  * - PC（プログラムカウンタ）
  */
 public class Cpu {

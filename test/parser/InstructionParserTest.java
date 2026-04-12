@@ -20,6 +20,7 @@ import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LbInstruction;
+import instruction.LhInstruction;
 import instruction.LiInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
@@ -27,14 +28,13 @@ import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
 import instruction.SbInstruction;
+import instruction.ShInstruction;
 import instruction.SllInstruction;
 import instruction.SllvInstruction;
 import instruction.SltInstruction;
 import instruction.SltiInstruction;
 import instruction.SltiuInstruction;
 import instruction.SltuInstruction;
-import instruction.SraInstruction;
-import instruction.SrlInstruction;
 import instruction.SrlvInstruction;
 import instruction.SwInstruction;
 import instruction.XorInstruction;
@@ -742,6 +742,94 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(0xCD, cpu.loadByte(100) & 0xFF);
+    }
+
+    /**
+     * lh命令を正しくパースできることを確認する。
+     */
+    @Test
+    void lh命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "lh $t1, 0($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(LhInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.storeHalfWord(100, 0x1234);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(0x1234, cpu.getRegister(9));
+    }
+
+    /**
+     * lh命令で負のhalfwordを符号拡張して読み込めることを確認する。
+     */
+    @Test
+    void lh命令で負のhalfwordを符号拡張して読み込める() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "lh $t1, 0($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(LhInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.storeHalfWord(100, 0xFFFF);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-1, cpu.getRegister(9));
+    }
+
+    /**
+     * sh命令を正しくパースできることを確認する。
+     */
+    @Test
+    void sh命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sh $t1, 2($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(ShInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.setRegister(9, 0x1234ABCD);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(0xABCD, cpu.loadHalfWord(102) & 0xFFFF);
+    }
+
+    /**
+     * sh命令で下位16ビットだけを書き込めることを確認する。
+     */
+    @Test
+    void sh命令で下位16ビットだけを書き込める() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sh $t1, 0($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(ShInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.setRegister(9, 0x1234ABCD);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(0xABCD, cpu.loadHalfWord(100) & 0xFFFF);
     }
 
     /**

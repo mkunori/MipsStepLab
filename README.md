@@ -91,6 +91,10 @@ jump to: PC 8
 - jr
 
 ### メモリアクセス
+- lb
+- sb
+- lh
+- sh
 - lw
 - sw
 
