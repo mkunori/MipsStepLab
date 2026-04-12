@@ -60,7 +60,7 @@ public class StepRunner {
                 Instruction instruction = program.get(currentPc);
 
                 int[] registersBefore = cpu.copyRegisters();
-                int[] memoryBefore = cpu.copyMemory();
+                byte[] memoryBefore = cpu.copyMemory();
 
                 cpu.execute(instruction);
                 int newPc = cpu.getPc();

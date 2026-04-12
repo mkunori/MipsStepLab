@@ -7,7 +7,7 @@ import instruction.Instruction;
  * 
  * このCPUは以下の要素を保持する。
  * - 32本の汎用レジスタ
- * - 256wordのメモリ領域
+ * - 1024byteのメモリ領域
  * - PC（プログラムカウンタ）
  */
 public class Cpu {
@@ -26,9 +26,9 @@ public class Cpu {
     /**
      * MIPSのメモリ領域。
      * 
-     * 1要素を1wordとして扱う。
+     * byte単位で保持する。
      */
-    private final int[] memory = new int[256];
+    private final byte[] memory = new byte[1024];
 
     /**
      * MIPSのプログラムカウンタ。
@@ -74,25 +74,99 @@ public class Cpu {
     }
 
     /**
-     * メモリから値を読み込む。
+     * 指定したアドレスから1バイト読み込む。
      * 
-     * @param address メモリアドレス
-     * @return 指定アドレスの値
+     * 符号付きbyteとしてintへ拡張される。
+     * 
+     * @param address 読み込み元アドレス
+     * @return 読み込んだ値
      */
-    public int loadWord(int address) {
-        validateMemoryAddress(address);
-        return memory[address];
+    public int loadByte(int address) {
+        validateMemoryRange(address, 1);
+        return memory[address]; // 符号付きで返す（lb用）
     }
 
     /**
-     * メモリへ値を書き込む。
+     * 指定したアドレスへ1バイト書き込む。
      * 
-     * @param address メモリアドレス
+     * @param address 書き込み先アドレス
+     * @param value   書き込む値
+     */
+    public void storeByte(int address, int value) {
+        validateMemoryRange(address, 1);
+        memory[address] = (byte) value;
+    }
+
+    /**
+     * 指定したアドレスから2バイト読み込み、halfwordとして返す。
+     * 
+     * ビッグエンディアンで読み込む。
+     * 結果は符号付き16ビット値としてintへ拡張される。
+     * 
+     * @param address 読み込み元アドレス
+     * @return 読み込んだhalfword値
+     */
+    public int loadHalfWord(int address) {
+        validateMemoryRange(address, 2);
+
+        int upper = memory[address] & 0xFF;
+        int lower = memory[address + 1] & 0xFF;
+        int value = (upper << 8) | lower;
+
+        if ((value & 0x8000) != 0) {
+            value |= 0xFFFF0000;
+        }
+
+        return value;
+    }
+
+    /**
+     * 指定したアドレスへ2バイト書き込む。
+     * 
+     * ビッグエンディアンで格納する。
+     * 
+     * @param address 書き込み先アドレス
+     * @param value   書き込む値
+     */
+    public void storeHalfWord(int address, int value) {
+        validateMemoryRange(address, 2);
+
+        memory[address] = (byte) (value >>> 8);
+        memory[address + 1] = (byte) value;
+    }
+
+    /**
+     * 指定したアドレスから4バイト読み込み、wordとして返す。
+     * 
+     * ビッグエンディアンで読み込む。
+     * 
+     * @param address 読み込み元アドレス
+     * @return 読み込んだword値
+     */
+    public int loadWord(int address) {
+        validateMemoryRange(address, 4);
+
+        return ((memory[address] & 0xFF) << 24)
+                | ((memory[address + 1] & 0xFF) << 16)
+                | ((memory[address + 2] & 0xFF) << 8)
+                | (memory[address + 3] & 0xFF);
+    }
+
+    /**
+     * 指定したアドレスへ4バイト書き込む。
+     * 
+     * ビッグエンディアンで格納する。
+     * 
+     * @param address 書き込み先アドレス
      * @param value   書き込む値
      */
     public void storeWord(int address, int value) {
-        validateMemoryAddress(address);
-        memory[address] = value;
+        validateMemoryRange(address, 4);
+
+        memory[address] = (byte) (value >>> 24);
+        memory[address + 1] = (byte) (value >>> 16);
+        memory[address + 2] = (byte) (value >>> 8);
+        memory[address + 3] = (byte) value;
     }
 
     /**
@@ -171,20 +245,20 @@ public class Cpu {
      * @return 表示文字列
      */
     public String formatMemory(int address) {
-        validateMemoryAddress(address);
-        return "mem[" + address + "] = " + memory[address];
+        validateMemoryRange(address, 1);
+        return "mem[" + address + "] = " + (memory[address] & 0xFF);
     }
 
     /**
-     * メモリアドレスが有効かどうか検証する。
+     * メモリアドレス範囲を検証する。
      * 
-     * @param address メモリアドレス
-     * @throws IllegalArgumentException メモリアドレスが0～255の範囲外の場合
+     * @param address 開始アドレス
+     * @param size    使用バイト数
      */
-    public void validateMemoryAddress(int address) {
-        if (address < 0 || address >= memory.length) {
+    public void validateMemoryRange(int address, int size) {
+        if (address < 0 || address + size > memory.length) {
             throw new IllegalArgumentException(
-                    "メモリアドレスは0～255で指定してください: " + address);
+                    "メモリアドレス範囲が不正です: address=" + address + ", size=" + size);
         }
     }
 
@@ -202,7 +276,7 @@ public class Cpu {
      * 
      * @return メモリ状態のコピー
      */
-    public int[] copyMemory() {
+    public byte[] copyMemory() {
         return memory.clone();
     }
 }

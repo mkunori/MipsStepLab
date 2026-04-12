@@ -48,7 +48,7 @@ public class StepView {
      * @param program         プログラム全体
      */
     public void printStep(int step, int currentPc, Instruction instruction,
-            Cpu cpu, int newPc, int[] registersBefore, int[] memoryBefore,
+            Cpu cpu, int newPc, int[] registersBefore, byte[] memoryBefore,
             List<Instruction> program) {
 
         System.out.println("==================================================");
@@ -488,15 +488,16 @@ public class StepView {
      * @param start  開始アドレス
      * @param end    終了アドレス
      */
-    private void printMemoryDiff(Cpu cpu, int[] before, int start, int end) {
+    private void printMemoryDiff(Cpu cpu, byte[] before, int start, int end) {
         boolean changed = false;
 
         for (int i = start; i <= end; i++) {
-            int afterValue = cpu.loadWord(i);
+            int beforeValue = before[i] & 0xFF;
+            int afterValue = cpu.loadByte(i) & 0xFF;
 
-            if (before[i] != afterValue) {
+            if (beforeValue != afterValue) {
                 System.out.println("mem[" + i + "] : "
-                        + before[i] + " -> " + afterValue);
+                        + beforeValue + " -> " + afterValue);
                 changed = true;
             }
         }
