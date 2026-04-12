@@ -15,12 +15,14 @@ import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
+import instruction.LbInstruction;
 import instruction.LiInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
+import instruction.SbInstruction;
 import instruction.SllInstruction;
 import instruction.SllvInstruction;
 import instruction.SltInstruction;
@@ -108,6 +110,8 @@ public class InstructionParser {
             case "jr" -> parseJr(operands, line);
             case "lw" -> parseLw(operands, line);
             case "sw" -> parseSw(operands, line);
+            case "lb" -> parseLb(operands, line);
+            case "sb" -> parseSb(operands, line);
             case "and" -> parseAnd(operands, line);
             case "or" -> parseOr(operands, line);
             case "xor" -> parseXor(operands, line);
@@ -327,6 +331,42 @@ public class InstructionParser {
     }
 
     /**
+     * lb命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return LbInstruction
+     */
+    private Instruction parseLb(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("lbのオペランド数が不正です: " + line);
+        }
+
+        int destRegister = parseRegister(operands[0]);
+        MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
+
+        return new LbInstruction(destRegister, memoryOperand.offset(), memoryOperand.baseRegister());
+    }
+
+    /**
+     * sb命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SbInstruction
+     */
+    private Instruction parseSb(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("sbのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
+
+        return new SbInstruction(srcRegister, memoryOperand.offset(), memoryOperand.baseRegister());
+    }
+
+    /**
      * and命令を解析する。
      * 
      * @param operands オペランド配列
@@ -523,7 +563,7 @@ public class InstructionParser {
      */
     private Instruction parseSllv(String[] operands, String line) {
         if (operands.length != 3) {
-            throw new IllegalArgumentException("sllのオペランド数が不正です: " + line);
+            throw new IllegalArgumentException("sllvのオペランド数が不正です: " + line);
         }
 
         int dest = parseRegister(operands[0]);
@@ -542,7 +582,7 @@ public class InstructionParser {
      */
     private Instruction parseSrlv(String[] operands, String line) {
         if (operands.length != 3) {
-            throw new IllegalArgumentException("srlのオペランド数が不正です: " + line);
+            throw new IllegalArgumentException("srlvのオペランド数が不正です: " + line);
         }
 
         int dest = parseRegister(operands[0]);

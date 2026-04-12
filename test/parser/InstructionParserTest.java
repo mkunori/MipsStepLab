@@ -19,12 +19,14 @@ import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
+import instruction.LbInstruction;
 import instruction.LiInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
+import instruction.SbInstruction;
 import instruction.SllInstruction;
 import instruction.SllvInstruction;
 import instruction.SltInstruction;
@@ -652,6 +654,94 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(1, cpu.getRegister(9));
+    }
+
+    /**
+     * lb命令を正しくパースできることを確認する。
+     */
+    @Test
+    void lb命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "lb $t1, 0($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(LbInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.storeByte(100, 5);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(5, cpu.getRegister(9));
+    }
+
+    /**
+     * lb命令を正しくパースできることを確認する。
+     */
+    @Test
+    void lb命令で負の値を符号拡張して読み込める() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "lb $t1, 0($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(LbInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.storeByte(100, 0xFF);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-1, cpu.getRegister(9));
+    }
+
+    /**
+     * sb命令を正しくパースできることを確認する。
+     */
+    @Test
+    void sb命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sb $t1, 1($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SbInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.setRegister(9, 0xAB);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(0xAB, cpu.loadByte(101) & 0xFF);
+    }
+
+    /**
+     * sb命令を正しくパースできることを確認する。
+     */
+    @Test
+    void sb命令で下位8ビットだけを書き込める() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sb $t1, 0($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SbInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.setRegister(9, 0x1234ABCD);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(0xCD, cpu.loadByte(100) & 0xFF);
     }
 
     /**

@@ -14,11 +14,13 @@ import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
+import instruction.LbInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
+import instruction.SbInstruction;
 import instruction.SllvInstruction;
 import instruction.SltInstruction;
 import instruction.SltiInstruction;
@@ -237,6 +239,32 @@ public class StepView {
 
             System.out.println("store word: mem[" + address + "] = " + cpu.loadWord(address));
             System.out.println("stored from: " + srcName + " (" + cpu.getRegister(srcRegister) + ")");
+            return true;
+        }
+
+        if (instruction instanceof LbInstruction lbInstruction) {
+            int destRegister = lbInstruction.getDestRegister();
+            int baseRegister = lbInstruction.getBaseRegister();
+            int offset = lbInstruction.getOffset();
+
+            int address = cpu.getRegister(baseRegister) + offset;
+            String destName = RegisterNames.getName(destRegister);
+
+            System.out.println("load byte: " + destName + " = mem[" + address + "]");
+            System.out.println("loaded value: " + cpu.getRegister(destRegister));
+            return true;
+        }
+
+        if (instruction instanceof SbInstruction sbInstruction) {
+            int srcRegister = sbInstruction.getSrcRegister();
+            int baseRegister = sbInstruction.getBaseRegister();
+            int offset = sbInstruction.getOffset();
+
+            int address = cpu.getRegister(baseRegister) + offset;
+            String srcName = RegisterNames.getName(srcRegister);
+
+            System.out.println("store byte: mem[" + address + "] = " + (cpu.loadByte(address) & 0xFF));
+            System.out.println("stored from: " + srcName + " (" + (cpu.getRegister(srcRegister) & 0xFF) + ")");
             return true;
         }
 

@@ -25,7 +25,8 @@ public class MSLMain {
         // 実行するサンプルを選ぶ
         // List<String> source = createFullSample();
         // List<String> source = createBranchSample();
-        List<String> source = createMemorySample();
+        // List<String> source = createMemorySample();
+        List<String> source = createByteMemorySample();
         // List<String> source = createCallSample();
         // List<String> source = createArithmeticSample();
         // List<String> source = createLogicSample();
@@ -96,6 +97,20 @@ public class MSLMain {
                 "sw $t2, 1($t0)", // mem[11] = 10
                 "lw $v0, 1($t0)" // $v0 = 10
         );
+    }
+
+    /**
+     * lb / sb の動作確認用サンプルを返す。
+     * 
+     * @return byteアクセスサンプル
+     */
+    private static List<String> createByteMemorySample() {
+        return List.of(
+                "# byteアクセスサンプル",
+                "li $t0, 10",
+                "li $t1, 255",
+                "sb $t1, 0($t0)",
+                "lb $t2, 0($t0)");
     }
 
     /**
