@@ -34,6 +34,7 @@ import instruction.SltiInstruction;
 import instruction.SltiuInstruction;
 import instruction.SltuInstruction;
 import instruction.SraInstruction;
+import instruction.SravInstruction;
 import instruction.SrlInstruction;
 import instruction.SrlvInstruction;
 import instruction.SubInstruction;
@@ -133,6 +134,7 @@ public class InstructionParser {
             case "sllv" -> parseSllv(operands, line);
             case "srlv" -> parseSrlv(operands, line);
             case "sra" -> parseSra(operands, line);
+            case "srav" -> parseSrav(operands, line);
             case "slt" -> parseSlt(operands, line);
             case "slti" -> parseSlti(operands, line);
             case "sltu" -> parseSltu(operands, line);
@@ -689,6 +691,25 @@ public class InstructionParser {
         int shift = parseImmediate(operands[2]);
 
         return new SraInstruction(dest, src, shift);
+    }
+
+    /**
+     * srav命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return SravInstruction
+     */
+    private Instruction parseSrav(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("sravのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int src = parseRegister(operands[1]);
+        int shift = parseRegister(operands[2]);
+
+        return new SravInstruction(dest, src, shift);
     }
 
     /**

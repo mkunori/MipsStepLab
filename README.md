@@ -76,6 +76,7 @@ jump to: PC 8
 - sra
 - sllv
 - srlv
+- srav
 
 ### 比較
 - slt

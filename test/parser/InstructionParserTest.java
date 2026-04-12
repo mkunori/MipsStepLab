@@ -37,6 +37,7 @@ import instruction.SltInstruction;
 import instruction.SltiInstruction;
 import instruction.SltiuInstruction;
 import instruction.SltuInstruction;
+import instruction.SravInstruction;
 import instruction.SrlvInstruction;
 import instruction.SwInstruction;
 import instruction.XorInstruction;
@@ -876,6 +877,50 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(65535, cpu.getRegister(9));
+    }
+
+    /**
+     * srav命令を正しくパースできることを確認する。
+     */
+    @Test
+    void srav命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "srav $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SravInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 16); // $t0
+        cpu.setRegister(9, 2); // $t1
+
+        program.get(0).execute(cpu);
+
+        assertEquals(4, cpu.getRegister(10));
+    }
+
+    /**
+     * srav命令で負数のシフトを正しくパースできることを確認する。
+     */
+    @Test
+    void srav命令で負数を算術右シフトできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "srav $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SravInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -8); // $t0
+        cpu.setRegister(9, 2); // $t1
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-2, cpu.getRegister(10));
     }
 
     /**

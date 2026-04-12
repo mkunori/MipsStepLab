@@ -30,6 +30,7 @@ import instruction.SltInstruction;
 import instruction.SltiInstruction;
 import instruction.SltiuInstruction;
 import instruction.SltuInstruction;
+import instruction.SravInstruction;
 import instruction.SrlvInstruction;
 import instruction.SubInstruction;
 import instruction.SwInstruction;
@@ -404,6 +405,16 @@ public class StepView {
 
             System.out.println("shift: " + destName + " = " + valueName + " >>> " + shiftName);
             System.out.println("result: " + cpu.getRegister(srlvInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof SravInstruction sravInstruction) {
+            String destName = RegisterNames.getName(sravInstruction.getDestRegister());
+            String valueName = RegisterNames.getName(sravInstruction.getValueRegister());
+            String shiftName = RegisterNames.getName(sravInstruction.getShiftRegister());
+
+            System.out.println("shift: " + destName + " = " + valueName + " >> " + shiftName);
+            System.out.println("result: " + cpu.getRegister(sravInstruction.getDestRegister()));
             return true;
         }
 

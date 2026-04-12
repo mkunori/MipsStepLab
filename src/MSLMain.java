@@ -28,12 +28,12 @@ public class MSLMain {
         // List<String> source = createMemorySample();
         // List<String> source = createByteMemorySample();
         // List<String> source = createHalfWordMemorySample();
-        List<String> source = createUnsignedMemorySample();
+        // List<String> source = createUnsignedMemorySample();
         // List<String> source = createCallSample();
         // List<String> source = createArithmeticSample();
         // List<String> source = createLogicSample();
         // List<String> source = createComparisonSample();
-        // List<String> source = createVariableShiftSample();
+        List<String> source = createVariableShiftSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -247,8 +247,8 @@ public class MSLMain {
     }
 
     /**
-     * sllv / srlv の動作確認用サンプルを返す。
-     * 
+     * sllv / srlv / srav の動作確認用サンプルを返す。
+     *
      * @return 可変シフトサンプル
      */
     private static List<String> createVariableShiftSample() {
@@ -259,6 +259,8 @@ public class MSLMain {
                 "sllv $t2, $t1, $t0",
                 "li $t3, 16",
                 "li $t4, 2",
-                "srlv $t2, $t3, $t4");
+                "srlv $t2, $t3, $t4",
+                "li $t3, -8",
+                "srav $t2, $t3, $t4");
     }
 }
