@@ -20,7 +20,9 @@ import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LbInstruction;
+import instruction.LbuInstruction;
 import instruction.LhInstruction;
+import instruction.LhuInstruction;
 import instruction.LiInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
@@ -830,6 +832,50 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(0xABCD, cpu.loadHalfWord(100) & 0xFFFF);
+    }
+
+    /**
+     * lbu命令を正しくパースできることを確認する。
+     */
+    @Test
+    void lbu命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "lbu $t1, 0($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(LbuInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.storeByte(100, 0xFF);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(255, cpu.getRegister(9));
+    }
+
+    /**
+     * lhu命令を正しくパースできることを確認する。
+     */
+    @Test
+    void lhu命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "lhu $t1, 0($t0)"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(LhuInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 100);
+        cpu.storeHalfWord(100, 0xFFFF);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(65535, cpu.getRegister(9));
     }
 
     /**

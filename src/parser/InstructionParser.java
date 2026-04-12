@@ -16,7 +16,9 @@ import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LbInstruction;
+import instruction.LbuInstruction;
 import instruction.LhInstruction;
+import instruction.LhuInstruction;
 import instruction.LiInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
@@ -116,6 +118,8 @@ public class InstructionParser {
             case "sb" -> parseSb(operands, line);
             case "lh" -> parseLh(operands, line);
             case "sh" -> parseSh(operands, line);
+            case "lbu" -> parseLbu(operands, line);
+            case "lhu" -> parseLhu(operands, line);
             case "and" -> parseAnd(operands, line);
             case "or" -> parseOr(operands, line);
             case "xor" -> parseXor(operands, line);
@@ -404,6 +408,42 @@ public class InstructionParser {
         MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
 
         return new ShInstruction(srcRegister, memoryOperand.offset(), memoryOperand.baseRegister());
+    }
+
+    /**
+     * lbu命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return LbuInstruction
+     */
+    private Instruction parseLbu(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("lbuのオペランド数が不正です: " + line);
+        }
+
+        int destRegister = parseRegister(operands[0]);
+        MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
+
+        return new LbuInstruction(destRegister, memoryOperand.offset(), memoryOperand.baseRegister());
+    }
+
+    /**
+     * lhu命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return LhuInstruction
+     */
+    private Instruction parseLhu(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("lhuのオペランド数が不正です: " + line);
+        }
+
+        int destRegister = parseRegister(operands[0]);
+        MemoryOperand memoryOperand = parseMemoryOperand(operands[1]);
+
+        return new LhuInstruction(destRegister, memoryOperand.offset(), memoryOperand.baseRegister());
     }
 
     /**

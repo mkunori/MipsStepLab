@@ -15,7 +15,9 @@ import instruction.JalInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LbInstruction;
+import instruction.LbuInstruction;
 import instruction.LhInstruction;
+import instruction.LhuInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.NorInstruction;
@@ -294,6 +296,33 @@ public class StepView {
             System.out.println("store halfword: mem[" + address + ".." + (address + 1) + "] = "
                     + (cpu.loadHalfWord(address) & 0xFFFF));
             System.out.println("stored from: " + srcName + " (" + (cpu.getRegister(srcRegister) & 0xFFFF) + ")");
+            return true;
+        }
+
+        if (instruction instanceof LbuInstruction lbuInstruction) {
+            int destRegister = lbuInstruction.getDestRegister();
+            int baseRegister = lbuInstruction.getBaseRegister();
+            int offset = lbuInstruction.getOffset();
+
+            int address = cpu.getRegister(baseRegister) + offset;
+            String destName = RegisterNames.getName(destRegister);
+
+            System.out.println("load byte unsigned: " + destName + " = mem[" + address + "]");
+            System.out.println("loaded value: " + cpu.getRegister(destRegister));
+            return true;
+        }
+
+        if (instruction instanceof LhuInstruction lhuInstruction) {
+            int destRegister = lhuInstruction.getDestRegister();
+            int baseRegister = lhuInstruction.getBaseRegister();
+            int offset = lhuInstruction.getOffset();
+
+            int address = cpu.getRegister(baseRegister) + offset;
+            String destName = RegisterNames.getName(destRegister);
+
+            System.out
+                    .println("load halfword unsigned: " + destName + " = mem[" + address + ".." + (address + 1) + "]");
+            System.out.println("loaded value: " + cpu.getRegister(destRegister));
             return true;
         }
 

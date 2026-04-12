@@ -87,6 +87,18 @@ public class Cpu {
     }
 
     /**
+     * 指定したアドレスから1バイト読み込み、
+     * 符号なし値として返す。
+     * 
+     * @param address 読み込み元アドレス
+     * @return 0〜255 の値
+     */
+    public int loadByteUnsigned(int address) {
+        validateMemoryRange(address, 1);
+        return memory[address] & 0xFF;
+    }
+
+    /**
      * 指定したアドレスへ1バイト書き込む。
      * 
      * @param address 書き込み先アドレス
@@ -118,6 +130,23 @@ public class Cpu {
         }
 
         return value;
+    }
+
+    /**
+     * 指定したアドレスから2バイト読み込み、
+     * 符号なしhalfwordとして返す。
+     * 
+     * ビッグエンディアンで読み込む。
+     * 
+     * @param address 読み込み元アドレス
+     * @return 0〜65535 の値
+     */
+    public int loadHalfWordUnsigned(int address) {
+        validateMemoryRange(address, 2);
+
+        int upper = memory[address] & 0xFF;
+        int lower = memory[address + 1] & 0xFF;
+        return (upper << 8) | lower;
     }
 
     /**

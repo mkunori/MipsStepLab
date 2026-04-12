@@ -27,7 +27,8 @@ public class MSLMain {
         // List<String> source = createBranchSample();
         // List<String> source = createMemorySample();
         // List<String> source = createByteMemorySample();
-        List<String> source = createHalfWordMemorySample();
+        // List<String> source = createHalfWordMemorySample();
+        List<String> source = createUnsignedMemorySample();
         // List<String> source = createCallSample();
         // List<String> source = createArithmeticSample();
         // List<String> source = createLogicSample();
@@ -126,6 +127,22 @@ public class MSLMain {
                 "li $t1, 65535",
                 "sh $t1, 0($t0)",
                 "lh $t2, 0($t0)");
+    }
+
+    /**
+     * lbu / lhu の動作確認用サンプルを返す。
+     * 
+     * @return 符号なしロードサンプル
+     */
+    private static List<String> createUnsignedMemorySample() {
+        return List.of(
+                "# 符号なしロードサンプル",
+                "li $t0, 10",
+                "li $t1, 65535",
+                "sb $t1, 0($t0)",
+                "sh $t1, 2($t0)",
+                "lbu $t2, 0($t0)",
+                "lhu $t3, 2($t0)");
     }
 
     /**
