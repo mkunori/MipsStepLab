@@ -108,7 +108,7 @@ public class StepView {
     }
 
     /**
-     * PC変化イベントを表示する。
+     * 命令に応じたイベントを表示する。
      * 
      * @param instruction 命令
      * @param cpu         CPU

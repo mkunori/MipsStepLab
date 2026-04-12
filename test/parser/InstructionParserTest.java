@@ -495,12 +495,77 @@ class InstructionParserTest {
         assertInstanceOf(SrlvInstruction.class, program.get(0));
 
         Cpu cpu = new Cpu();
-        cpu.setRegister(8, -8);
-        cpu.setRegister(9, 2);
+        cpu.setRegister(8, -8); // $t0 = シフト対象
+        cpu.setRegister(9, 2); // $t1 = シフト量
 
         program.get(0).execute(cpu);
 
         assertEquals(-8 >>> 2, cpu.getRegister(10));
+    }
+
+    /**
+     * sllv命令でシフト量が0なら値がそのままになることを確認する。
+     */
+    @Test
+    void sllv命令でシフト量0なら値はそのまま() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sllv $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SllvInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 7); // $t0 = シフト対象
+        cpu.setRegister(9, 0); // $t1 = シフト量
+
+        program.get(0).execute(cpu);
+
+        assertEquals(7, cpu.getRegister(10));
+    }
+
+    /**
+     * sltu命令で負数が大きい値として扱われることを確認する。
+     */
+    @Test
+    void sltu命令で負数を符号なし比較できる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sltu $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SltuInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -1); // $t0 = シフト対象
+        cpu.setRegister(9, 1); // $t1 = シフト量
+
+        program.get(0).execute(cpu);
+
+        assertEquals(0, cpu.getRegister(10));
+    }
+
+    /**
+     * sltiu命令で負数が大きい値として扱われることを確認する。
+     */
+    @Test
+    void sltiu命令で負数を符号なし比較できる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "sltiu $t1, $t0, 1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SltiuInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -1);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(0, cpu.getRegister(9));
     }
 
     /**

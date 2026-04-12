@@ -199,6 +199,11 @@ public class MSLMain {
                 "sltiu $t2, $t0, 1");
     }
 
+    /**
+     * sllv / srlv の動作確認用サンプルを返す。
+     * 
+     * @return 可変シフトサンプル
+     */
     private static List<String> createVariableShiftSample() {
         return List.of(
                 "# 可変シフトサンプル",
