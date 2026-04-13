@@ -68,6 +68,10 @@ public class StepView {
         printRegisters(cpu);
 
         System.out.println("--------------------------------------------------");
+        System.out.println("SPECIAL REGISTERS");
+        printSpecialRegisters(cpu);
+
+        System.out.println("--------------------------------------------------");
         System.out.println("MEMORY");
         printMemory(cpu, 0, 15);
 
@@ -618,5 +622,15 @@ public class StepView {
             System.out.println("NEXT PC   : " + nextPc);
             System.out.println("NEXT INST : <end>");
         }
+    }
+
+    /**
+     * 特殊レジスタ（HI,LO）を表示する。
+     * 
+     * @param cpu CPU
+     */
+    private void printSpecialRegisters(Cpu cpu) {
+        System.out.println(String.format("%-5s = %d", "HI", cpu.getHi()));
+        System.out.println(String.format("%-5s = %d", "LO", cpu.getLo()));
     }
 }

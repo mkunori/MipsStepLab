@@ -46,6 +46,16 @@ public class Cpu {
     private boolean pcChanged;
 
     /**
+     * 乗算・除算結果の上位32ビットを保持する特殊レジスタ。
+     */
+    private int hi;
+
+    /**
+     * 乗算・除算結果の下位32ビット、または商を保持する特殊レジスタ。
+     */
+    private int lo;
+
+    /**
      * レジスタの値を取得する。
      * 
      * @param index レジスタ番号
@@ -227,6 +237,42 @@ public class Cpu {
      */
     public void incrementPc() {
         pc++;
+    }
+
+    /**
+     * HIレジスタの値を取得する。
+     * 
+     * @return HIレジスタの値
+     */
+    public int getHi() {
+        return hi;
+    }
+
+    /**
+     * HIレジスタの値を設定する。
+     * 
+     * @return HIレジスタの値
+     */
+    public void setHi(int hi) {
+        this.hi = hi;
+    }
+
+    /**
+     * LOレジスタの値を取得する。
+     * 
+     * @return LOレジスタの値
+     */
+    public int getLo() {
+        return lo;
+    }
+
+    /**
+     * LOレジスタの値を設定する。
+     * 
+     * @return LOレジスタの値
+     */
+    public void setLo(int lo) {
+        this.lo = lo;
     }
 
     /**
