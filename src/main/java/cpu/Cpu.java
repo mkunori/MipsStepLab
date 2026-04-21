@@ -251,7 +251,7 @@ public class Cpu {
     /**
      * HIレジスタの値を設定する。
      * 
-     * @return HIレジスタの値
+     * @param hi HIレジスタの値
      */
     public void setHi(int hi) {
         this.hi = hi;

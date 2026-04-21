@@ -266,7 +266,7 @@ public class MSLMain {
     }
 
     /**
-     * mfhi / mhlo の動作確認用サンプルを返す。
+     * mfhi / mflo の動作確認用サンプルを返す。
      *
      * @return HILOサンプル
      */
