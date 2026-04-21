@@ -20,6 +20,8 @@ import instruction.LhInstruction;
 import instruction.LhuInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
+import instruction.MfhiInstruction;
+import instruction.MfloInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
@@ -378,6 +380,22 @@ public class StepView {
             System.out.println("load upper: " + destName + " = "
                     + luiInstruction.getImmediateValue() + " << 16");
             System.out.println("result: " + cpu.getRegister(luiInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof MfhiInstruction mfhiInstruction) {
+            String destName = RegisterNames.getName(mfhiInstruction.getDestRegister());
+
+            System.out.println("move from HI: " + destName + " = HI");
+            System.out.println("value: " + cpu.getRegister(mfhiInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof MfloInstruction mfloInstruction) {
+            String destName = RegisterNames.getName(mfloInstruction.getDestRegister());
+
+            System.out.println("move from LO: " + destName + " = LO");
+            System.out.println("value: " + cpu.getRegister(mfloInstruction.getDestRegister()));
             return true;
         }
 

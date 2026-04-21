@@ -26,6 +26,8 @@ import instruction.LhuInstruction;
 import instruction.LiInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
+import instruction.MfhiInstruction;
+import instruction.MfloInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
@@ -921,6 +923,42 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(-2, cpu.getRegister(10));
+    }
+
+    @Test
+    void mfhi命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "mfhi $t0"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MfhiInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setHi(99);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(99, cpu.getRegister(8));
+    }
+
+    @Test
+    void mflo命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "mflo $t0"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MfloInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setLo(456);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(456, cpu.getRegister(8));
     }
 
     /**

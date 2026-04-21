@@ -33,7 +33,8 @@ public class MSLMain {
         // List<String> source = createArithmeticSample();
         // List<String> source = createLogicSample();
         // List<String> source = createComparisonSample();
-        List<String> source = createVariableShiftSample();
+        // List<String> source = createVariableShiftSample();
+        List<String> source = createHiLoSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -262,5 +263,20 @@ public class MSLMain {
                 "srlv $t2, $t3, $t4",
                 "li $t3, -8",
                 "srav $t2, $t3, $t4");
+    }
+
+    /**
+     * mfhi / mhlo の動作確認用サンプルを返す。
+     *
+     * @return HILOサンプル
+     */
+    private static List<String> createHiLoSample() {
+        return List.of(
+                "li $t0, 0",
+                "li $t1, 0",
+
+                "# 手動でHI/LOを設定したと仮定",
+                "mfhi $t0",
+                "mflo $t1");
     }
 }

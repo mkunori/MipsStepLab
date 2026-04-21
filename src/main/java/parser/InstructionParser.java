@@ -22,6 +22,8 @@ import instruction.LhuInstruction;
 import instruction.LiInstruction;
 import instruction.LuiInstruction;
 import instruction.LwInstruction;
+import instruction.MfhiInstruction;
+import instruction.MfloInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
@@ -139,6 +141,8 @@ public class InstructionParser {
             case "slti" -> parseSlti(operands, line);
             case "sltu" -> parseSltu(operands, line);
             case "sltiu" -> parseSltiu(operands, line);
+            case "mfhi" -> parseMfhi(operands, line);
+            case "mflo" -> parseMflo(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -786,6 +790,30 @@ public class InstructionParser {
         int imm = parseImmediate(operands[2]);
 
         return new SltiuInstruction(dest, src, imm);
+    }
+
+    /**
+     * mfhi命令を解析する。
+     */
+    private Instruction parseMfhi(String[] operands, String line) {
+        if (operands.length != 1) {
+            throw new IllegalArgumentException("mfhiのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        return new MfhiInstruction(dest);
+    }
+
+    /**
+     * mflo命令を解析する。
+     */
+    private Instruction parseMflo(String[] operands, String line) {
+        if (operands.length != 1) {
+            throw new IllegalArgumentException("mfloのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        return new MfloInstruction(dest);
     }
 
     /**
