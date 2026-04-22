@@ -105,6 +105,10 @@ public class InstructionParser {
         String[] parts = line.split("\\s+", 2);
         String opcode = parts[0];
 
+        if ("nop".equals(opcode)) {
+            return parseNop(line);
+        }
+
         if (parts.length < 2) {
             throw new IllegalArgumentException("オペランドがありません: " + line);
         }
@@ -155,6 +159,7 @@ public class InstructionParser {
             case "bltz" -> parseBltz(operands, line, labels);
             case "bgtz" -> parseBgtz(operands, line, labels);
             case "blez" -> parseBlez(operands, line, labels);
+            case "move" -> parseMove(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -942,6 +947,38 @@ public class InstructionParser {
         int srcRegister = parseRegister(operands[0]);
         int targetPc = resolveTarget(operands[1], labels);
         return new BlezInstruction(srcRegister, targetPc);
+    }
+
+    /**
+     * move擬似命令を解析する。
+     * 
+     * move rd, rs は addi rd, rs, 0 として扱う。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return AddiInstruction
+     */
+    private Instruction parseMove(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("moveのオペランド数が不正です: " + line);
+        }
+
+        int destRegister = parseRegister(operands[0]);
+        int srcRegister = parseRegister(operands[1]);
+
+        return new AddiInstruction(destRegister, srcRegister, 0);
+    }
+
+    /**
+     * nop擬似命令を解析する。
+     * 
+     * nop は sll $zero, $zero, 0 として扱う。
+     * 
+     * @param line 元の命令文字列
+     * @return SllInstruction
+     */
+    private Instruction parseNop(String line) {
+        return new SllInstruction(0, 0, 0);
     }
 
     /**

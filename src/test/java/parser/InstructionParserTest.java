@@ -1228,6 +1228,49 @@ class InstructionParserTest {
     }
 
     /**
+     * move擬似命令を正しくパースできることを確認する。
+     */
+    @Test
+    void move擬似命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "move $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(AddiInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(9, 123);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(123, cpu.getRegister(8));
+    }
+
+    /**
+     * nop擬似命令を正しくパースできることを確認する。
+     */
+    @Test
+    void nop擬似命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "nop"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(SllInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 123);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(123, cpu.getRegister(8));
+        assertEquals(0, cpu.getRegister(0));
+    }
+
+    /**
      * ラベル付き命令を正しくパースできることを確認する。
      */
     @Test
