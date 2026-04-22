@@ -22,6 +22,7 @@ import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
+import instruction.MultInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
@@ -396,6 +397,16 @@ public class StepView {
 
             System.out.println("move from LO: " + destName + " = LO");
             System.out.println("value: " + cpu.getRegister(mfloInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof MultInstruction multInstruction) {
+            String leftName = RegisterNames.getName(multInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(multInstruction.getRightRegister());
+
+            System.out.println("multiply: HI:LO = " + leftName + " * " + rightName);
+            System.out.println("HI = " + cpu.getHi());
+            System.out.println("LO = " + cpu.getLo());
             return true;
         }
 

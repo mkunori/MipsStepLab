@@ -28,6 +28,7 @@ import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
+import instruction.MultInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
@@ -959,6 +960,46 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(456, cpu.getRegister(8));
+    }
+
+    @Test
+    void mult命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "mult $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MultInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 6);
+        cpu.setRegister(9, 7);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(0, cpu.getHi());
+        assertEquals(42, cpu.getLo());
+    }
+
+    @Test
+    void mult命令で負数を含む乗算をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "mult $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MultInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -3);
+        cpu.setRegister(9, 5);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-1, cpu.getHi());
+        assertEquals(-15, cpu.getLo());
     }
 
     /**

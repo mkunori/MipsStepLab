@@ -24,6 +24,7 @@ import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
+import instruction.MultInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
@@ -143,6 +144,7 @@ public class InstructionParser {
             case "sltiu" -> parseSltiu(operands, line);
             case "mfhi" -> parseMfhi(operands, line);
             case "mflo" -> parseMflo(operands, line);
+            case "mult" -> parseMult(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -814,6 +816,24 @@ public class InstructionParser {
 
         int dest = parseRegister(operands[0]);
         return new MfloInstruction(dest);
+    }
+
+    /**
+     * mult命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return MultInstruction
+     */
+    private Instruction parseMult(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("multのオペランド数が不正です: " + line);
+        }
+
+        int leftRegister = parseRegister(operands[0]);
+        int rightRegister = parseRegister(operands[1]);
+
+        return new MultInstruction(leftRegister, rightRegister);
     }
 
     /**

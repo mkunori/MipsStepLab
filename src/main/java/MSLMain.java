@@ -34,7 +34,7 @@ public class MSLMain {
         // List<String> source = createLogicSample();
         // List<String> source = createComparisonSample();
         // List<String> source = createVariableShiftSample();
-        List<String> source = createHiLoSample();
+        List<String> source = createMultiplySample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -266,17 +266,17 @@ public class MSLMain {
     }
 
     /**
-     * mfhi / mflo の動作確認用サンプルを返す。
+     * mult / mfhi / mflo の動作確認用サンプルを返す。
      *
-     * @return HILOサンプル
+     * @return 乗算サンプル
      */
-    private static List<String> createHiLoSample() {
+    private static List<String> createMultiplySample() {
         return List.of(
-                "li $t0, 0",
-                "li $t1, 0",
-
-                "# 手動でHI/LOを設定したと仮定",
-                "mfhi $t0",
-                "mflo $t1");
+                "# mult サンプル",
+                "li $t0, 20",
+                "li $t1, 6",
+                "mult $t0, $t1",
+                "mfhi $t2",
+                "mflo $t3");
     }
 }
