@@ -35,7 +35,8 @@ public class MSLMain {
         // List<String> source = createComparisonSample();
         // List<String> source = createVariableShiftSample();
         // List<String> source = createMultiplySample();
-        List<String> source = createDivideSample();
+        // List<String> source = createDivideSample();
+        List<String> source = createExtendedBranchSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -294,5 +295,34 @@ public class MSLMain {
                 "div $t0, $t1",
                 "mflo $t2",
                 "mfhi $t3");
+    }
+
+    /**
+     * bgez / blez / bgtz / bltz の動作確認用サンプルを返す。
+     *
+     * @return 拡張分岐サンプル
+     */
+    private static List<String> createExtendedBranchSample() {
+        return List.of(
+                "# 拡張分岐サンプル",
+                "li $t0, -1",
+                "bltz $t0, negative",
+                "li $v0, 0",
+                "negative: li $v0, 1",
+
+                "li $t1, 0",
+                "bgez $t1, nonNegative",
+                "li $v0, 2",
+                "nonNegative: li $v0, 3",
+
+                "li $t2, 5",
+                "bgtz $t2, positive",
+                "li $v0, 4",
+                "positive: li $v0, 5",
+
+                "li $t3, 0",
+                "blez $t3, zeroOrNegative",
+                "li $v0, 6",
+                "zeroOrNegative: li $v0, 7");
     }
 }

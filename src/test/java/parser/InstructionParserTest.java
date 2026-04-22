@@ -14,6 +14,10 @@ import instruction.AddiInstruction;
 import instruction.AndInstruction;
 import instruction.AndiInstruction;
 import instruction.BeqInstruction;
+import instruction.BgezInstruction;
+import instruction.BgtzInstruction;
+import instruction.BlezInstruction;
+import instruction.BltzInstruction;
 import instruction.BneInstruction;
 import instruction.DivInstruction;
 import instruction.Instruction;
@@ -1021,6 +1025,206 @@ class InstructionParserTest {
 
         assertEquals(3, cpu.getLo());
         assertEquals(2, cpu.getHi());
+    }
+
+    /**
+     * bgez命令でラベルを正しく解決できることを確認する。
+     */
+    @Test
+    void bgez命令でラベルを解決できる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 0",
+                "bgez $t0, nonNegative",
+                "li $v0, 0",
+                "nonNegative: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BgezInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 0);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(3, cpu.getPc());
+    }
+
+    /**
+     * bltz命令でラベルを正しく解決できることを確認する。
+     */
+    @Test
+    void bltz命令でラベルを解決できる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, -1",
+                "bltz $t0, negative",
+                "li $v0, 0",
+                "negative: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BltzInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -1);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(3, cpu.getPc());
+    }
+
+    /**
+     * bgtz命令でラベルを正しく解決できることを確認する。
+     */
+    @Test
+    void bgtz命令でラベルを解決できる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 1",
+                "bgtz $t0, positive",
+                "li $v0, 0",
+                "positive: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BgtzInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 1);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(3, cpu.getPc());
+    }
+
+    /**
+     * blez命令でラベルを正しく解決できることを確認する。
+     */
+    @Test
+    void blez命令でラベルを解決できる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 0",
+                "blez $t0, zeroOrNegative",
+                "li $v0, 0",
+                "zeroOrNegative: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BlezInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 0);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(3, cpu.getPc());
+    }
+
+    /**
+     * bgez命令で条件を満たさない場合は分岐しないことを確認する。
+     */
+    @Test
+    void bgez命令で条件を満たさない場合は分岐しない() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, -1",
+                "bgez $t0, nonNegative",
+                "li $v0, 0",
+                "nonNegative: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BgezInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -1);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(1, cpu.getPc());
+    }
+
+    /**
+     * bltz命令で条件を満たさない場合は分岐しないことを確認する。
+     */
+    @Test
+    void bltz命令で条件を満たさない場合は分岐しない() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 0",
+                "bltz $t0, negative",
+                "li $v0, 0",
+                "negative: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BltzInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 0);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(1, cpu.getPc());
+    }
+
+    /**
+     * bgtz命令で条件を満たさない場合は分岐しないことを確認する。
+     */
+    @Test
+    void bgtz命令で条件を満たさない場合は分岐しない() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 0",
+                "bgtz $t0, positive",
+                "li $v0, 0",
+                "positive: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BgtzInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 0);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(1, cpu.getPc());
+    }
+
+    /**
+     * blez命令で条件を満たさない場合は分岐しないことを確認する。
+     */
+    @Test
+    void blez命令で条件を満たさない場合は分岐しない() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 1",
+                "blez $t0, zeroOrNegative",
+                "li $v0, 0",
+                "zeroOrNegative: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BlezInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 1);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(1, cpu.getPc());
     }
 
     /**

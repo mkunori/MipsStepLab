@@ -9,6 +9,10 @@ import instruction.AddiInstruction;
 import instruction.AndInstruction;
 import instruction.AndiInstruction;
 import instruction.BeqInstruction;
+import instruction.BgezInstruction;
+import instruction.BgtzInstruction;
+import instruction.BlezInstruction;
+import instruction.BltzInstruction;
 import instruction.BneInstruction;
 import instruction.DivInstruction;
 import instruction.Instruction;
@@ -215,6 +219,46 @@ public class StepView {
         if (instruction instanceof JumpInstruction) {
             System.out.println("jump: PC changed");
             System.out.println("jump to: PC " + newPc);
+            return true;
+        }
+
+        if (instruction instanceof BgezInstruction) {
+            if (newPc != oldPc + 1) {
+                System.out.println("branch taken: bgez matched");
+                System.out.println("jump to: PC " + newPc);
+            } else {
+                System.out.println("branch not taken: bgez did not match");
+            }
+            return true;
+        }
+
+        if (instruction instanceof BltzInstruction) {
+            if (newPc != oldPc + 1) {
+                System.out.println("branch taken: bltz matched");
+                System.out.println("jump to: PC " + newPc);
+            } else {
+                System.out.println("branch not taken: bltz did not match");
+            }
+            return true;
+        }
+
+        if (instruction instanceof BgtzInstruction) {
+            if (newPc != oldPc + 1) {
+                System.out.println("branch taken: bgtz matched");
+                System.out.println("jump to: PC " + newPc);
+            } else {
+                System.out.println("branch not taken: bgtz did not match");
+            }
+            return true;
+        }
+
+        if (instruction instanceof BlezInstruction) {
+            if (newPc != oldPc + 1) {
+                System.out.println("branch taken: blez matched");
+                System.out.println("jump to: PC " + newPc);
+            } else {
+                System.out.println("branch not taken: blez did not match");
+            }
             return true;
         }
 

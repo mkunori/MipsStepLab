@@ -10,6 +10,10 @@ import instruction.AddiInstruction;
 import instruction.AndInstruction;
 import instruction.AndiInstruction;
 import instruction.BeqInstruction;
+import instruction.BgezInstruction;
+import instruction.BgtzInstruction;
+import instruction.BlezInstruction;
+import instruction.BltzInstruction;
 import instruction.BneInstruction;
 import instruction.DivInstruction;
 import instruction.Instruction;
@@ -147,6 +151,10 @@ public class InstructionParser {
             case "mflo" -> parseMflo(operands, line);
             case "mult" -> parseMult(operands, line);
             case "div" -> parseDiv(operands, line);
+            case "bgez" -> parseBgez(operands, line, labels);
+            case "bltz" -> parseBltz(operands, line, labels);
+            case "bgtz" -> parseBgtz(operands, line, labels);
+            case "blez" -> parseBlez(operands, line, labels);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -798,6 +806,10 @@ public class InstructionParser {
 
     /**
      * mfhi命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return MfhiInstruction
      */
     private Instruction parseMfhi(String[] operands, String line) {
         if (operands.length != 1) {
@@ -810,6 +822,10 @@ public class InstructionParser {
 
     /**
      * mflo命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return MfloInstruction
      */
     private Instruction parseMflo(String[] operands, String line) {
         if (operands.length != 1) {
@@ -840,6 +856,10 @@ public class InstructionParser {
 
     /**
      * div命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return DivInstruction
      */
     private Instruction parseDiv(String[] operands, String line) {
         if (operands.length != 2) {
@@ -850,6 +870,78 @@ public class InstructionParser {
         int rightRegister = parseRegister(operands[1]);
 
         return new DivInstruction(leftRegister, rightRegister);
+    }
+
+    /**
+     * bgez命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return BgezInstruction
+     */
+    private Instruction parseBgez(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("bgezのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        int targetPc = resolveTarget(operands[1], labels);
+        return new BgezInstruction(srcRegister, targetPc);
+    }
+
+    /**
+     * bltz命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return BltzInstruction
+     */
+    private Instruction parseBltz(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("bltzのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        int targetPc = resolveTarget(operands[1], labels);
+        return new BltzInstruction(srcRegister, targetPc);
+    }
+
+    /**
+     * bgtz命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return BgtzInstruction
+     */
+    private Instruction parseBgtz(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("bgtzのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        int targetPc = resolveTarget(operands[1], labels);
+        return new BgtzInstruction(srcRegister, targetPc);
+    }
+
+    /**
+     * blez命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return BlezInstruction
+     */
+    private Instruction parseBlez(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("blezのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        int targetPc = resolveTarget(operands[1], labels);
+        return new BlezInstruction(srcRegister, targetPc);
     }
 
     /**
