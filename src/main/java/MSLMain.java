@@ -34,7 +34,8 @@ public class MSLMain {
         // List<String> source = createLogicSample();
         // List<String> source = createComparisonSample();
         // List<String> source = createVariableShiftSample();
-        List<String> source = createMultiplySample();
+        // List<String> source = createMultiplySample();
+        List<String> source = createDivideSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -278,5 +279,20 @@ public class MSLMain {
                 "mult $t0, $t1",
                 "mfhi $t2",
                 "mflo $t3");
+    }
+
+    /**
+     * div / mfhi / mflo の動作確認用サンプルを返す。
+     *
+     * @return 除算サンプル
+     */
+    private static List<String> createDivideSample() {
+        return List.of(
+                "# div サンプル",
+                "li $t0, 20",
+                "li $t1, 6",
+                "div $t0, $t1",
+                "mflo $t2",
+                "mfhi $t3");
     }
 }

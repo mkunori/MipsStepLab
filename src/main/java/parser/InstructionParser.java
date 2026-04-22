@@ -11,6 +11,7 @@ import instruction.AndInstruction;
 import instruction.AndiInstruction;
 import instruction.BeqInstruction;
 import instruction.BneInstruction;
+import instruction.DivInstruction;
 import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
@@ -145,6 +146,7 @@ public class InstructionParser {
             case "mfhi" -> parseMfhi(operands, line);
             case "mflo" -> parseMflo(operands, line);
             case "mult" -> parseMult(operands, line);
+            case "div" -> parseDiv(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -834,6 +836,20 @@ public class InstructionParser {
         int rightRegister = parseRegister(operands[1]);
 
         return new MultInstruction(leftRegister, rightRegister);
+    }
+
+    /**
+     * div命令を解析する。
+     */
+    private Instruction parseDiv(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("divのオペランド数が不正です: " + line);
+        }
+
+        int leftRegister = parseRegister(operands[0]);
+        int rightRegister = parseRegister(operands[1]);
+
+        return new DivInstruction(leftRegister, rightRegister);
     }
 
     /**

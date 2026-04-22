@@ -15,6 +15,7 @@ import instruction.AndInstruction;
 import instruction.AndiInstruction;
 import instruction.BeqInstruction;
 import instruction.BneInstruction;
+import instruction.DivInstruction;
 import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
@@ -1000,6 +1001,26 @@ class InstructionParserTest {
 
         assertEquals(-1, cpu.getHi());
         assertEquals(-15, cpu.getLo());
+    }
+
+    @Test
+    void div命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "div $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(DivInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 20);
+        cpu.setRegister(9, 6);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(3, cpu.getLo());
+        assertEquals(2, cpu.getHi());
     }
 
     /**

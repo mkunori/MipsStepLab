@@ -10,6 +10,7 @@ import instruction.AndInstruction;
 import instruction.AndiInstruction;
 import instruction.BeqInstruction;
 import instruction.BneInstruction;
+import instruction.DivInstruction;
 import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
@@ -407,6 +408,16 @@ public class StepView {
             System.out.println("multiply: HI:LO = " + leftName + " * " + rightName);
             System.out.println("HI = " + cpu.getHi());
             System.out.println("LO = " + cpu.getLo());
+            return true;
+        }
+
+        if (instruction instanceof DivInstruction divInstruction) {
+            String leftName = RegisterNames.getName(divInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(divInstruction.getRightRegister());
+
+            System.out.println("divide: " + leftName + " / " + rightName);
+            System.out.println("LO (quotient) = " + cpu.getLo());
+            System.out.println("HI (remainder) = " + cpu.getHi());
             return true;
         }
 
