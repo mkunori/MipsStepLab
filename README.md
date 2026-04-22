@@ -151,8 +151,7 @@ class InstructionParser
 class StepRunner
 class StepView
 
-Instruction <|.. AddInstruction : implements
-Instruction <|.. SubInstruction : implements
+Instruction <|.. xxxxInstruction : implements
 
 InstructionParser --> Instruction : creates
 StepRunner --> Instruction : executes
