@@ -67,7 +67,9 @@ value: 99
 
 ### 乗算・除算
 - mult
+- multu
 - div
+- divu
 
 ### 論理
 - and

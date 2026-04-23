@@ -16,6 +16,7 @@ import instruction.BlezInstruction;
 import instruction.BltzInstruction;
 import instruction.BneInstruction;
 import instruction.DivInstruction;
+import instruction.DivuInstruction;
 import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
@@ -30,6 +31,7 @@ import instruction.LwInstruction;
 import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
 import instruction.MultInstruction;
+import instruction.MultuInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
@@ -154,7 +156,9 @@ public class InstructionParser {
             case "mfhi" -> parseMfhi(operands, line);
             case "mflo" -> parseMflo(operands, line);
             case "mult" -> parseMult(operands, line);
+            case "multu" -> parseMultu(operands, line);
             case "div" -> parseDiv(operands, line);
+            case "divu" -> parseDivu(operands, line);
             case "bgez" -> parseBgez(operands, line, labels);
             case "bltz" -> parseBltz(operands, line, labels);
             case "bgtz" -> parseBgtz(operands, line, labels);
@@ -860,6 +864,24 @@ public class InstructionParser {
     }
 
     /**
+     * multu命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return MultuInstruction
+     */
+    private Instruction parseMultu(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("multuのオペランド数が不正です: " + line);
+        }
+
+        int leftRegister = parseRegister(operands[0]);
+        int rightRegister = parseRegister(operands[1]);
+
+        return new MultuInstruction(leftRegister, rightRegister);
+    }
+
+    /**
      * div命令を解析する。
      * 
      * @param operands オペランド配列
@@ -875,6 +897,24 @@ public class InstructionParser {
         int rightRegister = parseRegister(operands[1]);
 
         return new DivInstruction(leftRegister, rightRegister);
+    }
+
+    /**
+     * divu命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return DivuInstruction
+     */
+    private Instruction parseDivu(String[] operands, String line) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("divuのオペランド数が不正です: " + line);
+        }
+
+        int leftRegister = parseRegister(operands[0]);
+        int rightRegister = parseRegister(operands[1]);
+
+        return new DivuInstruction(leftRegister, rightRegister);
     }
 
     /**

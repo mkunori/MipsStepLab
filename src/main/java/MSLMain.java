@@ -36,7 +36,9 @@ public class MSLMain {
         // List<String> source = createVariableShiftSample();
         // List<String> source = createMultiplySample();
         // List<String> source = createDivideSample();
-        List<String> source = createExtendedBranchSample();
+        // List<String> source = createExtendedBranchSample();
+        // List<String> source = createMultiplyUnsignedSample();
+        List<String> source = createDivideUnsignedSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -324,5 +326,35 @@ public class MSLMain {
                 "blez $t3, zeroOrNegative",
                 "li $v0, 6",
                 "zeroOrNegative: li $v0, 7");
+    }
+
+    /**
+     * multu / mfhi / mflo の動作確認用サンプルを返す。
+     * 
+     * @return 符号なし乗算サンプル
+     */
+    private static List<String> createMultiplyUnsignedSample() {
+        return List.of(
+                "# multu サンプル",
+                "li $t0, -1",
+                "li $t1, 2",
+                "multu $t0, $t1",
+                "mfhi $t2",
+                "mflo $t3");
+    }
+
+    /**
+     * divu / mfhi / mflo の動作確認用サンプルを返す。
+     * 
+     * @return 符号なし除算サンプル
+     */
+    private static List<String> createDivideUnsignedSample() {
+        return List.of(
+                "# divu サンプル",
+                "li $t0, -1",
+                "li $t1, 2",
+                "divu $t0, $t1",
+                "mflo $t2",
+                "mfhi $t3");
     }
 }

@@ -20,6 +20,7 @@ import instruction.BlezInstruction;
 import instruction.BltzInstruction;
 import instruction.BneInstruction;
 import instruction.DivInstruction;
+import instruction.DivuInstruction;
 import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
@@ -34,6 +35,7 @@ import instruction.LwInstruction;
 import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
 import instruction.MultInstruction;
+import instruction.MultuInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
@@ -1008,6 +1010,47 @@ class InstructionParserTest {
     }
 
     @Test
+    void multu命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "multu $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MultuInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 6);
+        cpu.setRegister(9, 7);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(0, cpu.getHi());
+        assertEquals(42, cpu.getLo());
+    }
+
+    @Test
+    void multu命令で符号なし乗算をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "multu $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MultuInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -1);
+        cpu.setRegister(9, 2);
+
+        program.get(0).execute(cpu);
+
+        long result = Integer.toUnsignedLong(-1) * 2L;
+        assertEquals((int) (result >>> 32), cpu.getHi());
+        assertEquals((int) result, cpu.getLo());
+    }
+
+    @Test
     void div命令をパースできる() {
         InstructionParser parser = new InstructionParser();
 
@@ -1025,6 +1068,46 @@ class InstructionParserTest {
 
         assertEquals(3, cpu.getLo());
         assertEquals(2, cpu.getHi());
+    }
+
+    @Test
+    void divu命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "divu $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(DivuInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 20);
+        cpu.setRegister(9, 6);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(3, cpu.getLo());
+        assertEquals(2, cpu.getHi());
+    }
+
+    @Test
+    void divu命令で符号なし除算をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "divu $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(DivuInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -1);
+        cpu.setRegister(9, 2);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(Integer.divideUnsigned(-1, 2), cpu.getLo());
+        assertEquals(Integer.remainderUnsigned(-1, 2), cpu.getHi());
     }
 
     /**

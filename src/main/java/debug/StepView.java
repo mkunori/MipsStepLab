@@ -15,6 +15,7 @@ import instruction.BlezInstruction;
 import instruction.BltzInstruction;
 import instruction.BneInstruction;
 import instruction.DivInstruction;
+import instruction.DivuInstruction;
 import instruction.Instruction;
 import instruction.JalInstruction;
 import instruction.JrInstruction;
@@ -28,6 +29,7 @@ import instruction.LwInstruction;
 import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
 import instruction.MultInstruction;
+import instruction.MultuInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
@@ -455,11 +457,31 @@ public class StepView {
             return true;
         }
 
+        if (instruction instanceof MultuInstruction multuInstruction) {
+            String leftName = RegisterNames.getName(multuInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(multuInstruction.getRightRegister());
+
+            System.out.println("multiply unsigned: HI:LO = " + leftName + " * " + rightName);
+            System.out.println("HI = " + cpu.getHi());
+            System.out.println("LO = " + cpu.getLo());
+            return true;
+        }
+
         if (instruction instanceof DivInstruction divInstruction) {
             String leftName = RegisterNames.getName(divInstruction.getLeftRegister());
             String rightName = RegisterNames.getName(divInstruction.getRightRegister());
 
             System.out.println("divide: " + leftName + " / " + rightName);
+            System.out.println("LO (quotient) = " + cpu.getLo());
+            System.out.println("HI (remainder) = " + cpu.getHi());
+            return true;
+        }
+
+        if (instruction instanceof DivuInstruction divuInstruction) {
+            String leftName = RegisterNames.getName(divuInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(divuInstruction.getRightRegister());
+
+            System.out.println("divide unsigned: " + leftName + " / " + rightName);
             System.out.println("LO (quotient) = " + cpu.getLo());
             System.out.println("HI (remainder) = " + cpu.getHi());
             return true;
