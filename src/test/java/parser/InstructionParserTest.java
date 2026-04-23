@@ -34,6 +34,8 @@ import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
+import instruction.MthiInstruction;
+import instruction.MtloInstruction;
 import instruction.MultInstruction;
 import instruction.MultuInstruction;
 import instruction.NorInstruction;
@@ -967,6 +969,78 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(456, cpu.getRegister(8));
+    }
+
+    @Test
+    void mthi命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "mthi $t0"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MthiInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 99);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(99, cpu.getHi());
+    }
+
+    @Test
+    void mthi命令で負の値をHIへコピーできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "mthi $t0"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MthiInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -1);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-1, cpu.getHi());
+    }
+
+    @Test
+    void mtlo命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "mtlo $t0"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MtloInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 456);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(456, cpu.getLo());
+    }
+
+    @Test
+    void mtlo命令で負の値をLOへコピーできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "mtlo $t0"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MtloInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -1);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-1, cpu.getLo());
     }
 
     @Test

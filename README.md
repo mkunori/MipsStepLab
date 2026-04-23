@@ -119,6 +119,8 @@ value: 99
 ### 特殊レジスタ転送
 - mfhi
 - mflo
+- mthi
+- mtlo
 
 ### 擬似命令
 - move

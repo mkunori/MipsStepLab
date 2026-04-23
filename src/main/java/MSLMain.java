@@ -38,7 +38,9 @@ public class MSLMain {
         // List<String> source = createDivideSample();
         // List<String> source = createExtendedBranchSample();
         // List<String> source = createMultiplyUnsignedSample();
-        List<String> source = createDivideUnsignedSample();
+        // List<String> source = createDivideUnsignedSample();
+        // List<String> source = createMoveHiSample();
+        List<String> source = createMoveLoSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -356,5 +358,31 @@ public class MSLMain {
                 "divu $t0, $t1",
                 "mflo $t2",
                 "mfhi $t3");
+    }
+
+    /**
+     * mthi / mfhi の動作確認用サンプルを返す。
+     *
+     * @return HI転送サンプル
+     */
+    private static List<String> createMoveHiSample() {
+        return List.of(
+                "# mthi サンプル",
+                "li $t0, 123",
+                "mthi $t0",
+                "mfhi $t1");
+    }
+
+    /**
+     * mtlo / mflo の動作確認用サンプルを返す。
+     *
+     * @return LO転送サンプル
+     */
+    private static List<String> createMoveLoSample() {
+        return List.of(
+                "# mtlo サンプル",
+                "li $t0, 456",
+                "mtlo $t0",
+                "mflo $t1");
     }
 }

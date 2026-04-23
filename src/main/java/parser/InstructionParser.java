@@ -30,6 +30,8 @@ import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
+import instruction.MthiInstruction;
+import instruction.MtloInstruction;
 import instruction.MultInstruction;
 import instruction.MultuInstruction;
 import instruction.NorInstruction;
@@ -155,6 +157,8 @@ public class InstructionParser {
             case "sltiu" -> parseSltiu(operands, line);
             case "mfhi" -> parseMfhi(operands, line);
             case "mflo" -> parseMflo(operands, line);
+            case "mthi" -> parseMthi(operands, line);
+            case "mtlo" -> parseMtlo(operands, line);
             case "mult" -> parseMult(operands, line);
             case "multu" -> parseMultu(operands, line);
             case "div" -> parseDiv(operands, line);
@@ -843,6 +847,38 @@ public class InstructionParser {
 
         int dest = parseRegister(operands[0]);
         return new MfloInstruction(dest);
+    }
+
+    /**
+     * mthi命令を解析する。
+     *
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return MthiInstruction
+     */
+    private Instruction parseMthi(String[] operands, String line) {
+        if (operands.length != 1) {
+            throw new IllegalArgumentException("mthiのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        return new MthiInstruction(srcRegister);
+    }
+
+    /**
+     * mtlo命令を解析する。
+     *
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return MtloInstruction
+     */
+    private Instruction parseMtlo(String[] operands, String line) {
+        if (operands.length != 1) {
+            throw new IllegalArgumentException("mtloのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        return new MtloInstruction(srcRegister);
     }
 
     /**

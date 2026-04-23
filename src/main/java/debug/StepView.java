@@ -28,6 +28,8 @@ import instruction.LuiInstruction;
 import instruction.LwInstruction;
 import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
+import instruction.MthiInstruction;
+import instruction.MtloInstruction;
 import instruction.MultInstruction;
 import instruction.MultuInstruction;
 import instruction.NorInstruction;
@@ -444,6 +446,22 @@ public class StepView {
 
             System.out.println("move from LO: " + destName + " = LO");
             System.out.println("value: " + cpu.getRegister(mfloInstruction.getDestRegister()));
+            return true;
+        }
+
+        if (instruction instanceof MthiInstruction mthiInstruction) {
+            String srcName = RegisterNames.getName(mthiInstruction.getSrcRegister());
+
+            System.out.println("move to HI: HI = " + srcName);
+            System.out.println("value: " + cpu.getHi());
+            return true;
+        }
+
+        if (instruction instanceof MtloInstruction mtloInstruction) {
+            String srcName = RegisterNames.getName(mtloInstruction.getSrcRegister());
+
+            System.out.println("move to LO: LO = " + srcName);
+            System.out.println("value: " + cpu.getLo());
             return true;
         }
 
