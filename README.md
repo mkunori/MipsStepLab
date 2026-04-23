@@ -101,6 +101,7 @@ value: 99
 - j
 - jal
 - jr
+- jalr
 - bgez
 - blez
 - bgtz

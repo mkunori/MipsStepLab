@@ -40,7 +40,8 @@ public class MSLMain {
         // List<String> source = createMultiplyUnsignedSample();
         // List<String> source = createDivideUnsignedSample();
         // List<String> source = createMoveHiSample();
-        List<String> source = createMoveLoSample();
+        // List<String> source = createMoveLoSample();
+        List<String> source = createJalrSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -384,5 +385,21 @@ public class MSLMain {
                 "li $t0, 456",
                 "mtlo $t0",
                 "mflo $t1");
+    }
+
+    /**
+     * jalr の動作確認用サンプルを返す。
+     *
+     * @return jalrサンプル
+     */
+    private static List<String> createJalrSample() {
+        return List.of(
+                "# jalr サンプル",
+                "li $t0, 4",
+                "jalr $t0",
+                "li $v0, 0",
+                "j end",
+                "li $v0, 1",
+                "end: nop");
     }
 }

@@ -19,6 +19,7 @@ import instruction.DivInstruction;
 import instruction.DivuInstruction;
 import instruction.Instruction;
 import instruction.JalInstruction;
+import instruction.JalrInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LbInstruction;
@@ -129,6 +130,7 @@ public class InstructionParser {
             case "j" -> parseJump(operands, line, labels);
             case "jal" -> parseJal(operands, line, labels);
             case "jr" -> parseJr(operands, line);
+            case "jalr" -> parseJalr(operands, line);
             case "lw" -> parseLw(operands, line);
             case "sw" -> parseSw(operands, line);
             case "lb" -> parseLb(operands, line);
@@ -331,6 +333,22 @@ public class InstructionParser {
 
         int sourceRegister = parseRegister(operands[0]);
         return new JrInstruction(sourceRegister);
+    }
+
+    /**
+     * jalr命令を解析する。
+     *
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return JalrInstruction
+     */
+    private Instruction parseJalr(String[] operands, String line) {
+        if (operands.length != 1) {
+            throw new IllegalArgumentException("jalrのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        return new JalrInstruction(srcRegister);
     }
 
     /**

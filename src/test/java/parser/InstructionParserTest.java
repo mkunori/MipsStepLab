@@ -23,6 +23,7 @@ import instruction.DivInstruction;
 import instruction.DivuInstruction;
 import instruction.Instruction;
 import instruction.JalInstruction;
+import instruction.JalrInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LbInstruction;
@@ -280,6 +281,26 @@ class InstructionParserTest {
         program.get(0).execute(cpu);
 
         assertEquals(5, cpu.getPc());
+    }
+
+    @Test
+    void jalr命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "jalr $t0"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(JalrInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setPc(3);
+        cpu.setRegister(8, 10);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(4, cpu.getRegister(31));
+        assertEquals(10, cpu.getPc());
     }
 
     /**

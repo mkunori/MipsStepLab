@@ -18,6 +18,7 @@ import instruction.DivInstruction;
 import instruction.DivuInstruction;
 import instruction.Instruction;
 import instruction.JalInstruction;
+import instruction.JalrInstruction;
 import instruction.JrInstruction;
 import instruction.JumpInstruction;
 import instruction.LbInstruction;
@@ -223,6 +224,15 @@ public class StepView {
         if (instruction instanceof JumpInstruction) {
             System.out.println("jump: PC changed");
             System.out.println("jump to: PC " + newPc);
+            return true;
+        }
+
+        if (instruction instanceof JalrInstruction jalrInstruction) {
+            int registerIndex = jalrInstruction.getSrcRegister();
+            String registerName = RegisterNames.getName(registerIndex);
+
+            System.out.println("call register: save return address ($ra = " + cpu.getRegister(31) + ")");
+            System.out.println("jump to: " + registerName + " -> PC " + newPc);
             return true;
         }
 
