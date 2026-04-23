@@ -33,6 +33,7 @@ import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
 import instruction.MthiInstruction;
 import instruction.MtloInstruction;
+import instruction.MulInstruction;
 import instruction.MultInstruction;
 import instruction.MultuInstruction;
 import instruction.NorInstruction;
@@ -172,6 +173,7 @@ public class InstructionParser {
             case "blez" -> parseBlez(operands, line, labels);
             case "move" -> parseMove(operands, line);
             case "rem" -> parseRem(operands, line);
+            case "mul" -> parseMul(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -1094,6 +1096,21 @@ public class InstructionParser {
         int rightRegister = parseRegister(operands[2]);
 
         return new RemInstruction(destRegister, leftRegister, rightRegister);
+    }
+
+    /**
+     * mul擬似命令を解析する。
+     */
+    private Instruction parseMul(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("mulのオペランド数が不正です: " + line);
+        }
+
+        int dest = parseRegister(operands[0]);
+        int left = parseRegister(operands[1]);
+        int right = parseRegister(operands[2]);
+
+        return new MulInstruction(dest, left, right);
     }
 
     /**

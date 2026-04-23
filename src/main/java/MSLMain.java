@@ -42,7 +42,8 @@ public class MSLMain {
         // List<String> source = createMoveHiSample();
         // List<String> source = createMoveLoSample();
         // List<String> source = createJalrSample();
-        List<String> source = createRemainderSample();
+        // List<String> source = createRemainderSample();
+        List<String> source = createMulSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -415,5 +416,18 @@ public class MSLMain {
                 "li $t0, 20",
                 "li $t1, 6",
                 "rem $t2, $t0, $t1");
+    }
+
+    /**
+     * mul擬似命令の動作確認用サンプルを返す。
+     * 
+     * @return mulサンプル
+     */
+    private static List<String> createMulSample() {
+        return List.of(
+                "# mul サンプル",
+                "li $t0, 6",
+                "li $t1, 7",
+                "mul $t2, $t0, $t1");
     }
 }

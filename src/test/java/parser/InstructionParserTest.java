@@ -37,6 +37,7 @@ import instruction.MfhiInstruction;
 import instruction.MfloInstruction;
 import instruction.MthiInstruction;
 import instruction.MtloInstruction;
+import instruction.MulInstruction;
 import instruction.MultInstruction;
 import instruction.MultuInstruction;
 import instruction.NorInstruction;
@@ -1473,6 +1474,9 @@ class InstructionParserTest {
         assertEquals(2, cpu.getHi());
     }
 
+    /**
+     * rem擬似命令を正しくパースできることを確認する。
+     */
     @Test
     void rem擬似命令で負数の余りを計算できる() {
         InstructionParser parser = new InstructionParser();
@@ -1492,6 +1496,28 @@ class InstructionParserTest {
         assertEquals(-2, cpu.getRegister(10));
         assertEquals(-3, cpu.getLo());
         assertEquals(-2, cpu.getHi());
+    }
+
+    /**
+     * mul擬似命令を正しくパースできることを確認する。
+     */
+    @Test
+    void mul擬似命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "mul $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(MulInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 6);
+        cpu.setRegister(9, 7);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(42, cpu.getRegister(10));
     }
 
     /**
@@ -1557,7 +1583,7 @@ class InstructionParserTest {
     void 未対応命令で例外が発生する() {
         InstructionParser parser = new InstructionParser();
 
-        assertThrows(IllegalArgumentException.class, () -> parser.parse(List.of("mul $t0, $t1, $t2")));
+        assertThrows(IllegalArgumentException.class, () -> parser.parse(List.of("xyz $t0, $t1, $t2")));
     }
 
     /**
