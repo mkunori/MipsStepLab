@@ -41,7 +41,8 @@ public class MSLMain {
         // List<String> source = createDivideUnsignedSample();
         // List<String> source = createMoveHiSample();
         // List<String> source = createMoveLoSample();
-        List<String> source = createJalrSample();
+        // List<String> source = createJalrSample();
+        List<String> source = createRemainderSample();
 
         List<Instruction> program = parser.parse(source);
 
@@ -401,5 +402,18 @@ public class MSLMain {
                 "j end",
                 "li $v0, 1",
                 "end: nop");
+    }
+
+    /**
+     * rem擬似命令の動作確認用サンプルを返す。
+     * 
+     * @return remサンプル
+     */
+    private static List<String> createRemainderSample() {
+        return List.of(
+                "# rem サンプル",
+                "li $t0, 20",
+                "li $t1, 6",
+                "rem $t2, $t0, $t1");
     }
 }

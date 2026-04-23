@@ -42,6 +42,7 @@ import instruction.MultuInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
+import instruction.RemInstruction;
 import instruction.SbInstruction;
 import instruction.ShInstruction;
 import instruction.SllInstruction;
@@ -1446,6 +1447,51 @@ class InstructionParserTest {
 
         assertEquals(123, cpu.getRegister(8));
         assertEquals(0, cpu.getRegister(0));
+    }
+
+    /**
+     * rem擬似命令を正しくパースできることを確認する。
+     */
+    @Test
+    void rem擬似命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "rem $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(RemInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 20);
+        cpu.setRegister(9, 6);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(2, cpu.getRegister(10));
+        assertEquals(3, cpu.getLo());
+        assertEquals(2, cpu.getHi());
+    }
+
+    @Test
+    void rem擬似命令で負数の余りを計算できる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "rem $t2, $t0, $t1"));
+
+        assertEquals(1, program.size());
+        assertInstanceOf(RemInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, -20);
+        cpu.setRegister(9, 6);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(-2, cpu.getRegister(10));
+        assertEquals(-3, cpu.getLo());
+        assertEquals(-2, cpu.getHi());
     }
 
     /**

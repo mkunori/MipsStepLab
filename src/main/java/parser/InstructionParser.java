@@ -38,6 +38,7 @@ import instruction.MultuInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
+import instruction.RemInstruction;
 import instruction.SbInstruction;
 import instruction.ShInstruction;
 import instruction.SllInstruction;
@@ -170,6 +171,7 @@ public class InstructionParser {
             case "bgtz" -> parseBgtz(operands, line, labels);
             case "blez" -> parseBlez(operands, line, labels);
             case "move" -> parseMove(operands, line);
+            case "rem" -> parseRem(operands, line);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -1073,6 +1075,25 @@ public class InstructionParser {
      */
     private Instruction parseNop(String line) {
         return new SllInstruction(0, 0, 0);
+    }
+
+    /**
+     * rem擬似命令を解析する。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @return RemInstruction
+     */
+    private Instruction parseRem(String[] operands, String line) {
+        if (operands.length != 3) {
+            throw new IllegalArgumentException("remのオペランド数が不正です: " + line);
+        }
+
+        int destRegister = parseRegister(operands[0]);
+        int leftRegister = parseRegister(operands[1]);
+        int rightRegister = parseRegister(operands[2]);
+
+        return new RemInstruction(destRegister, leftRegister, rightRegister);
     }
 
     /**

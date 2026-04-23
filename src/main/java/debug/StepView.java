@@ -36,6 +36,7 @@ import instruction.MultuInstruction;
 import instruction.NorInstruction;
 import instruction.OrInstruction;
 import instruction.OriInstruction;
+import instruction.RemInstruction;
 import instruction.SbInstruction;
 import instruction.ShInstruction;
 import instruction.SllvInstruction;
@@ -510,6 +511,18 @@ public class StepView {
             String rightName = RegisterNames.getName(divuInstruction.getRightRegister());
 
             System.out.println("divide unsigned: " + leftName + " / " + rightName);
+            System.out.println("LO (quotient) = " + cpu.getLo());
+            System.out.println("HI (remainder) = " + cpu.getHi());
+            return true;
+        }
+
+        if (instruction instanceof RemInstruction remInstruction) {
+            String destName = RegisterNames.getName(remInstruction.getDestRegister());
+            String leftName = RegisterNames.getName(remInstruction.getLeftRegister());
+            String rightName = RegisterNames.getName(remInstruction.getRightRegister());
+
+            System.out.println("remainder: " + destName + " = " + leftName + " % " + rightName);
+            System.out.println("result: " + cpu.getRegister(remInstruction.getDestRegister()));
             System.out.println("LO (quotient) = " + cpu.getLo());
             System.out.println("HI (remainder) = " + cpu.getHi());
             return true;
