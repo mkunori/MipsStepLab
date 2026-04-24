@@ -111,17 +111,25 @@ value: 99
 
 ## 実行方法
 
+### 全体
+- Java 17 以上
+
+### ビルド方法
+```bash
+./mvnw clean package
+```
+
 ### テスト実行
 
 ```bash
-mvn test
+./mvnw test
 ```
 
 ### アプリ起動
 
 ```bash
-mvn compile
-mvn exec:java -Dexec.mainClass=MSLMain
+./mvnw compile
+./mvnw exec:java -Dexec.mainClass=MSLMain
 ```
 
 ---
