@@ -174,6 +174,9 @@ public class InstructionParser {
             case "move" -> parseMove(operands, line);
             case "rem" -> parseRem(operands, line);
             case "mul" -> parseMul(operands, line);
+            case "beqz" -> parseBeqz(operands, line, labels);
+            case "bnez" -> parseBnez(operands, line, labels);
+            case "b" -> parseB(operands, line, labels);
             default -> throw new IllegalArgumentException("未対応の命令です: " + line);
         };
     }
@@ -1111,6 +1114,67 @@ public class InstructionParser {
         int right = parseRegister(operands[2]);
 
         return new MulInstruction(dest, left, right);
+    }
+
+    /**
+     * beqz擬似命令を解析する。
+     * 
+     * beqz rs, label は beq rs, $zero, label として扱う。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return BeqInstruction
+     */
+    private Instruction parseBeqz(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("beqzのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        int targetPc = resolveTarget(operands[1], labels);
+
+        return new BeqInstruction(srcRegister, 0, targetPc);
+    }
+
+    /**
+     * bnez擬似命令を解析する。
+     * 
+     * bnez rs, label は bne rs, $zero, label として扱う。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return BneInstruction
+     */
+    private Instruction parseBnez(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 2) {
+            throw new IllegalArgumentException("bnezのオペランド数が不正です: " + line);
+        }
+
+        int srcRegister = parseRegister(operands[0]);
+        int targetPc = resolveTarget(operands[1], labels);
+
+        return new BneInstruction(srcRegister, 0, targetPc);
+    }
+
+    /**
+     * b擬似命令を解析する。
+     * 
+     * b label は j label として扱う。
+     * 
+     * @param operands オペランド配列
+     * @param line     元の命令文字列
+     * @param labels   ラベル対応表
+     * @return JumpInstruction
+     */
+    private Instruction parseB(String[] operands, String line, Map<String, Integer> labels) {
+        if (operands.length != 1) {
+            throw new IllegalArgumentException("bのオペランド数が不正です: " + line);
+        }
+
+        int targetPc = resolveTarget(operands[0], labels);
+        return new JumpInstruction(targetPc);
     }
 
     /**

@@ -1521,6 +1521,129 @@ class InstructionParserTest {
     }
 
     /**
+     * beqz擬似命令を正しくパースできることを確認する。
+     */
+    @Test
+    void beqz擬似命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 0",
+                "beqz $t0, zero",
+                "li $v0, 0",
+                "zero: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BeqInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 0);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(3, cpu.getPc());
+    }
+
+    /**
+     * beqz擬似命令で0でない場合は分岐しないことを確認する。
+     */
+    @Test
+    void beqz擬似命令で0でない場合は分岐しない() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 1",
+                "beqz $t0, zero",
+                "li $v0, 0",
+                "zero: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BeqInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 1);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(1, cpu.getPc());
+    }
+
+    /**
+     * bnez擬似命令を正しくパースできることを確認する。
+     */
+    @Test
+    void bnez擬似命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 1",
+                "bnez $t0, nonZero",
+                "li $v0, 0",
+                "nonZero: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BneInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 1);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(3, cpu.getPc());
+    }
+
+    /**
+     * bnez擬似命令で0の場合は分岐しないことを確認する。
+     */
+    @Test
+    void bnez擬似命令で0の場合は分岐しない() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "li $t0, 0",
+                "bnez $t0, nonZero",
+                "li $v0, 0",
+                "nonZero: li $v0, 1"));
+
+        assertEquals(4, program.size());
+        assertInstanceOf(BneInstruction.class, program.get(1));
+
+        Cpu cpu = new Cpu();
+        cpu.setRegister(8, 0);
+        cpu.setPc(1);
+
+        program.get(1).execute(cpu);
+
+        assertEquals(1, cpu.getPc());
+    }
+
+    /**
+     * b擬似命令を正しくパースできることを確認する。
+     */
+    @Test
+    void b擬似命令をパースできる() {
+        InstructionParser parser = new InstructionParser();
+
+        List<Instruction> program = parser.parse(List.of(
+                "b end",
+                "li $v0, 0",
+                "end: li $v0, 1"));
+
+        assertEquals(3, program.size());
+        assertInstanceOf(JumpInstruction.class, program.get(0));
+
+        Cpu cpu = new Cpu();
+        cpu.setPc(0);
+
+        program.get(0).execute(cpu);
+
+        assertEquals(2, cpu.getPc());
+    }
+
+    /**
      * ラベル付き命令を正しくパースできることを確認する。
      */
     @Test
