@@ -66,11 +66,13 @@ public class StepView {
      * @param newPc           実行後PC
      * @param registersBefore 実行前レジスタ
      * @param memoryBefore    実行前メモリ
+     * @param hiBefore        実行前HI
+     * @param loBefore        実行前LO
      * @param program         プログラム全体
      */
     public void printStep(int step, int currentPc, Instruction instruction,
             Cpu cpu, int newPc, int[] registersBefore, byte[] memoryBefore,
-            List<Instruction> program) {
+            int hiBefore, int loBefore, List<Instruction> program) {
 
         System.out.println("==================================================");
         System.out.println("STEP " + step);
@@ -97,6 +99,7 @@ public class StepView {
         System.out.println("CHANGES");
         printRegisterDiff(cpu, registersBefore);
         printMemoryDiff(cpu, memoryBefore, 0, 15);
+        printHiLoDiff(cpu, hiBefore, loBefore);
 
         System.out.println("--------------------------------------------------");
         System.out.println("NEXT");
@@ -752,6 +755,33 @@ public class StepView {
 
         if (!changed) {
             System.out.println("no memory changes");
+        }
+    }
+
+    /**
+     * HI/LOレジスタの差分を表示する。
+     * 
+     * @param cpu      現在のCPU状態
+     * @param hiBefore 実行前のHI
+     * @param loBefore 実行前のLO
+     */
+    private void printHiLoDiff(Cpu cpu, int hiBefore, int loBefore) {
+        int hiAfter = cpu.getHi();
+        int loAfter = cpu.getLo();
+        boolean changed = false;
+
+        if (hiBefore != hiAfter) {
+            System.out.println("HI : " + hiBefore + " -> " + hiAfter);
+            changed = true;
+        }
+
+        if (loBefore != loAfter) {
+            System.out.println("LO : " + loBefore + " -> " + loAfter);
+            changed = true;
+        }
+
+        if (!changed) {
+            System.out.println("no HiLo changes");
         }
     }
 
