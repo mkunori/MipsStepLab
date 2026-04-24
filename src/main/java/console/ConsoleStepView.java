@@ -1,9 +1,10 @@
-package debug;
+package console;
 
 import java.util.List;
 
 import cpu.Cpu;
 import cpu.RegisterNames;
+import execution.StepResult;
 import instruction.AddInstruction;
 import instruction.AddiInstruction;
 import instruction.AndInstruction;

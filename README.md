@@ -1,63 +1,24 @@
 # MipsStepLab
 
-Javaで実装した MIPSアセンブリの簡易シミュレータ兼ステップ実行デバッガです。
+MIPS命令を1ステップずつ実行しながら、  
+レジスタやメモリの変化を確認できるデバッグツールです。
 
----
+CUI（コンソール）上で動作し、  
+命令ごとの状態変化を可視化することを目的としています。
 
-## アプリケーション概要
-
-MIPS風のアセンブリコードを実行し、1命令ずつCPU内部の状態を可視化できるデバッガです。
-
-命令の実行結果だけでなく、
-
-- 命令の意味（イベント表示）
-- レジスタ / メモリの差分
-- PCの遷移
-
-を同時に表示することで、アセンブリ言語の動作理解を支援します。
-
-また、以下のような構成を持つことで、MIPSらしさを意識しています。
-
-- メモリは `byte[]` で管理
-- `byte / halfword / word` を命令側で構築
-- `HI / LO` レジスタを実装
+将来的にはWebアプリ化を想定しており、  
+実行処理と表示処理を分離した設計になっています。
 
 ---
 
 ## 主な機能
 
-### ステップ実行デバッガ
-- Enterキーで1命令ずつ実行
-- `run` による連続実行
-- ブレークポイントで停止
-
-### ブレークポイント
-- `break <pc>` で設定
-- `delete <pc>` で削除
-- `clear` で全削除
-- `breaks` で一覧表示
-
-### 状態可視化
-- レジスタ表示（差分付き）
-- `HI / LO` 表示
-- メモリ表示（0〜15）
-- メモリ差分表示
-
-### イベント表示
-命令の意味を人間向けに表示します。
-
-例:
-
-```text
-arithmetic: $t2 = $t0 + $t1
-result: 15
-
-load byte unsigned: $t2 = mem[10]
-loaded value: 255
-
-move from HI: $t0 = HI
-value: 99
-```
+- MIPS命令のステップ実行
+- レジスタの変更差分表示
+- メモリの変更差分表示
+- HI / LO レジスタの差分表示
+- ブレークポイント機能
+- runコマンドによる連続実行
 
 ---
 
@@ -142,72 +103,121 @@ value: 99
 | run | 連続実行 |
 | break <pc> | ブレークポイント追加 |
 | delete <pc> | ブレークポイント削除 |
-| clear | 全削除 |
-| breaks | 一覧表示 |
+| clear | ブレークポイント全削除 |
+| breaks | ブレークポイント一覧表示 |
 | quit | 終了 |
 
 ---
 
-## 設計
+## パッケージ構成
 
-### 構成
+```text
+execution/
+    StepRunner          // 命令を1ステップ実行する
+    StepResult          // 1ステップ分の実行結果を保持
+    BreakpointManager   // ブレークポイント管理
 
-| クラス | 役割 |
-|--------|------|
-| Cpu | レジスタ・メモリ・PC・HI/LO 管理 |
-| Instruction | 命令インターフェース |
-| InstructionParser | アセンブリ文字列から命令生成 |
-| StepRunner | 実行制御 |
-| ConsoleStepView | 表示処理 |
+console/
+    ConsoleStepRunner   // CUI操作（入力・コマンド処理）
+    ConsoleStepView     // 実行結果の表示
+    ConsoleCommand      // コマンド種別(enum)
 
----
+cpu/
+    Cpu                 // CPU本体
 
-### クラス図
+instruction/
+    Instruction         // 命令インターフェース
+    各命令クラス
 
-```mermaid
-classDiagram
-
-class Cpu
-class Instruction
-class InstructionParser
-class StepRunner
-class ConsoleStepView
-
-Instruction <|.. xxxxInstruction : implements
-
-InstructionParser --> Instruction : creates
-StepRunner --> Instruction : executes
-StepRunner --> Cpu : controls
-StepRunner --> ConsoleStepView : updates view
-ConsoleStepView --> Cpu : reads state
+parser/
+    InstructionParser   // 命令解析
 ```
 
 ---
 
-## 実装のポイント
+## クラス図
 
-- Interpreterパターンで命令をクラス化
-- ポリモーフィズムによる命令実行
-- StepRunner / ConsoleStepView の分離による責務分割
-- 差分表示による状態変化の可視化
-- byte配列によるメモリ表現
-- HI / LO レジスタによる乗算・除算対応
+```mermaid
+classDiagram
+
+class StepRunner
+class StepResult
+class BreakpointManager
+
+class ConsoleStepRunner
+class ConsoleStepView
+class ConsoleCommand
+
+class Cpu
+class Instruction
+
+StepRunner --> Cpu : uses
+StepRunner --> Instruction : uses
+StepRunner --> StepResult : creates
+
+ConsoleStepRunner --> StepRunner : uses
+ConsoleStepRunner --> ConsoleStepView : uses
+ConsoleStepRunner --> BreakpointManager : uses
+ConsoleStepRunner --> ConsoleCommand : uses
+
+ConsoleStepView --> StepResult : uses
+
+Instruction <|.. xxxxInstruction : implements
+```
 
 ---
 
-## テスト
+## シーケンス図（ステップ実行）
 
-JUnit による単体テストを実装
+```mermaid
+sequenceDiagram
 
-- 命令単位テスト
-- パーサテスト
-- CPU動作テスト
+participant User
+participant ConsoleStepRunner
+participant StepRunner
+participant Cpu
+participant ConsoleStepView
+
+User ->> ConsoleStepRunner : Enter
+ConsoleStepRunner ->> StepRunner : step()
+StepRunner ->> Cpu : execute(instruction)
+StepRunner -->> ConsoleStepRunner : StepResult
+ConsoleStepRunner ->> ConsoleStepView : printStep(result)
+```
+
+---
+
+## 設計のポイント
+
+### 1. 実行処理と表示処理の分離
+
+- StepRunner：命令実行のみ担当
+- ConsoleStepView：CUI表示のみ担当
+
+これにより、Webアプリへの移行が容易になっています。
+
+### 2. StepResultによるデータ受け渡し
+
+1ステップの実行結果をオブジェクトとして保持することで、
+
+- CUI表示
+- Web表示
+
+の両方に対応可能な設計にしています。
+
+### 3. 責務の分離
+
+- StepRunner：実行
+- ConsoleStepRunner：操作制御
+- BreakpointManager：状態管理
+
+それぞれの役割を小さく分割しています。
 
 ---
 
 ## 今後の予定
 
-- GUI対応またはWebアプリ化
+- Webアプリ化 (Spring Boot)
 - デバッガ機能の拡張
 - 命令の追加
 

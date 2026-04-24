@@ -1,8 +1,9 @@
 import java.util.List;
 
+import console.ConsoleStepRunner;
+import console.ConsoleStepView;
 import cpu.Cpu;
-import debug.StepRunner;
-import debug.ConsoleStepView;
+import execution.StepRunner;
 import instruction.Instruction;
 import parser.InstructionParser;
 
@@ -30,7 +31,7 @@ public class MSLMain {
         // List<String> source = createHalfWordMemorySample();
         // List<String> source = createUnsignedMemorySample();
         // List<String> source = createCallSample();
-        // List<String> source = createArithmeticSample();
+        List<String> source = createArithmeticSample();
         // List<String> source = createLogicSample();
         // List<String> source = createComparisonSample();
         // List<String> source = createVariableShiftSample();
@@ -43,13 +44,15 @@ public class MSLMain {
         // List<String> source = createMoveLoSample();
         // List<String> source = createJalrSample();
         // List<String> source = createRemainderSample();
-        List<String> source = createMulSample();
+        // List<String> source = createMulSample();
 
         List<Instruction> program = parser.parse(source);
 
         ConsoleStepView view = new ConsoleStepView();
-        StepRunner runner = new StepRunner(cpu, program, view);
-        runner.runInteractive();
+        StepRunner stepRunner = new StepRunner(cpu, program);
+        ConsoleStepRunner consoleRunner = new ConsoleStepRunner(stepRunner, view, program);
+
+        consoleRunner.runInteractive();
     }
 
     /**
