@@ -54,7 +54,7 @@ import instruction.XoriInstruction;
 /**
  * ステップ実行時の表示を担当するクラス。
  */
-public class StepView {
+public class ConsoleStepView {
 
     /**
      * 1ステップ実行した結果を表示する。

@@ -23,7 +23,7 @@ public class StepRunner {
     private final List<Instruction> program;
 
     /** デバッグ表示を担当するビュー。 */
-    private final StepView view;
+    private final ConsoleStepView view;
 
     /** ブレークポイントとして停止するPC番号。 */
     private final Set<Integer> breakpoints = new HashSet<>();
@@ -38,7 +38,7 @@ public class StepRunner {
      * @param program 命令列
      * @param view    表示担当
      */
-    public StepRunner(Cpu cpu, List<Instruction> program, StepView view) {
+    public StepRunner(Cpu cpu, List<Instruction> program, ConsoleStepView view) {
         this.cpu = cpu;
         this.program = program;
         this.view = view;

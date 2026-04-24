@@ -2,7 +2,7 @@ import java.util.List;
 
 import cpu.Cpu;
 import debug.StepRunner;
-import debug.StepView;
+import debug.ConsoleStepView;
 import instruction.Instruction;
 import parser.InstructionParser;
 
@@ -47,7 +47,7 @@ public class MSLMain {
 
         List<Instruction> program = parser.parse(source);
 
-        StepView view = new StepView();
+        ConsoleStepView view = new ConsoleStepView();
         StepRunner runner = new StepRunner(cpu, program, view);
         runner.runInteractive();
     }

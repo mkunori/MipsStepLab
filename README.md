@@ -158,7 +158,7 @@ value: 99
 | Instruction | 命令インターフェース |
 | InstructionParser | アセンブリ文字列から命令生成 |
 | StepRunner | 実行制御 |
-| StepView | 表示処理 |
+| ConsoleStepView | 表示処理 |
 
 ---
 
@@ -171,15 +171,15 @@ class Cpu
 class Instruction
 class InstructionParser
 class StepRunner
-class StepView
+class ConsoleStepView
 
 Instruction <|.. xxxxInstruction : implements
 
 InstructionParser --> Instruction : creates
 StepRunner --> Instruction : executes
 StepRunner --> Cpu : controls
-StepRunner --> StepView : updates view
-StepView --> Cpu : reads state
+StepRunner --> ConsoleStepView : updates view
+ConsoleStepView --> Cpu : reads state
 ```
 
 ---
@@ -188,7 +188,7 @@ StepView --> Cpu : reads state
 
 - Interpreterパターンで命令をクラス化
 - ポリモーフィズムによる命令実行
-- StepRunner / StepView の分離による責務分割
+- StepRunner / ConsoleStepView の分離による責務分割
 - 差分表示による状態変化の可視化
 - byte配列によるメモリ表現
 - HI / LO レジスタによる乗算・除算対応
