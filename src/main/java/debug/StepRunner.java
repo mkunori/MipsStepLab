@@ -87,22 +87,58 @@ public class StepRunner {
      * 1命令だけ実行して結果を表示する。
      */
     private void executeOneStep() {
+        StepResult result = step();
+
+        view.printStep(result, program);
+    }
+
+    /**
+     * 1命令だけ実行し、その実行結果を返す。
+     * 
+     * このメソッドは表示を行わない。
+     * 命令を1つ進める処理だけを担当する。
+     * 
+     * CUIでは、この戻り値をStepViewに渡して表示する。
+     * Webアプリでは、この戻り値を画面表示用のデータに変換して使う。
+     * 
+     * @return 1命令分の実行結果
+     */
+    public StepResult step() {
         int currentPc = cpu.getPc();
         Instruction instruction = program.get(currentPc);
 
-        // 差分表示のため実行前の状態を保存する。
+        // 命令実行前の状態を保存する。
         int[] registersBefore = cpu.copyRegisters();
         byte[] memoryBefore = cpu.copyMemory();
         int hiBefore = cpu.getHi();
         int loBefore = cpu.getLo();
 
+        // 命令を1つ実行する。
         cpu.execute(instruction);
+
+        // 分岐命令ではPCが通常の+1にならない場合があるため、
+        // 実行後のPCはCPUから取得する。
         int newPc = cpu.getPc();
 
-        view.printStep(step, currentPc, instruction, cpu, newPc,
-                registersBefore, memoryBefore, hiBefore, loBefore, program);
+        // 命令実行後の状態を保存する。
+        int[] registersAfter = cpu.copyRegisters();
+        byte[] memoryAfter = cpu.copyMemory();
+        int hiAfter = cpu.getHi();
+        int loAfter = cpu.getLo();
 
-        step++;
+        return new StepResult(
+                step++,
+                currentPc,
+                newPc,
+                instruction,
+                registersBefore,
+                registersAfter,
+                memoryBefore,
+                memoryAfter,
+                hiBefore,
+                hiAfter,
+                loBefore,
+                loAfter);
     }
 
     /**

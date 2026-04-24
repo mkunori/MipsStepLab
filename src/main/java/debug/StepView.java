@@ -57,56 +57,32 @@ import instruction.XoriInstruction;
 public class StepView {
 
     /**
-     * 1ステップ分のデバッグ表示を行う。
+     * 1ステップ実行した結果を表示する。
      * 
-     * @param step            ステップ番号
-     * @param currentPc       実行前PC
-     * @param instruction     実行した命令
-     * @param cpu             実行後のCPU
-     * @param newPc           実行後PC
-     * @param registersBefore 実行前レジスタ
-     * @param memoryBefore    実行前メモリ
-     * @param hiBefore        実行前HI
-     * @param loBefore        実行前LO
-     * @param program         プログラム全体
+     * このメソッドはCpuを直接受け取らない。
+     * 実行前と実行後の状態は、StepResultから取得する。
+     * 
+     * @param result  1ステップ分の実行結果
+     * @param program 実行対象の命令列
      */
-    public void printStep(int step, int currentPc, Instruction instruction,
-            Cpu cpu, int newPc, int[] registersBefore, byte[] memoryBefore,
-            int hiBefore, int loBefore, List<Instruction> program) {
-
-        System.out.println("==================================================");
-        System.out.println("STEP " + step);
-        System.out.println("PC      : " + currentPc);
-        System.out.println("INSTR   : " + instruction.toAssembly());
-
+    public void printStep(StepResult result, List<Instruction> program) {
         System.out.println("--------------------------------------------------");
-        System.out.println("REGISTERS");
-        printRegisters(cpu);
+        System.out.println("STEP " + result.getStep());
+        System.out.println("PC: " + result.getPcBefore() + " -> " + result.getPcAfter());
+        System.out.println("INSTRUCTION: " + result.getInstruction());
 
-        System.out.println("--------------------------------------------------");
-        System.out.println("SPECIAL REGISTERS");
-        printSpecialRegisters(cpu);
-
-        System.out.println("--------------------------------------------------");
-        System.out.println("MEMORY");
-        printMemory(cpu, 0, 15);
-
-        System.out.println("--------------------------------------------------");
-        System.out.println("EVENT");
-        printEvent(instruction, cpu, currentPc, newPc);
-
-        System.out.println("--------------------------------------------------");
-        System.out.println("CHANGES");
-        printRegisterDiff(cpu, registersBefore);
-        printMemoryDiff(cpu, memoryBefore, 0, 15);
-        printHiLoDiff(cpu, hiBefore, loBefore);
-
-        System.out.println("--------------------------------------------------");
-        System.out.println("NEXT");
-        printNextInstruction(program, newPc);
-
-        System.out.println("==================================================");
         System.out.println();
+        System.out.println("CHANGES");
+        printRegisterDiff(result.getRegistersBefore(), result.getRegistersAfter());
+        printMemoryDiff(result.getMemoryBefore(), result.getMemoryAfter(), 0, 15);
+        printHiLoDiff(
+                result.getHiBefore(),
+                result.getHiAfter(),
+                result.getLoBefore(),
+                result.getLoAfter());
+
+        System.out.println();
+        printNextInstruction(program, result.getPcAfter());
     }
 
     /**
@@ -708,80 +684,74 @@ public class StepView {
     }
 
     /**
-     * 変化したレジスタを表示する。
-     * 
-     * @param cpu    実行後のCPU
+     * レジスタの変更差分を表示する。
+     *
      * @param before 実行前のレジスタ状態
+     * @param after  実行後のレジスタ状態
      */
-    private void printRegisterDiff(Cpu cpu, int[] before) {
+    private void printRegisterDiff(int[] before, int[] after) {
         boolean changed = false;
 
         for (int i = 0; i < before.length; i++) {
-            int afterValue = cpu.getRegister(i);
-
-            if (before[i] != afterValue) {
-                System.out.println(RegisterNames.getName(i)
-                        + " : " + before[i] + " -> " + afterValue);
+            if (before[i] != after[i]) {
+                System.out.println("R" + i + ": " + before[i] + " -> " + after[i]);
                 changed = true;
             }
         }
 
         if (!changed) {
-            System.out.println("no register changes");
+            System.out.println("Registers: no change");
         }
     }
 
     /**
-     * 指定範囲で変化したメモリを表示する。
+     * メモリの変更差分を表示する。
      * 
-     * @param cpu    実行後のCPU
      * @param before 実行前のメモリ状態
-     * @param start  開始アドレス
-     * @param end    終了アドレス
+     * @param after  実行後のメモリ状態
+     * @param start  表示開始アドレス
+     * @param end    表示終了アドレス
      */
-    private void printMemoryDiff(Cpu cpu, byte[] before, int start, int end) {
+    private void printMemoryDiff(byte[] before, byte[] after, int start, int end) {
         boolean changed = false;
 
-        for (int i = start; i <= end; i++) {
-            int beforeValue = before[i] & 0xFF;
-            int afterValue = cpu.loadByte(i) & 0xFF;
-
-            if (beforeValue != afterValue) {
-                System.out.println("mem[" + i + "] : "
-                        + beforeValue + " -> " + afterValue);
+        for (int address = start; address <= end; address++) {
+            if (before[address] != after[address]) {
+                System.out.println(
+                        "MEM[" + address + "]: "
+                                + before[address] + " -> " + after[address]);
                 changed = true;
             }
         }
 
         if (!changed) {
-            System.out.println("no memory changes");
+            System.out.println("Memory: no change");
         }
     }
 
     /**
-     * HI/LOレジスタの差分を表示する。
+     * HIレジスタとLOレジスタの変更差分を表示する。
      * 
-     * @param cpu      現在のCPU状態
      * @param hiBefore 実行前のHI
+     * @param hiAfter  実行後のHI
      * @param loBefore 実行前のLO
+     * @param loAfter  実行後のLO
      */
-    private void printHiLoDiff(Cpu cpu, int hiBefore, int loBefore) {
-        int hiAfter = cpu.getHi();
-        int loAfter = cpu.getLo();
+    private void printHiLoDiff(int hiBefore, int hiAfter, int loBefore, int loAfter) {
         boolean changed = false;
 
         if (hiBefore != hiAfter) {
-            System.out.println("HI : " + hiBefore + " -> " + hiAfter);
+            System.out.println("HI: " + hiBefore + " -> " + hiAfter);
             changed = true;
         }
 
         if (loBefore != loAfter) {
-            System.out.println("LO : " + loBefore + " -> " + loAfter);
+            System.out.println("LO: " + loBefore + " -> " + loAfter);
             changed = true;
         }
 
         if (!changed) {
-            System.out.println("no HiLo changes");
+            System.out.println("HI/LO: no change");
         }
     }
 
@@ -799,15 +769,5 @@ public class StepView {
             System.out.println("NEXT PC   : " + nextPc);
             System.out.println("NEXT INST : <end>");
         }
-    }
-
-    /**
-     * 特殊レジスタ（HI,LO）を表示する。
-     * 
-     * @param cpu CPU
-     */
-    private void printSpecialRegisters(Cpu cpu) {
-        System.out.println(String.format("%-5s = %d", "HI", cpu.getHi()));
-        System.out.println(String.format("%-5s = %d", "LO", cpu.getLo()));
     }
 }
