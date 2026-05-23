@@ -86,4 +86,28 @@ public class StepResultViewMapper {
 
         return programLines.get(pc);
     }
+
+    /**
+     * StepResultからメモリ変更差分のリストを作成する。
+     *
+     * 実行前と実行後のメモリ配列を比較し、
+     * 値が変わったアドレスだけをMemoryDiffとして返す。
+     *
+     * @param result 1ステップ分の実行結果
+     * @return 変更されたメモリの差分リスト
+     */
+    public List<MemoryDiff> createMemoryDiffs(StepResult result) {
+        byte[] before = result.getMemoryBefore();
+        byte[] after = result.getMemoryAfter();
+
+        List<MemoryDiff> diffs = new ArrayList<>();
+
+        for (int address = 0; address < before.length; address++) {
+            if (before[address] != after[address]) {
+                diffs.add(new MemoryDiff(address, before[address], after[address]));
+            }
+        }
+
+        return diffs;
+    }
 }

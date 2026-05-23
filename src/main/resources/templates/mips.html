@@ -132,6 +132,31 @@
         </table>
     </div>
 
+    <h3 th:if="${stepResult != null}">メモリ変更</h3>
+
+    <div th:if="${stepResult != null}">
+        <p th:if="${#lists.isEmpty(memoryDiffs)}">
+            メモリ変更なし
+        </p>
+
+        <table th:if="${!#lists.isEmpty(memoryDiffs)}">
+            <thead>
+                <tr>
+                    <th>アドレス</th>
+                    <th>実行前</th>
+                    <th>実行後</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="diff : ${memoryDiffs}">
+                    <td th:text="${diff.address}">0</td>
+                    <td th:text="${diff.beforeValue}">0</td>
+                    <td th:text="${diff.afterValue}">5</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
     <h2>現在の段階</h2>
     <p>
         textareaから入力されたMIPS命令をControllerで受け取り、

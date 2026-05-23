@@ -143,6 +143,8 @@ public class HomeController {
 
         List<HiLoDiff> hiLoDiffs = stepResultViewMapper.createHiLoDiffs(result);
 
+        List<MemoryDiff> memoryDiffs = stepResultViewMapper.createMemoryDiffs(result);
+
         String executedInstructionText = stepResultViewMapper.getExecutedInstructionText(result, programLines);
 
         addStepResultModel(
@@ -152,6 +154,7 @@ public class HomeController {
                 readyToRun,
                 registerDiffs,
                 hiLoDiffs,
+                memoryDiffs,
                 executedInstructionText);
 
         return "mips";
@@ -215,6 +218,7 @@ public class HomeController {
         model.addAttribute("readyToRun", false);
         model.addAttribute("registerDiffs", List.of());
         model.addAttribute("hiLoDiffs", List.of());
+        model.addAttribute("memoryDiffs", List.of());
         model.addAttribute("currentPc", 0);
         model.addAttribute("executedPcs", Set.of());
     }
@@ -238,6 +242,7 @@ public class HomeController {
         model.addAttribute("readyToRun", false);
         model.addAttribute("registerDiffs", List.of());
         model.addAttribute("hiLoDiffs", List.of());
+        model.addAttribute("memoryDiffs", List.of());
         model.addAttribute("currentPc", -1);
         model.addAttribute("executedPcs", Set.of());
     }
@@ -270,6 +275,7 @@ public class HomeController {
         model.addAttribute("readyToRun", readyToRun);
         model.addAttribute("registerDiffs", List.of());
         model.addAttribute("hiLoDiffs", List.of());
+        model.addAttribute("memoryDiffs", List.of());
         model.addAttribute("currentPc", readyToRun ? 0 : -1);
         model.addAttribute("executedPcs", Set.of());
     }
@@ -283,6 +289,7 @@ public class HomeController {
      * @param readyToRun              次の命令を実行できる場合はtrue
      * @param registerDiffs           レジスタ変更差分
      * @param hiLoDiffs               HI/LO変更差分
+     * @param memoryDiffs             メモリ変更差分
      * @param executedInstructionText 実行した命令の表示文字列
      */
     private void addStepResultModel(
@@ -292,6 +299,7 @@ public class HomeController {
             boolean readyToRun,
             List<RegisterDiff> registerDiffs,
             List<HiLoDiff> hiLoDiffs,
+            List<MemoryDiff> memoryDiffs,
             String executedInstructionText) {
 
         model.addAttribute("programText", mipsSession.getProgramText());
@@ -309,6 +317,7 @@ public class HomeController {
         model.addAttribute("stepResult", result);
         model.addAttribute("registerDiffs", registerDiffs);
         model.addAttribute("hiLoDiffs", hiLoDiffs);
+        model.addAttribute("memoryDiffs", memoryDiffs);
         model.addAttribute("executedInstructionText", executedInstructionText);
         model.addAttribute("executedPcs", mipsSession.getExecutedPcs());
 
