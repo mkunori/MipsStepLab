@@ -40,6 +40,12 @@
         </p>
     </div>
 
+    <div th:if="${readyToRun}">
+        <p>
+            実行準備が完了しました。次のステップで1ステップ実行を追加できます。
+        </p>
+    </div>
+
     <h2>現在の段階</h2>
     <p>
         textareaから入力されたMIPS命令をControllerで受け取り、

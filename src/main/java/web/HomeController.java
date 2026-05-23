@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import instruction.Instruction;
+import jakarta.servlet.http.HttpSession;
 import parser.InstructionParser;
 
 /**
@@ -43,6 +44,7 @@ public class HomeController {
         model.addAttribute("parseMessage", null);
         model.addAttribute("parseSuccess", null);
         model.addAttribute("instructionCount", 0);
+        model.addAttribute("readyToRun", false);
 
         return "mips";
     }
@@ -50,16 +52,18 @@ public class HomeController {
     /**
      * 入力されたMIPSプログラムを受け取り、命令として解析する。
      *
-     * この段階では、まだ命令の実行は行わない。
-     * 入力された文字列をInstructionに変換できるか確認し、
-     * 結果を画面へ表示する。
+     * パースに成功した場合は、CpuとStepRunnerを作成し、
+     * WebMipsSessionとしてHTTPセッションに保存する。
+     *
+     * これにより、次回以降のリクエストでも同じ実行状態を使える。
      *
      * @param programText textareaから送信されたプログラム文字列
      * @param model       HTMLテンプレートへデータを渡すための入れ物
+     * @param session     ブラウザ利用者ごとの状態を保存するHTTPセッション
      * @return 表示するテンプレート名
      */
     @PostMapping("/mips")
-    public String submitProgram(String programText, Model model) {
+    public String submitProgram(String programText, Model model, HttpSession session) {
         List<String> programLines = splitLines(programText);
 
         model.addAttribute("programText", programText);
@@ -68,13 +72,20 @@ public class HomeController {
         try {
             List<Instruction> instructions = parseProgram(programLines);
 
+            WebMipsSession mipsSession = WebMipsSession.create(instructions);
+            session.setAttribute("mipsSession", mipsSession);
+
             model.addAttribute("instructionCount", instructions.size());
             model.addAttribute("parseMessage", "パース成功: " + instructions.size() + " 命令");
             model.addAttribute("parseSuccess", true);
+            model.addAttribute("readyToRun", true);
         } catch (IllegalArgumentException e) {
+            session.removeAttribute("mipsSession");
+
             model.addAttribute("instructionCount", 0);
             model.addAttribute("parseMessage", "パース失敗: " + e.getMessage());
             model.addAttribute("parseSuccess", false);
+            model.addAttribute("readyToRun", false);
         }
 
         return "mips";
