@@ -1,27 +1,27 @@
 package web;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
- * MipsStepLab Web版のトップページを表示するController。
+ * MipsStepLab Web版の画面を表示するController。
  *
- * Controllerは、ブラウザから送られてきたリクエストを受け取り、
- * それに対応するレスポンスを返す役割を持つ。
+ * Controllerは、ブラウザからのリクエストを受け取り、
+ * 表示するHTMLテンプレート名を返す役割を持つ。
  */
-@RestController
+@Controller
 public class HomeController {
 
     /**
-     * MipsStepLab Web版のトップページ用文字列を返す。
+     * MipsStepLab Web版のトップ画面を表示する。
      *
      * ブラウザで http://localhost:8080/mips にアクセスすると、
-     * このメソッドの戻り値が表示される。
+     * templates/mips.html が表示される。
      *
-     * @return トップページに表示する文字列
+     * @return 表示するテンプレート名
      */
     @GetMapping("/mips")
     public String home() {
-        return "MipsStepLab Web";
+        return "mips";
     }
 }
