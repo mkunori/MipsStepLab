@@ -1,7 +1,6 @@
 package web;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -11,9 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import execution.StepResult;
-import instruction.Instruction;
 import jakarta.servlet.http.HttpSession;
-import parser.InstructionParser;
 
 /**
  * MipsStepLab Web版の画面を表示するController。
@@ -29,6 +26,18 @@ public class HomeController {
             "addi $t0, $zero, 5",
             "addi $t1, $zero, 3",
             "add $t2, $t0, $t1");
+
+    /** Web版MipsStepLabの実行状態を扱うService。 */
+    private final WebMipsSessionService mipsSessionService;
+
+    /**
+     * HomeControllerを生成する。
+     *
+     * @param mipsSessionService Web版MipsStepLabの実行状態を扱うService
+     */
+    public HomeController(WebMipsSessionService mipsSessionService) {
+        this.mipsSessionService = mipsSessionService;
+    }
 
     /**
      * MipsStepLab Web版のトップ画面を表示する。
@@ -58,21 +67,20 @@ public class HomeController {
      */
     @PostMapping("/mips")
     public String submitProgram(String programText, Model model, HttpSession session) {
-        List<String> programLines = splitLines(programText);
+        List<String> programLines = mipsSessionService.splitLines(programText);
 
         try {
-            List<Instruction> instructions = parseProgram(programLines);
-            boolean readyToRun = !instructions.isEmpty();
+            WebMipsSession mipsSession = mipsSessionService.createSession(programText);
+            boolean readyToRun = mipsSessionService.canStep(mipsSession);
 
             if (readyToRun) {
-                WebMipsSession mipsSession = WebMipsSession.create(programText, instructions);
                 session.setAttribute("mipsSession", mipsSession);
             } else {
                 session.removeAttribute("mipsSession");
             }
 
             String message = readyToRun
-                    ? "パース成功: " + instructions.size() + " 命令"
+                    ? "パース成功: " + mipsSessionService.getInstructionCount(mipsSession) + " 命令"
                     : "パース成功しましたが、実行できる命令がありません。";
 
             addParsedModel(
@@ -81,7 +89,7 @@ public class HomeController {
                     programLines,
                     message,
                     true,
-                    instructions.size(),
+                    mipsSessionService.getInstructionCount(mipsSession),
                     readyToRun);
         } catch (IllegalArgumentException e) {
             session.removeAttribute("mipsSession");
@@ -97,40 +105,6 @@ public class HomeController {
         }
 
         return "mips";
-    }
-
-    /**
-     * 行ごとの文字列をInstructionのリストに変換する。
-     *
-     * InstructionParserは、プログラム全体をまとめて解析する。
-     * これは、ラベル定義と分岐先を対応付けるため。
-     *
-     * @param programLines MIPS命令を表す文字列のリスト
-     * @return 解析されたInstructionのリスト
-     */
-    private List<Instruction> parseProgram(List<String> programLines) {
-        InstructionParser parser = new InstructionParser();
-
-        return parser.parse(programLines);
-    }
-
-    /**
-     * 入力されたプログラム文字列を行ごとのリストに変換する。
-     *
-     * 空行は命令として扱わないため、除外している。
-     *
-     * @param text 入力されたプログラム文字列
-     * @return 空行を除いた命令行のリスト
-     */
-    private List<String> splitLines(String text) {
-        if (text == null || text.isBlank()) {
-            return List.of();
-        }
-
-        return Arrays.stream(text.split("\\R"))
-                .map(String::trim)
-                .filter(line -> !line.isEmpty())
-                .toList();
     }
 
     /**
@@ -153,10 +127,8 @@ public class HomeController {
             return "mips";
         }
 
-        StepResult result = mipsSession.getStepRunner().step();
-        mipsSession.markExecuted(result.getPcBefore());
-
-        boolean readyToRun = mipsSession.getStepRunner().hasNext();
+        StepResult result = mipsSessionService.step(mipsSession);
+        boolean readyToRun = mipsSessionService.canStep(mipsSession);
 
         List<RegisterDiff> registerDiffs = createRegisterDiffs(result);
         List<HiLoDiff> hiLoDiffs = createHiLoDiffs(result);
@@ -236,7 +208,7 @@ public class HomeController {
      * @return 実行された命令の表示文字列
      */
     private String getExecutedInstructionText(StepResult result, String programText) {
-        List<String> programLines = splitLines(programText);
+        List<String> programLines = mipsSessionService.splitLines(programText);
         int pc = result.getPcBefore();
 
         if (pc < 0 || pc >= programLines.size()) {
@@ -266,13 +238,12 @@ public class HomeController {
             return "mips";
         }
 
-        String programText = oldSession.getProgramText();
-        List<String> programLines = splitLines(programText);
-        List<Instruction> instructions = parseProgram(programLines);
-        boolean readyToRun = !instructions.isEmpty();
-
-        WebMipsSession newSession = WebMipsSession.create(programText, instructions);
+        WebMipsSession newSession = mipsSessionService.resetSession(oldSession);
         session.setAttribute("mipsSession", newSession);
+
+        String programText = newSession.getProgramText();
+        List<String> programLines = mipsSessionService.splitLines(programText);
+        boolean readyToRun = mipsSessionService.canStep(newSession);
 
         addParsedModel(
                 model,
@@ -280,7 +251,7 @@ public class HomeController {
                 programLines,
                 "実行状態をリセットしました。",
                 true,
-                instructions.size(),
+                mipsSessionService.getInstructionCount(newSession),
                 readyToRun);
 
         return "mips";
@@ -295,7 +266,7 @@ public class HomeController {
      * @param model HTMLテンプレートへデータを渡すための入れ物
      */
     private void addInitialModel(Model model) {
-        List<String> programLines = splitLines(DEFAULT_PROGRAM);
+        List<String> programLines = mipsSessionService.splitLines(DEFAULT_PROGRAM);
 
         model.addAttribute("programText", DEFAULT_PROGRAM);
         model.addAttribute("programLines", programLines);
@@ -318,7 +289,7 @@ public class HomeController {
      * @param message 画面に表示するメッセージ
      */
     private void addNoSessionModel(Model model, String message) {
-        List<String> programLines = splitLines(DEFAULT_PROGRAM);
+        List<String> programLines = mipsSessionService.splitLines(DEFAULT_PROGRAM);
 
         model.addAttribute("programText", DEFAULT_PROGRAM);
         model.addAttribute("programLines", programLines);
@@ -385,7 +356,7 @@ public class HomeController {
             String executedInstructionText) {
 
         model.addAttribute("programText", mipsSession.getProgramText());
-        model.addAttribute("programLines", splitLines(mipsSession.getProgramText()));
+        model.addAttribute("programLines", mipsSessionService.splitLines(mipsSession.getProgramText()));
 
         if (readyToRun) {
             model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
