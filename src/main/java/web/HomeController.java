@@ -1,6 +1,5 @@
 package web;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,13 +29,21 @@ public class HomeController {
     /** Web版MipsStepLabの実行状態を扱うService。 */
     private final WebMipsSessionService mipsSessionService;
 
+    /** StepResultをWeb表示用データに変換するMapper。 */
+    private final StepResultViewMapper stepResultViewMapper;
+
     /**
      * HomeControllerを生成する。
      *
-     * @param mipsSessionService Web版MipsStepLabの実行状態を扱うService
+     * @param mipsSessionService   Web版MipsStepLabの実行状態を扱うService
+     * @param stepResultViewMapper StepResultをWeb表示用データに変換するMapper
      */
-    public HomeController(WebMipsSessionService mipsSessionService) {
+    public HomeController(
+            WebMipsSessionService mipsSessionService,
+            StepResultViewMapper stepResultViewMapper) {
+
         this.mipsSessionService = mipsSessionService;
+        this.stepResultViewMapper = stepResultViewMapper;
     }
 
     /**
@@ -130,9 +137,13 @@ public class HomeController {
         StepResult result = mipsSessionService.step(mipsSession);
         boolean readyToRun = mipsSessionService.canStep(mipsSession);
 
-        List<RegisterDiff> registerDiffs = createRegisterDiffs(result);
-        List<HiLoDiff> hiLoDiffs = createHiLoDiffs(result);
-        String executedInstructionText = getExecutedInstructionText(result, mipsSession.getProgramText());
+        List<String> programLines = mipsSessionService.splitLines(mipsSession.getProgramText());
+
+        List<RegisterDiff> registerDiffs = stepResultViewMapper.createRegisterDiffs(result);
+
+        List<HiLoDiff> hiLoDiffs = stepResultViewMapper.createHiLoDiffs(result);
+
+        String executedInstructionText = stepResultViewMapper.getExecutedInstructionText(result, programLines);
 
         addStepResultModel(
                 model,
@@ -144,78 +155,6 @@ public class HomeController {
                 executedInstructionText);
 
         return "mips";
-    }
-
-    /**
-     * StepResultからレジスタ変更差分のリストを作成する。
-     *
-     * 実行前と実行後のレジスタ配列を比較し、
-     * 値が変わったレジスタだけをRegisterDiffとして返す。
-     *
-     * @param result 1ステップ分の実行結果
-     * @return 変更されたレジスタの差分リスト
-     */
-    private List<RegisterDiff> createRegisterDiffs(StepResult result) {
-        int[] before = result.getRegistersBefore();
-        int[] after = result.getRegistersAfter();
-
-        List<RegisterDiff> diffs = new java.util.ArrayList<>();
-
-        for (int i = 0; i < before.length; i++) {
-            if (before[i] != after[i]) {
-                diffs.add(new RegisterDiff(i, before[i], after[i]));
-            }
-        }
-
-        return diffs;
-    }
-
-    /**
-     * StepResultからHI/LOレジスタ変更差分のリストを作成する。
-     *
-     * 実行前と実行後のHI/LOレジスタを比較し、
-     * 値が変わったものだけをHiLoDiffとして返す。
-     *
-     * @param result 1ステップ分の実行結果
-     * @return 変更されたHI/LOレジスタの差分リスト
-     */
-    private List<HiLoDiff> createHiLoDiffs(StepResult result) {
-        List<HiLoDiff> diffs = new ArrayList<>();
-
-        if (result.getHiBefore() != result.getHiAfter()) {
-            diffs.add(new HiLoDiff("HI", result.getHiBefore(), result.getHiAfter()));
-        }
-
-        if (result.getLoBefore() != result.getLoAfter()) {
-            diffs.add(new HiLoDiff("LO", result.getLoBefore(), result.getLoAfter()));
-        }
-
-        return diffs;
-    }
-
-    /**
-     * 実行された命令を画面表示用の文字列として取得する。
-     *
-     * StepResultにはInstructionオブジェクトが入っているが、
-     * Instructionクラス側でtoString()を実装していない場合、
-     * クラス名とハッシュ値のような表示になってしまう。
-     *
-     * そのため、Web画面では元の入力文字列から、
-     * 実行前PCに対応する行を取り出して表示する。
-     *
-     * @param result      1ステップ分の実行結果
-     * @param programText ユーザーが入力したMIPSプログラム文字列
-     * @return 実行された命令の表示文字列
-     */
-    private String getExecutedInstructionText(StepResult result, String programText) {
-        List<String> programLines = mipsSessionService.splitLines(programText);
-        int pc = result.getPcBefore();
-
-        if (pc < 0 || pc >= programLines.size()) {
-            return "";
-        }
-
-        return programLines.get(pc);
     }
 
     /**
