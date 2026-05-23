@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -14,9 +14,17 @@
         レジスタやメモリの変化を確認する学習用デバッガです。
     </p>
 
+    <h2>サンプルプログラム</h2>
+
+    <ol start="0">
+        <li th:each="instruction : ${sampleProgram}" th:text="${instruction}">
+            addi $t0, $zero, 5
+        </li>
+    </ol>
+
     <h2>現在の段階</h2>
     <p>
-        Spring BootでHTML画面を表示する最小構成です。
+        Spring BootでHTML画面にサンプルプログラムを表示しています。
     </p>
 </body>
 
