@@ -46,6 +46,7 @@ public class HomeController {
         model.addAttribute("parseSuccess", null);
         model.addAttribute("instructionCount", 0);
         model.addAttribute("readyToRun", false);
+        model.addAttribute("registerDiffs", List.of());
 
         return "mips";
     }
@@ -80,6 +81,7 @@ public class HomeController {
             model.addAttribute("parseMessage", "パース成功: " + instructions.size() + " 命令");
             model.addAttribute("parseSuccess", true);
             model.addAttribute("readyToRun", true);
+            model.addAttribute("registerDiffs", List.of());
         } catch (IllegalArgumentException e) {
             session.removeAttribute("mipsSession");
 
@@ -87,6 +89,7 @@ public class HomeController {
             model.addAttribute("parseMessage", "パース失敗: " + e.getMessage());
             model.addAttribute("parseSuccess", false);
             model.addAttribute("readyToRun", false);
+            model.addAttribute("registerDiffs", List.of());
         }
 
         return "mips";
@@ -154,17 +157,22 @@ public class HomeController {
         StepResult result = mipsSession.getStepRunner().step();
         boolean readyToRun = mipsSession.getStepRunner().hasNext();
 
+        List<RegisterDiff> registerDiffs = createRegisterDiffs(result);
+
         model.addAttribute("programText", mipsSession.getProgramText());
         model.addAttribute("programLines", toDisplayLines(mipsSession.getProgram()));
+
         if (readyToRun) {
             model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
         } else {
             model.addAttribute("parseMessage", "プログラムが終了しました。");
         }
+
         model.addAttribute("parseSuccess", true);
         model.addAttribute("instructionCount", mipsSession.getProgram().size());
-        model.addAttribute("readyToRun", mipsSession.getStepRunner().hasNext());
+        model.addAttribute("readyToRun", readyToRun);
         model.addAttribute("stepResult", result);
+        model.addAttribute("registerDiffs", registerDiffs);
 
         return "mips";
     }
@@ -179,5 +187,29 @@ public class HomeController {
         return program.stream()
                 .map(Object::toString)
                 .toList();
+    }
+
+    /**
+     * StepResultからレジスタ変更差分のリストを作成する。
+     *
+     * 実行前と実行後のレジスタ配列を比較し、
+     * 値が変わったレジスタだけをRegisterDiffとして返す。
+     *
+     * @param result 1ステップ分の実行結果
+     * @return 変更されたレジスタの差分リスト
+     */
+    private List<RegisterDiff> createRegisterDiffs(StepResult result) {
+        int[] before = result.getRegistersBefore();
+        int[] after = result.getRegistersAfter();
+
+        List<RegisterDiff> diffs = new java.util.ArrayList<>();
+
+        for (int i = 0; i < before.length; i++) {
+            if (before[i] != after[i]) {
+                diffs.add(new RegisterDiff(i, before[i], after[i]));
+            }
+        }
+
+        return diffs;
     }
 }

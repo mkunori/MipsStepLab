@@ -71,6 +71,31 @@
         </p>
     </div>
 
+    <h3 th:if="${stepResult != null}">レジスタ変更</h3>
+
+    <div th:if="${stepResult != null}">
+        <p th:if="${#lists.isEmpty(registerDiffs)}">
+            レジスタ変更なし
+        </p>
+
+        <table th:if="${!#lists.isEmpty(registerDiffs)}" border="1">
+            <thead>
+                <tr>
+                    <th>レジスタ</th>
+                    <th>実行前</th>
+                    <th>実行後</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="diff : ${registerDiffs}">
+                    <td th:text="'R' + ${diff.registerNumber}">R8</td>
+                    <td th:text="${diff.beforeValue}">0</td>
+                    <td th:text="${diff.afterValue}">5</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
     <h2>現在の段階</h2>
     <p>
         textareaから入力されたMIPS命令をControllerで受け取り、
