@@ -18,6 +18,9 @@ import instruction.Instruction;
  */
 public class WebMipsSession {
 
+    /** ユーザーが入力したMIPSプログラムの文字列。 */
+    private final String programText;
+
     /** ステップ実行で使用するCPU。 */
     private final Cpu cpu;
 
@@ -30,11 +33,18 @@ public class WebMipsSession {
     /**
      * WebMipsSessionを生成する。
      *
-     * @param cpu        ステップ実行で使用するCPU
-     * @param program    実行対象の命令列
-     * @param stepRunner 1ステップ実行を担当するクラス
+     * @param programText ユーザーが入力したMIPSプログラムの文字列
+     * @param cpu         ステップ実行で使用するCPU
+     * @param program     実行対象の命令列
+     * @param stepRunner  1ステップ実行を担当するクラス
      */
-    public WebMipsSession(Cpu cpu, List<Instruction> program, StepRunner stepRunner) {
+    public WebMipsSession(
+            String programText,
+            Cpu cpu,
+            List<Instruction> program,
+            StepRunner stepRunner) {
+
+        this.programText = programText;
         this.cpu = cpu;
         this.program = program;
         this.stepRunner = stepRunner;
@@ -46,14 +56,24 @@ public class WebMipsSession {
      * CpuとStepRunnerをここでまとめて生成することで、
      * Controller側の処理をシンプルにする。
      *
-     * @param program 実行対象の命令列
+     * @param programText ユーザーが入力したMIPSプログラムの文字列
+     * @param program     実行対象の命令列
      * @return 新しい実行状態
      */
-    public static WebMipsSession create(List<Instruction> program) {
+    public static WebMipsSession create(String programText, List<Instruction> program) {
         Cpu cpu = new Cpu();
         StepRunner stepRunner = new StepRunner(cpu, program);
 
-        return new WebMipsSession(cpu, program, stepRunner);
+        return new WebMipsSession(programText, cpu, program, stepRunner);
+    }
+
+    /**
+     * ユーザーが入力したMIPSプログラムの文字列を返す。
+     *
+     * @return ユーザーが入力したMIPSプログラムの文字列
+     */
+    public String getProgramText() {
+        return programText;
     }
 
     /**

@@ -73,7 +73,7 @@ public class HomeController {
         try {
             List<Instruction> instructions = parseProgram(programLines);
 
-            WebMipsSession mipsSession = WebMipsSession.create(instructions);
+            WebMipsSession mipsSession = WebMipsSession.create(programText, instructions);
             session.setAttribute("mipsSession", mipsSession);
 
             model.addAttribute("instructionCount", instructions.size());
@@ -152,10 +152,15 @@ public class HomeController {
         }
 
         StepResult result = mipsSession.getStepRunner().step();
+        boolean readyToRun = mipsSession.getStepRunner().hasNext();
 
-        model.addAttribute("programText", "");
+        model.addAttribute("programText", mipsSession.getProgramText());
         model.addAttribute("programLines", toDisplayLines(mipsSession.getProgram()));
-        model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
+        if (readyToRun) {
+            model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
+        } else {
+            model.addAttribute("parseMessage", "プログラムが終了しました。");
+        }
         model.addAttribute("parseSuccess", true);
         model.addAttribute("instructionCount", mipsSession.getProgram().size());
         model.addAttribute("readyToRun", mipsSession.getStepRunner().hasNext());
