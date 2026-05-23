@@ -49,6 +49,7 @@ public class HomeController {
         model.addAttribute("readyToRun", false);
         model.addAttribute("registerDiffs", List.of());
         model.addAttribute("hiLoDiffs", List.of());
+        model.addAttribute("currentPc", 0);
 
         return "mips";
     }
@@ -83,6 +84,7 @@ public class HomeController {
             model.addAttribute("parseMessage", "パース成功: " + instructions.size() + " 命令");
             model.addAttribute("parseSuccess", true);
             model.addAttribute("readyToRun", true);
+            model.addAttribute("currentPc", 0);
         } catch (IllegalArgumentException e) {
             session.removeAttribute("mipsSession");
 
@@ -90,7 +92,9 @@ public class HomeController {
             model.addAttribute("parseMessage", "パース失敗: " + e.getMessage());
             model.addAttribute("parseSuccess", false);
             model.addAttribute("readyToRun", false);
+            model.addAttribute("currentPc", -1);
         }
+
         model.addAttribute("registerDiffs", List.of());
         model.addAttribute("hiLoDiffs", List.of());
 
@@ -177,6 +181,9 @@ public class HomeController {
         model.addAttribute("stepResult", result);
         model.addAttribute("registerDiffs", registerDiffs);
         model.addAttribute("hiLoDiffs", hiLoDiffs);
+
+        int currentPc = readyToRun ? result.getPcAfter() : -1;
+        model.addAttribute("currentPc", currentPc);
 
         return "mips";
     }

@@ -4,6 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <title>MipsStepLab</title>
+
+    <style>
+        .current-instruction {
+            font-weight: bold;
+            background-color: #fff3cd;
+            border-left: 4px solid #f0ad4e;
+            padding-left: 8px;
+        }
+    </style>
 </head>
 
 <body>
@@ -27,8 +36,10 @@
     <h2>入力されたプログラム</h2>
 
     <ol start="0">
-        <li th:each="instruction : ${programLines}" th:text="${instruction}">
-            addi $t0, $zero, 5
+        <li th:each="instruction, stat : ${programLines}"
+            th:classappend="${stat.index == currentPc} ? 'current-instruction' : ''">
+            <span th:text="${instruction}">addi $t0, $zero, 5</span>
+            <span th:if="${stat.index == currentPc}"> ← 次に実行</span>
         </li>
     </ol>
 
