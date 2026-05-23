@@ -8,6 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import instruction.Instruction;
+import parser.InstructionParser;
+
 /**
  * MipsStepLab Web版の画面を表示するController。
  *
@@ -33,14 +36,23 @@ public class HomeController {
      */
     @GetMapping("/mips")
     public String home(Model model) {
+        List<String> programLines = splitLines(DEFAULT_PROGRAM);
+
         model.addAttribute("programText", DEFAULT_PROGRAM);
-        model.addAttribute("programLines", splitLines(DEFAULT_PROGRAM));
+        model.addAttribute("programLines", programLines);
+        model.addAttribute("parseMessage", null);
+        model.addAttribute("parseSuccess", null);
+        model.addAttribute("instructionCount", 0);
 
         return "mips";
     }
 
     /**
-     * 入力されたMIPSプログラムを受け取り、画面に表示する。
+     * 入力されたMIPSプログラムを受け取り、命令として解析する。
+     *
+     * この段階では、まだ命令の実行は行わない。
+     * 入力された文字列をInstructionに変換できるか確認し、
+     * 結果を画面へ表示する。
      *
      * @param programText textareaから送信されたプログラム文字列
      * @param model       HTMLテンプレートへデータを渡すための入れ物
@@ -48,10 +60,39 @@ public class HomeController {
      */
     @PostMapping("/mips")
     public String submitProgram(String programText, Model model) {
+        List<String> programLines = splitLines(programText);
+
         model.addAttribute("programText", programText);
-        model.addAttribute("programLines", splitLines(programText));
+        model.addAttribute("programLines", programLines);
+
+        try {
+            List<Instruction> instructions = parseProgram(programLines);
+
+            model.addAttribute("instructionCount", instructions.size());
+            model.addAttribute("parseMessage", "パース成功: " + instructions.size() + " 命令");
+            model.addAttribute("parseSuccess", true);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("instructionCount", 0);
+            model.addAttribute("parseMessage", "パース失敗: " + e.getMessage());
+            model.addAttribute("parseSuccess", false);
+        }
 
         return "mips";
+    }
+
+    /**
+     * 行ごとの文字列をInstructionのリストに変換する。
+     *
+     * InstructionParserは、プログラム全体をまとめて解析する。
+     * これは、ラベル定義と分岐先を対応付けるため。
+     *
+     * @param programLines MIPS命令を表す文字列のリスト
+     * @return 解析されたInstructionのリスト
+     */
+    private List<Instruction> parseProgram(List<String> programLines) {
+        InstructionParser parser = new InstructionParser();
+
+        return parser.parse(programLines);
     }
 
     /**

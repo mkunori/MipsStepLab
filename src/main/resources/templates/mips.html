@@ -32,6 +32,14 @@
         </li>
     </ol>
 
+    <h2>解析結果</h2>
+
+    <div th:if="${parseMessage != null}">
+        <p th:text="${parseMessage}">
+            パース結果がここに表示されます。
+        </p>
+    </div>
+
     <h2>現在の段階</h2>
     <p>
         textareaから入力されたMIPS命令をControllerで受け取り、
