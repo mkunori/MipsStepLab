@@ -277,4 +277,56 @@ public class HomeController {
 
         return programLines.get(pc);
     }
+
+    /**
+     * 現在のプログラムを最初から実行し直せる状態に戻す。
+     *
+     * 入力されたプログラム文字列はそのまま使い、
+     * CpuとStepRunnerだけを新しく作り直す。
+     *
+     * @param model   HTMLテンプレートへデータを渡すための入れ物
+     * @param session ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return 表示するテンプレート名
+     */
+    @PostMapping("/mips/reset")
+    public String reset(Model model, HttpSession session) {
+        WebMipsSession oldSession = (WebMipsSession) session.getAttribute("mipsSession");
+
+        if (oldSession == null) {
+            model.addAttribute("programText", DEFAULT_PROGRAM);
+            model.addAttribute("programLines", splitLines(DEFAULT_PROGRAM));
+            model.addAttribute("parseMessage", "実行状態がありません。先にプログラムを解析してください。");
+            model.addAttribute("parseSuccess", false);
+            model.addAttribute("instructionCount", 0);
+            model.addAttribute("readyToRun", false);
+            model.addAttribute("registerDiffs", List.of());
+            model.addAttribute("hiLoDiffs", List.of());
+            model.addAttribute("currentPc", -1);
+            model.addAttribute("executedPcs", Set.of());
+
+            return "mips";
+        }
+
+        String programText = oldSession.getProgramText();
+        List<String> programLines = splitLines(programText);
+        List<Instruction> instructions = parseProgram(programLines);
+
+        WebMipsSession newSession = WebMipsSession.create(programText, instructions);
+        session.setAttribute("mipsSession", newSession);
+
+        boolean readyToRun = !instructions.isEmpty();
+
+        model.addAttribute("programText", programText);
+        model.addAttribute("programLines", programLines);
+        model.addAttribute("parseMessage", "実行状態をリセットしました。");
+        model.addAttribute("parseSuccess", true);
+        model.addAttribute("instructionCount", instructions.size());
+        model.addAttribute("readyToRun", readyToRun);
+        model.addAttribute("registerDiffs", List.of());
+        model.addAttribute("hiLoDiffs", List.of());
+        model.addAttribute("currentPc", readyToRun ? 0 : -1);
+        model.addAttribute("executedPcs", Set.of());
+
+        return "mips";
+    }
 }

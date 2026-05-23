@@ -61,13 +61,17 @@
         </p>
     </div>
 
-    <div th:if="${readyToRun}">
-        <p>
+    <div th:if="${parseSuccess}">
+        <p th:if="${readyToRun}">
             実行準備が完了しました。
         </p>
 
-        <form method="post" action="/mips/step">
+        <form method="post" action="/mips/step" th:if="${readyToRun}">
             <button type="submit">1ステップ実行</button>
+        </form>
+
+        <form method="post" action="/mips/reset">
+            <button type="submit">リセット</button>
         </form>
     </div>
 
