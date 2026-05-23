@@ -2,6 +2,7 @@ package web;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
@@ -112,5 +113,50 @@ public class WebMipsSessionService {
         InstructionParser parser = new InstructionParser();
 
         return parser.parse(programLines);
+    }
+
+    /**
+     * ブレークポイントを追加する。
+     *
+     * @param session 現在の実行状態
+     * @param pc      追加するPC番号
+     */
+    public void addBreakpoint(WebMipsSession session, int pc) {
+        validateProgramPc(session, pc);
+
+        session.getBreakpointManager().add(pc);
+    }
+
+    /**
+     * ブレークポイントを削除する。
+     *
+     * @param session 現在の実行状態
+     * @param pc      削除するPC番号
+     * @return 削除できた場合はtrue
+     */
+    public boolean removeBreakpoint(WebMipsSession session, int pc) {
+        return session.getBreakpointManager().remove(pc);
+    }
+
+    /**
+     * 登録されているブレークポイント一覧を返す。
+     *
+     * @param session 現在の実行状態
+     * @return ブレークポイント一覧
+     */
+    public Set<Integer> getBreakpoints(WebMipsSession session) {
+        return session.getBreakpointManager().getAll();
+    }
+
+    /**
+     * 指定したPCがプログラム範囲内か検証する。
+     *
+     * @param session 現在の実行状態
+     * @param pc      検証するPC番号
+     */
+    private void validateProgramPc(WebMipsSession session, int pc) {
+        if (pc < 0 || pc >= session.getProgram().size()) {
+            throw new IllegalArgumentException("PCがプログラム範囲外です: " + pc);
+        }
     }
 }

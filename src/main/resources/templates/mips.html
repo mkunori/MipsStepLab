@@ -63,6 +63,36 @@
                     <button type="submit">リセット</button>
                 </form>
             </div>
+
+            <div th:if="${parseSuccess}">
+                <h3>ブレークポイント</h3>
+
+                <form method="post" action="/mips/breakpoints">
+                    <label>
+                        PC:
+                        <input type="number" name="breakpointPc" min="0">
+                    </label>
+                    <button type="submit">追加</button>
+                </form>
+
+                <form method="post" action="/mips/breakpoints/delete">
+                    <label>
+                        PC:
+                        <input type="number" name="breakpointPc" min="0">
+                    </label>
+                    <button type="submit">削除</button>
+                </form>
+
+                <p th:if="${#lists.isEmpty(breakpoints)}">
+                    ブレークポイントなし
+                </p>
+
+                <ul th:if="${!#lists.isEmpty(breakpoints)}">
+                    <li th:each="pc : ${breakpoints}" th:text="'PC ' + ${pc}">
+                        PC 0
+                    </li>
+                </ul>
+            </div>
         </section>
 
         <section class="panel" th:if="${stepResult != null}">

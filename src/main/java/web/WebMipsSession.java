@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import cpu.Cpu;
+import execution.BreakpointManager;
 import execution.StepRunner;
 import instruction.Instruction;
 
@@ -35,6 +36,9 @@ public class WebMipsSession {
 
     /** 実行済みのPC番号。 */
     private final Set<Integer> executedPcs = new HashSet<>();
+
+    /** ブレークポイント管理を担当するクラス。 */
+    private final BreakpointManager breakpointManager = new BreakpointManager();
 
     /**
      * WebMipsSessionを生成する。
@@ -127,5 +131,14 @@ public class WebMipsSession {
      */
     public Set<Integer> getExecutedPcs() {
         return Collections.unmodifiableSet(executedPcs);
+    }
+
+    /**
+     * ブレークポイント管理クラスを返す。
+     *
+     * @return ブレークポイント管理クラス
+     */
+    public BreakpointManager getBreakpointManager() {
+        return breakpointManager;
     }
 }

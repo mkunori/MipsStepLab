@@ -229,6 +229,7 @@ public class HomeController {
         model.addAttribute("memoryDiffs", List.of());
         model.addAttribute("currentPc", 0);
         model.addAttribute("executedPcs", Set.of());
+        model.addAttribute("breakpoints", Set.of());
     }
 
     /**
@@ -255,6 +256,7 @@ public class HomeController {
         model.addAttribute("memoryDiffs", List.of());
         model.addAttribute("currentPc", -1);
         model.addAttribute("executedPcs", Set.of());
+        model.addAttribute("breakpoints", Set.of());
     }
 
     /**
@@ -290,6 +292,7 @@ public class HomeController {
         model.addAttribute("memoryDiffs", List.of());
         model.addAttribute("currentPc", readyToRun ? 0 : -1);
         model.addAttribute("executedPcs", Set.of());
+        model.addAttribute("breakpoints", Set.of());
     }
 
     /**
@@ -338,8 +341,116 @@ public class HomeController {
         model.addAttribute("memoryDiffs", memoryDiffs);
         model.addAttribute("executedInstructionText", executedInstructionText);
         model.addAttribute("executedPcs", mipsSession.getExecutedPcs());
+        model.addAttribute("breakpoints", mipsSession.getBreakpointManager().getAll());
 
         int currentPc = readyToRun ? result.getPcAfter() : -1;
         model.addAttribute("currentPc", currentPc);
+    }
+
+    /**
+     * ブレークポイントを追加する。
+     *
+     * @param breakpointPc ブレークポイントとして追加するPC番号
+     * @param model        HTMLテンプレートへデータを渡すための入れ物
+     * @param session      ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return 表示するテンプレート名
+     */
+    @PostMapping("/mips/breakpoints")
+    public String addBreakpoint(Integer breakpointPc, Model model, HttpSession session) {
+        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
+
+        if (mipsSession == null) {
+            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
+            return "mips";
+        }
+
+        if (breakpointPc == null) {
+            addParsedModel(
+                    model,
+                    mipsSession.getProgramText(),
+                    mipsSessionService.splitLines(mipsSession.getProgramText()),
+                    "PC番号を入力してください。",
+                    false,
+                    mipsSessionService.getInstructionCount(mipsSession),
+                    mipsSessionService.canStep(mipsSession));
+            model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
+            return "mips";
+        }
+
+        try {
+            mipsSessionService.addBreakpoint(mipsSession, breakpointPc);
+
+            addParsedModel(
+                    model,
+                    mipsSession.getProgramText(),
+                    mipsSessionService.splitLines(mipsSession.getProgramText()),
+                    "ブレークポイントを追加しました: PC " + breakpointPc,
+                    true,
+                    mipsSessionService.getInstructionCount(mipsSession),
+                    mipsSessionService.canStep(mipsSession));
+        } catch (IllegalArgumentException e) {
+            addParsedModel(
+                    model,
+                    mipsSession.getProgramText(),
+                    mipsSessionService.splitLines(mipsSession.getProgramText()),
+                    "ブレークポイント追加失敗: " + e.getMessage(),
+                    false,
+                    mipsSessionService.getInstructionCount(mipsSession),
+                    mipsSessionService.canStep(mipsSession));
+        }
+
+        model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
+
+        return "mips";
+    }
+
+    /**
+     * ブレークポイントを削除する。
+     *
+     * @param breakpointPc 削除するPC番号
+     * @param model        HTMLテンプレートへデータを渡すための入れ物
+     * @param session      ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return 表示するテンプレート名
+     */
+    @PostMapping("/mips/breakpoints/delete")
+    public String deleteBreakpoint(Integer breakpointPc, Model model, HttpSession session) {
+        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
+
+        if (mipsSession == null) {
+            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
+            return "mips";
+        }
+
+        if (breakpointPc == null) {
+            addParsedModel(
+                    model,
+                    mipsSession.getProgramText(),
+                    mipsSessionService.splitLines(mipsSession.getProgramText()),
+                    "削除するPC番号を入力してください。",
+                    false,
+                    mipsSessionService.getInstructionCount(mipsSession),
+                    mipsSessionService.canStep(mipsSession));
+            model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
+            return "mips";
+        }
+
+        boolean removed = mipsSessionService.removeBreakpoint(mipsSession, breakpointPc);
+
+        String message = removed
+                ? "ブレークポイントを削除しました: PC " + breakpointPc
+                : "ブレークポイントは登録されていません: PC " + breakpointPc;
+
+        addParsedModel(
+                model,
+                mipsSession.getProgramText(),
+                mipsSessionService.splitLines(mipsSession.getProgramText()),
+                message,
+                true,
+                mipsSessionService.getInstructionCount(mipsSession),
+                mipsSessionService.canStep(mipsSession));
+
+        model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
+
+        return "mips";
     }
 }
