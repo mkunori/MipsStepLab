@@ -1,6 +1,9 @@
 package web;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import cpu.Cpu;
 import execution.StepRunner;
@@ -29,6 +32,9 @@ public class WebMipsSession {
 
     /** 1ステップ実行を担当するクラス。 */
     private final StepRunner stepRunner;
+
+    /** 実行済みのPC番号。 */
+    private final Set<Integer> executedPcs = new HashSet<>();
 
     /**
      * WebMipsSessionを生成する。
@@ -101,5 +107,25 @@ public class WebMipsSession {
      */
     public StepRunner getStepRunner() {
         return stepRunner;
+    }
+
+    /**
+     * 指定したPCを実行済みとして記録する。
+     *
+     * @param pc 実行した命令のPC
+     */
+    public void markExecuted(int pc) {
+        executedPcs.add(pc);
+    }
+
+    /**
+     * 実行済みPC番号の一覧を返す。
+     *
+     * 外部から直接変更されないように、変更不可のSetとして返す。
+     *
+     * @return 実行済みPC番号の一覧
+     */
+    public Set<Integer> getExecutedPcs() {
+        return Collections.unmodifiableSet(executedPcs);
     }
 }

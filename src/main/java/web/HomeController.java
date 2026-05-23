@@ -3,6 +3,7 @@ package web;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,6 +51,7 @@ public class HomeController {
         model.addAttribute("registerDiffs", List.of());
         model.addAttribute("hiLoDiffs", List.of());
         model.addAttribute("currentPc", 0);
+        model.addAttribute("executedPcs", Set.of());
 
         return "mips";
     }
@@ -77,14 +79,20 @@ public class HomeController {
         try {
             List<Instruction> instructions = parseProgram(programLines);
 
-            WebMipsSession mipsSession = WebMipsSession.create(programText, instructions);
-            session.setAttribute("mipsSession", mipsSession);
+            boolean readyToRun = !instructions.isEmpty();
 
             model.addAttribute("instructionCount", instructions.size());
-            model.addAttribute("parseMessage", "パース成功: " + instructions.size() + " 命令");
+
+            if (readyToRun) {
+                WebMipsSession mipsSession = WebMipsSession.create(programText, instructions);
+                session.setAttribute("mipsSession", mipsSession);
+            } else {
+                session.removeAttribute("mipsSession");
+            }
+
             model.addAttribute("parseSuccess", true);
-            model.addAttribute("readyToRun", true);
-            model.addAttribute("currentPc", 0);
+            model.addAttribute("readyToRun", readyToRun);
+            model.addAttribute("currentPc", readyToRun ? 0 : -1);
         } catch (IllegalArgumentException e) {
             session.removeAttribute("mipsSession");
 
@@ -97,6 +105,7 @@ public class HomeController {
 
         model.addAttribute("registerDiffs", List.of());
         model.addAttribute("hiLoDiffs", List.of());
+        model.addAttribute("executedPcs", Set.of());
 
         return "mips";
     }
@@ -156,11 +165,17 @@ public class HomeController {
             model.addAttribute("parseSuccess", false);
             model.addAttribute("instructionCount", 0);
             model.addAttribute("readyToRun", false);
+            model.addAttribute("registerDiffs", List.of());
+            model.addAttribute("hiLoDiffs", List.of());
+            model.addAttribute("currentPc", -1);
+            model.addAttribute("executedPcs", Set.of());
 
             return "mips";
         }
 
         StepResult result = mipsSession.getStepRunner().step();
+        mipsSession.markExecuted(result.getPcBefore());
+
         boolean readyToRun = mipsSession.getStepRunner().hasNext();
 
         List<RegisterDiff> registerDiffs = createRegisterDiffs(result);
@@ -169,7 +184,6 @@ public class HomeController {
 
         model.addAttribute("programText", mipsSession.getProgramText());
         model.addAttribute("programLines", splitLines(mipsSession.getProgramText()));
-        model.addAttribute("executedInstructionText", executedInstructionText);
 
         if (readyToRun) {
             model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
@@ -183,23 +197,13 @@ public class HomeController {
         model.addAttribute("stepResult", result);
         model.addAttribute("registerDiffs", registerDiffs);
         model.addAttribute("hiLoDiffs", hiLoDiffs);
+        model.addAttribute("executedInstructionText", executedInstructionText);
+        model.addAttribute("executedPcs", mipsSession.getExecutedPcs());
 
         int currentPc = readyToRun ? result.getPcAfter() : -1;
         model.addAttribute("currentPc", currentPc);
 
         return "mips";
-    }
-
-    /**
-     * Instructionのリストを画面表示用の文字列リストに変換する。
-     *
-     * @param program 実行対象の命令列
-     * @return 画面表示用の命令文字列リスト
-     */
-    private List<String> toDisplayLines(List<Instruction> program) {
-        return program.stream()
-                .map(Object::toString)
-                .toList();
     }
 
     /**
