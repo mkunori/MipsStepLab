@@ -59,6 +59,10 @@
                     <button type="submit">1ステップ実行</button>
                 </form>
 
+                <form method="post" action="/mips/run" th:if="${readyToRun}">
+                    <button type="submit">ブレークポイントまで実行</button>
+                </form>
+
                 <form method="post" action="/mips/reset">
                     <button type="submit">リセット</button>
                 </form>

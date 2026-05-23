@@ -87,11 +87,12 @@ td {
     font-family: monospace;
 }
 
-/* ボタンを横並びに表示する。 */
+/* 操作ボタンを横並びに表示する。 */
 .button-row {
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 /* レジスタ一覧を4列のグリッドで表示する。 */

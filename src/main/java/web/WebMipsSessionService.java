@@ -159,4 +159,35 @@ public class WebMipsSessionService {
             throw new IllegalArgumentException("PCがプログラム範囲外です: " + pc);
         }
     }
+
+    /**
+     * 現在の実行状態を、ブレークポイントまたはプログラム終了まで連続実行する。
+     *
+     * 現在PCがブレークポイントの場合は、その命令を実行せずに停止する。
+     * これは、CUI版の「ブレークポイントに到達したら止まる」挙動に近づけるため。
+     *
+     * @param session 現在の実行状態
+     * @return 連続実行の結果
+     */
+    public RunResult runUntilBreakpoint(WebMipsSession session) {
+        int executedStepCount = 0;
+        StepResult lastResult = null;
+
+        while (canStep(session)) {
+            int currentPc = session.getStepRunner().getPc();
+
+            if (session.getBreakpointManager().contains(currentPc)) {
+                String message = executedStepCount == 0
+                        ? "現在のPCがブレークポイントです: PC " + currentPc
+                        : "ブレークポイントに到達しました: PC " + currentPc;
+
+                return new RunResult(lastResult, executedStepCount, message);
+            }
+
+            lastResult = step(session);
+            executedStepCount++;
+        }
+
+        return new RunResult(lastResult, executedStepCount, "プログラムが終了しました。");
+    }
 }

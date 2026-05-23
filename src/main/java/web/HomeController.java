@@ -453,4 +453,74 @@ public class HomeController {
 
         return "mips";
     }
+
+    /**
+     * ブレークポイントまたはプログラム終了まで連続実行する。
+     *
+     * @param model   HTMLテンプレートへデータを渡すための入れ物
+     * @param session ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return 表示するテンプレート名
+     */
+    @PostMapping("/mips/run")
+    public String run(Model model, HttpSession session) {
+        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
+
+        if (mipsSession == null) {
+            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
+
+            return "mips";
+        }
+
+        RunResult runResult = mipsSessionService.runUntilBreakpoint(mipsSession);
+        StepResult result = runResult.getLastStepResult();
+
+        boolean readyToRun = mipsSessionService.canStep(mipsSession);
+
+        if (result == null) {
+            addParsedModel(
+                    model,
+                    mipsSession.getProgramText(),
+                    mipsSessionService.splitLines(mipsSession.getProgramText()),
+                    runResult.getMessage(),
+                    true,
+                    mipsSessionService.getInstructionCount(mipsSession),
+                    readyToRun);
+
+            model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
+            model.addAttribute("executedPcs", mipsSession.getExecutedPcs());
+            model.addAttribute("currentPc", readyToRun ? mipsSession.getStepRunner().getPc() : -1);
+
+            return "mips";
+        }
+
+        List<String> programLines = mipsSessionService.splitLines(mipsSession.getProgramText());
+
+        List<RegisterDiff> registerDiffs = stepResultViewMapper.createRegisterDiffs(result);
+
+        List<RegisterValue> registerValues = stepResultViewMapper.createRegisterValues(result);
+
+        List<HiLoDiff> hiLoDiffs = stepResultViewMapper.createHiLoDiffs(result);
+
+        List<HiLoValue> hiLoValues = stepResultViewMapper.createHiLoValues(result);
+
+        List<MemoryDiff> memoryDiffs = stepResultViewMapper.createMemoryDiffs(result);
+
+        String executedInstructionText = stepResultViewMapper.getExecutedInstructionText(result, programLines);
+
+        addStepResultModel(
+                model,
+                mipsSession,
+                result,
+                readyToRun,
+                registerDiffs,
+                registerValues,
+                hiLoDiffs,
+                hiLoValues,
+                memoryDiffs,
+                executedInstructionText);
+
+        model.addAttribute("parseMessage", runResult.getMessage());
+
+        return "mips";
+    }
 }
