@@ -1,5 +1,6 @@
 package web;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,6 +48,7 @@ public class HomeController {
         model.addAttribute("instructionCount", 0);
         model.addAttribute("readyToRun", false);
         model.addAttribute("registerDiffs", List.of());
+        model.addAttribute("hiLoDiffs", List.of());
 
         return "mips";
     }
@@ -81,7 +83,6 @@ public class HomeController {
             model.addAttribute("parseMessage", "パース成功: " + instructions.size() + " 命令");
             model.addAttribute("parseSuccess", true);
             model.addAttribute("readyToRun", true);
-            model.addAttribute("registerDiffs", List.of());
         } catch (IllegalArgumentException e) {
             session.removeAttribute("mipsSession");
 
@@ -89,8 +90,9 @@ public class HomeController {
             model.addAttribute("parseMessage", "パース失敗: " + e.getMessage());
             model.addAttribute("parseSuccess", false);
             model.addAttribute("readyToRun", false);
-            model.addAttribute("registerDiffs", List.of());
         }
+        model.addAttribute("registerDiffs", List.of());
+        model.addAttribute("hiLoDiffs", List.of());
 
         return "mips";
     }
@@ -158,6 +160,7 @@ public class HomeController {
         boolean readyToRun = mipsSession.getStepRunner().hasNext();
 
         List<RegisterDiff> registerDiffs = createRegisterDiffs(result);
+        List<HiLoDiff> hiLoDiffs = createHiLoDiffs(result);
 
         model.addAttribute("programText", mipsSession.getProgramText());
         model.addAttribute("programLines", toDisplayLines(mipsSession.getProgram()));
@@ -173,6 +176,7 @@ public class HomeController {
         model.addAttribute("readyToRun", readyToRun);
         model.addAttribute("stepResult", result);
         model.addAttribute("registerDiffs", registerDiffs);
+        model.addAttribute("hiLoDiffs", hiLoDiffs);
 
         return "mips";
     }
@@ -208,6 +212,29 @@ public class HomeController {
             if (before[i] != after[i]) {
                 diffs.add(new RegisterDiff(i, before[i], after[i]));
             }
+        }
+
+        return diffs;
+    }
+
+    /**
+     * StepResultからHI/LOレジスタ変更差分のリストを作成する。
+     *
+     * 実行前と実行後のHI/LOレジスタを比較し、
+     * 値が変わったものだけをHiLoDiffとして返す。
+     *
+     * @param result 1ステップ分の実行結果
+     * @return 変更されたHI/LOレジスタの差分リスト
+     */
+    private List<HiLoDiff> createHiLoDiffs(StepResult result) {
+        List<HiLoDiff> diffs = new ArrayList<>();
+
+        if (result.getHiBefore() != result.getHiAfter()) {
+            diffs.add(new HiLoDiff("HI", result.getHiBefore(), result.getHiAfter()));
+        }
+
+        if (result.getLoBefore() != result.getLoAfter()) {
+            diffs.add(new HiLoDiff("LO", result.getLoBefore(), result.getLoAfter()));
         }
 
         return diffs;
