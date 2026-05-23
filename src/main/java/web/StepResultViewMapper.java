@@ -110,4 +110,37 @@ public class StepResultViewMapper {
 
         return diffs;
     }
+
+    /**
+     * StepResultから実行後のレジスタ一覧を作成する。
+     *
+     * @param result 1ステップ分の実行結果
+     * @return 実行後のレジスタ一覧
+     */
+    public List<RegisterValue> createRegisterValues(StepResult result) {
+        int[] registers = result.getRegistersAfter();
+
+        List<RegisterValue> values = new ArrayList<>();
+
+        for (int i = 0; i < registers.length; i++) {
+            values.add(new RegisterValue(i, registers[i]));
+        }
+
+        return values;
+    }
+
+    /**
+     * StepResultから実行後のHI/LOレジスタ一覧を作成する。
+     *
+     * @param result 1ステップ分の実行結果
+     * @return 実行後のHI/LOレジスタ一覧
+     */
+    public List<HiLoValue> createHiLoValues(StepResult result) {
+        List<HiLoValue> values = new ArrayList<>();
+
+        values.add(new HiLoValue("HI", result.getHiAfter()));
+        values.add(new HiLoValue("LO", result.getLoAfter()));
+
+        return values;
+    }
 }

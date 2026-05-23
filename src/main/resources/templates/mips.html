@@ -82,6 +82,44 @@
         </p>
     </div>
 
+    <h3 th:if="${stepResult != null}">レジスタ一覧</h3>
+
+    <div th:if="${stepResult != null}">
+        <table th:if="${!#lists.isEmpty(registerValues)}">
+            <thead>
+                <tr>
+                    <th>レジスタ</th>
+                    <th>現在値</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="register : ${registerValues}">
+                    <td th:text="'R' + ${register.registerNumber}">R0</td>
+                    <td th:text="${register.value}">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 th:if="${stepResult != null}">HI/LO一覧</h3>
+
+    <div th:if="${stepResult != null}">
+        <table th:if="${!#lists.isEmpty(hiLoValues)}">
+            <thead>
+                <tr>
+                    <th>レジスタ</th>
+                    <th>現在値</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="register : ${hiLoValues}">
+                    <td th:text="${register.registerName}">HI</td>
+                    <td th:text="${register.value}">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
     <h3 th:if="${stepResult != null}">レジスタ変更</h3>
 
     <div th:if="${stepResult != null}">
