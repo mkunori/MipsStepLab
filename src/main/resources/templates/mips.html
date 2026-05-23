@@ -42,7 +42,32 @@
 
     <div th:if="${readyToRun}">
         <p>
-            実行準備が完了しました。次のステップで1ステップ実行を追加できます。
+            実行準備が完了しました。
+        </p>
+
+        <form method="post" action="/mips/step">
+            <button type="submit">1ステップ実行</button>
+        </form>
+    </div>
+
+    <h2 th:if="${stepResult != null}">ステップ実行結果</h2>
+
+    <div th:if="${stepResult != null}">
+        <p>
+            STEP:
+            <span th:text="${stepResult.step}">1</span>
+        </p>
+
+        <p>
+            PC:
+            <span th:text="${stepResult.pcBefore}">0</span>
+            →
+            <span th:text="${stepResult.pcAfter}">1</span>
+        </p>
+
+        <p>
+            実行命令:
+            <span th:text="${stepResult.instruction}">addi $t0, $zero, 5</span>
         </p>
     </div>
 

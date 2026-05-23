@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import execution.StepResult;
 import instruction.Instruction;
 import jakarta.servlet.http.HttpSession;
 import parser.InstructionParser;
@@ -122,6 +123,56 @@ public class HomeController {
         return Arrays.stream(text.split("\\R"))
                 .map(String::trim)
                 .filter(line -> !line.isEmpty())
+                .toList();
+    }
+
+    /**
+     * 現在の実行状態から1命令だけ実行する。
+     *
+     * HttpSessionに保存してあるWebMipsSessionを取り出し、
+     * StepRunnerを使って1ステップだけ進める。
+     *
+     * @param model   HTMLテンプレートへデータを渡すための入れ物
+     * @param session ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return 表示するテンプレート名
+     */
+    @PostMapping("/mips/step")
+    public String step(Model model, HttpSession session) {
+        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
+
+        if (mipsSession == null) {
+            model.addAttribute("programText", DEFAULT_PROGRAM);
+            model.addAttribute("programLines", splitLines(DEFAULT_PROGRAM));
+            model.addAttribute("parseMessage", "実行状態がありません。先にプログラムを解析してください。");
+            model.addAttribute("parseSuccess", false);
+            model.addAttribute("instructionCount", 0);
+            model.addAttribute("readyToRun", false);
+
+            return "mips";
+        }
+
+        StepResult result = mipsSession.getStepRunner().step();
+
+        model.addAttribute("programText", "");
+        model.addAttribute("programLines", toDisplayLines(mipsSession.getProgram()));
+        model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
+        model.addAttribute("parseSuccess", true);
+        model.addAttribute("instructionCount", mipsSession.getProgram().size());
+        model.addAttribute("readyToRun", mipsSession.getStepRunner().hasNext());
+        model.addAttribute("stepResult", result);
+
+        return "mips";
+    }
+
+    /**
+     * Instructionのリストを画面表示用の文字列リストに変換する。
+     *
+     * @param program 実行対象の命令列
+     * @return 画面表示用の命令文字列リスト
+     */
+    private List<String> toDisplayLines(List<Instruction> program) {
+        return program.stream()
+                .map(Object::toString)
                 .toList();
     }
 }
