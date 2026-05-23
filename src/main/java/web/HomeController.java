@@ -165,9 +165,11 @@ public class HomeController {
 
         List<RegisterDiff> registerDiffs = createRegisterDiffs(result);
         List<HiLoDiff> hiLoDiffs = createHiLoDiffs(result);
+        String executedInstructionText = getExecutedInstructionText(result, mipsSession.getProgramText());
 
         model.addAttribute("programText", mipsSession.getProgramText());
-        model.addAttribute("programLines", toDisplayLines(mipsSession.getProgram()));
+        model.addAttribute("programLines", splitLines(mipsSession.getProgramText()));
+        model.addAttribute("executedInstructionText", executedInstructionText);
 
         if (readyToRun) {
             model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
@@ -245,5 +247,30 @@ public class HomeController {
         }
 
         return diffs;
+    }
+
+    /**
+     * 実行された命令を画面表示用の文字列として取得する。
+     *
+     * StepResultにはInstructionオブジェクトが入っているが、
+     * Instructionクラス側でtoString()を実装していない場合、
+     * クラス名とハッシュ値のような表示になってしまう。
+     *
+     * そのため、Web画面では元の入力文字列から、
+     * 実行前PCに対応する行を取り出して表示する。
+     *
+     * @param result      1ステップ分の実行結果
+     * @param programText ユーザーが入力したMIPSプログラム文字列
+     * @return 実行された命令の表示文字列
+     */
+    private String getExecutedInstructionText(StepResult result, String programText) {
+        List<String> programLines = splitLines(programText);
+        int pc = result.getPcBefore();
+
+        if (pc < 0 || pc >= programLines.size()) {
+            return "";
+        }
+
+        return programLines.get(pc);
     }
 }
