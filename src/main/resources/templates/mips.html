@@ -8,198 +8,187 @@
 </head>
 
 <body>
-    <h1>MipsStepLab</h1>
+    <main class="app-container">
+        <header class="app-header">
+            <h1>MipsStepLab</h1>
+            <p>
+                MIPS命令を1ステップずつ実行しながら、
+                レジスタやメモリの変化を確認する学習用デバッガです。
+            </p>
+        </header>
 
-    <p>
-        MIPS命令を1ステップずつ実行しながら、
-        レジスタやメモリの変化を確認する学習用デバッガです。
-    </p>
+        <section class="panel">
+            <h2>プログラム入力</h2>
 
-    <h2>プログラム入力</h2>
+            <form method="post" action="/mips">
+                <div>
+                    <textarea name="programText" rows="8" cols="60" th:text="${programText}"></textarea>
+                </div>
 
-    <form method="post" action="/mips">
-        <div>
-            <textarea name="programText" rows="8" cols="60" th:text="${programText}"></textarea>
-        </div>
+                <button type="submit">プログラムを解析</button>
+            </form>
+        </section>
 
-        <button type="submit">プログラムを表示</button>
-    </form>
+        <section class="panel">
+            <h2>プログラム一覧</h2>
 
-    <h2>入力されたプログラム</h2>
+            <ol start="0" class="program-list">
+                <li th:each="instruction, stat : ${programLines}" th:classappend="
+                        ${stat.index == currentPc} ? 'current-instruction' :
+                        (${executedPcs.contains(stat.index)} ? 'executed-instruction' : '')">
+                    <span th:text="${instruction}">addi $t0, $zero, 5</span>
+                    <span th:if="${stat.index == currentPc}"> ← 次に実行</span>
+                    <span th:if="${executedPcs.contains(stat.index) && stat.index != currentPc}">
+                        ← 実行済み
+                    </span>
+                </li>
+            </ol>
+        </section>
 
-    <ol start="0">
-        <li th:each="instruction, stat : ${programLines}" th:classappend="
-            ${stat.index == currentPc} ? 'current-instruction' :
-            (${executedPcs.contains(stat.index)} ? 'executed-instruction' : '')">
-            <span th:text="${instruction}">addi $t0, $zero, 5</span>
-            <span th:if="${stat.index == currentPc}"> ← 次に実行</span>
-            <span th:if="${executedPcs.contains(stat.index) && stat.index != currentPc}">
-                ← 実行済み
-            </span>
-        </li>
-    </ol>
+        <section class="panel">
+            <h2>解析・実行操作</h2>
 
-    <h2>解析結果</h2>
+            <div th:if="${parseMessage != null}">
+                <p th:text="${parseMessage}">
+                    パース結果がここに表示されます。
+                </p>
+            </div>
 
-    <div th:if="${parseMessage != null}">
-        <p th:text="${parseMessage}">
-            パース結果がここに表示されます。
-        </p>
-    </div>
+            <div class="button-row" th:if="${parseSuccess}">
+                <form method="post" action="/mips/step" th:if="${readyToRun}">
+                    <button type="submit">1ステップ実行</button>
+                </form>
 
-    <div th:if="${parseSuccess}">
-        <p th:if="${readyToRun}">
-            実行準備が完了しました。
-        </p>
+                <form method="post" action="/mips/reset">
+                    <button type="submit">リセット</button>
+                </form>
+            </div>
+        </section>
 
-        <form method="post" action="/mips/step" th:if="${readyToRun}">
-            <button type="submit">1ステップ実行</button>
-        </form>
+        <section class="panel" th:if="${stepResult != null}">
+            <h2>ステップ実行結果</h2>
 
-        <form method="post" action="/mips/reset">
-            <button type="submit">リセット</button>
-        </form>
-    </div>
+            <p>
+                STEP:
+                <span th:text="${stepResult.step}">1</span>
+            </p>
 
-    <h2 th:if="${stepResult != null}">ステップ実行結果</h2>
+            <p>
+                PC:
+                <span th:text="${stepResult.pcBefore}">0</span>
+                →
+                <span th:text="${stepResult.pcAfter}">1</span>
+            </p>
 
-    <div th:if="${stepResult != null}">
-        <p>
-            STEP:
-            <span th:text="${stepResult.step}">1</span>
-        </p>
+            <p>
+                実行命令:
+                <span th:text="${executedInstructionText}">addi $t0, $zero, 5</span>
+            </p>
+        </section>
 
-        <p>
-            PC:
-            <span th:text="${stepResult.pcBefore}">0</span>
-            →
-            <span th:text="${stepResult.pcAfter}">1</span>
-        </p>
+        <section class="panel" th:if="${stepResult != null}">
+            <h2>変更差分</h2>
 
-        <p>
-            実行命令:
-            <span th:text="${executedInstructionText}">addi $t0, $zero, 5</span>
-        </p>
-    </div>
+            <h3>レジスタ変更</h3>
 
-    <h3 th:if="${stepResult != null}">レジスタ一覧</h3>
+            <p th:if="${#lists.isEmpty(registerDiffs)}">
+                レジスタ変更なし
+            </p>
 
-    <div th:if="${stepResult != null}">
-        <table th:if="${!#lists.isEmpty(registerValues)}">
-            <thead>
-                <tr>
-                    <th>レジスタ</th>
-                    <th>現在値</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="register : ${registerValues}">
-                    <td th:text="'R' + ${register.registerNumber}">R0</td>
-                    <td th:text="${register.value}">0</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <table th:if="${!#lists.isEmpty(registerDiffs)}">
+                <thead>
+                    <tr>
+                        <th>レジスタ</th>
+                        <th>実行前</th>
+                        <th>実行後</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="diff : ${registerDiffs}">
+                        <td th:text="'R' + ${diff.registerNumber}">R8</td>
+                        <td th:text="${diff.beforeValue}">0</td>
+                        <td th:text="${diff.afterValue}">5</td>
+                    </tr>
+                </tbody>
+            </table>
 
-    <h3 th:if="${stepResult != null}">HI/LO一覧</h3>
+            <h3>HI/LO変更</h3>
 
-    <div th:if="${stepResult != null}">
-        <table th:if="${!#lists.isEmpty(hiLoValues)}">
-            <thead>
-                <tr>
-                    <th>レジスタ</th>
-                    <th>現在値</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="register : ${hiLoValues}">
-                    <td th:text="${register.registerName}">HI</td>
-                    <td th:text="${register.value}">0</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <p th:if="${#lists.isEmpty(hiLoDiffs)}">
+                HI/LO変更なし
+            </p>
 
-    <h3 th:if="${stepResult != null}">レジスタ変更</h3>
+            <table th:if="${!#lists.isEmpty(hiLoDiffs)}">
+                <thead>
+                    <tr>
+                        <th>レジスタ</th>
+                        <th>実行前</th>
+                        <th>実行後</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="diff : ${hiLoDiffs}">
+                        <td th:text="${diff.registerName}">HI</td>
+                        <td th:text="${diff.beforeValue}">0</td>
+                        <td th:text="${diff.afterValue}">15</td>
+                    </tr>
+                </tbody>
+            </table>
 
-    <div th:if="${stepResult != null}">
-        <p th:if="${#lists.isEmpty(registerDiffs)}">
-            レジスタ変更なし
-        </p>
+            <h3>メモリ変更</h3>
 
-        <table th:if="${!#lists.isEmpty(registerDiffs)}" border="1">
-            <thead>
-                <tr>
-                    <th>レジスタ</th>
-                    <th>実行前</th>
-                    <th>実行後</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="diff : ${registerDiffs}">
-                    <td th:text="'R' + ${diff.registerNumber}">R8</td>
-                    <td th:text="${diff.beforeValue}">0</td>
-                    <td th:text="${diff.afterValue}">5</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <p th:if="${#lists.isEmpty(memoryDiffs)}">
+                メモリ変更なし
+            </p>
 
-    <h3 th:if="${stepResult != null}">HI/LO変更</h3>
+            <table th:if="${!#lists.isEmpty(memoryDiffs)}">
+                <thead>
+                    <tr>
+                        <th>アドレス</th>
+                        <th>実行前</th>
+                        <th>実行後</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="diff : ${memoryDiffs}">
+                        <td th:text="${diff.address}">0</td>
+                        <td th:text="${diff.beforeValue}">0</td>
+                        <td th:text="${diff.afterValue}">5</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
-    <div th:if="${stepResult != null}">
-        <p th:if="${#lists.isEmpty(hiLoDiffs)}">
-            HI/LO変更なし
-        </p>
+        <section class="panel" th:if="${stepResult != null}">
+            <h2>CPU状態</h2>
 
-        <table th:if="${!#lists.isEmpty(hiLoDiffs)}" border="1">
-            <thead>
-                <tr>
-                    <th>レジスタ</th>
-                    <th>実行前</th>
-                    <th>実行後</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="diff : ${hiLoDiffs}">
-                    <td th:text="${diff.registerName}">HI</td>
-                    <td th:text="${diff.beforeValue}">0</td>
-                    <td th:text="${diff.afterValue}">5</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <h3>レジスタ一覧</h3>
 
-    <h3 th:if="${stepResult != null}">メモリ変更</h3>
+            <div class="register-grid" th:if="${!#lists.isEmpty(registerValues)}">
+                <div class="register-cell" th:each="register : ${registerValues}">
+                    <span class="register-name" th:text="'R' + ${register.registerNumber}">R0</span>
+                    <span class="register-value" th:text="${register.value}">0</span>
+                </div>
+            </div>
 
-    <div th:if="${stepResult != null}">
-        <p th:if="${#lists.isEmpty(memoryDiffs)}">
-            メモリ変更なし
-        </p>
+            <h3>HI/LO一覧</h3>
 
-        <table th:if="${!#lists.isEmpty(memoryDiffs)}">
-            <thead>
-                <tr>
-                    <th>アドレス</th>
-                    <th>実行前</th>
-                    <th>実行後</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="diff : ${memoryDiffs}">
-                    <td th:text="${diff.address}">0</td>
-                    <td th:text="${diff.beforeValue}">0</td>
-                    <td th:text="${diff.afterValue}">5</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <h2>現在の段階</h2>
-    <p>
-        textareaから入力されたMIPS命令をControllerで受け取り、
-        行ごとの命令一覧として表示しています。
-    </p>
+            <table th:if="${!#lists.isEmpty(hiLoValues)}">
+                <thead>
+                    <tr>
+                        <th>レジスタ</th>
+                        <th>現在値</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="register : ${hiLoValues}">
+                        <td th:text="${register.registerName}">HI</td>
+                        <td th:text="${register.value}">0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
 </body>
 
 </html>
