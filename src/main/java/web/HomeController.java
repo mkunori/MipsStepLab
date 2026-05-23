@@ -40,18 +40,7 @@ public class HomeController {
      */
     @GetMapping("/mips")
     public String home(Model model) {
-        List<String> programLines = splitLines(DEFAULT_PROGRAM);
-
-        model.addAttribute("programText", DEFAULT_PROGRAM);
-        model.addAttribute("programLines", programLines);
-        model.addAttribute("parseMessage", null);
-        model.addAttribute("parseSuccess", null);
-        model.addAttribute("instructionCount", 0);
-        model.addAttribute("readyToRun", false);
-        model.addAttribute("registerDiffs", List.of());
-        model.addAttribute("hiLoDiffs", List.of());
-        model.addAttribute("currentPc", 0);
-        model.addAttribute("executedPcs", Set.of());
+        addInitialModel(model);
 
         return "mips";
     }
@@ -62,8 +51,6 @@ public class HomeController {
      * パースに成功した場合は、CpuとStepRunnerを作成し、
      * WebMipsSessionとしてHTTPセッションに保存する。
      *
-     * これにより、次回以降のリクエストでも同じ実行状態を使える。
-     *
      * @param programText textareaから送信されたプログラム文字列
      * @param model       HTMLテンプレートへデータを渡すための入れ物
      * @param session     ブラウザ利用者ごとの状態を保存するHTTPセッション
@@ -73,15 +60,9 @@ public class HomeController {
     public String submitProgram(String programText, Model model, HttpSession session) {
         List<String> programLines = splitLines(programText);
 
-        model.addAttribute("programText", programText);
-        model.addAttribute("programLines", programLines);
-
         try {
             List<Instruction> instructions = parseProgram(programLines);
-
             boolean readyToRun = !instructions.isEmpty();
-
-            model.addAttribute("instructionCount", instructions.size());
 
             if (readyToRun) {
                 WebMipsSession mipsSession = WebMipsSession.create(programText, instructions);
@@ -90,22 +71,30 @@ public class HomeController {
                 session.removeAttribute("mipsSession");
             }
 
-            model.addAttribute("parseSuccess", true);
-            model.addAttribute("readyToRun", readyToRun);
-            model.addAttribute("currentPc", readyToRun ? 0 : -1);
+            String message = readyToRun
+                    ? "パース成功: " + instructions.size() + " 命令"
+                    : "パース成功しましたが、実行できる命令がありません。";
+
+            addParsedModel(
+                    model,
+                    programText,
+                    programLines,
+                    message,
+                    true,
+                    instructions.size(),
+                    readyToRun);
         } catch (IllegalArgumentException e) {
             session.removeAttribute("mipsSession");
 
-            model.addAttribute("instructionCount", 0);
-            model.addAttribute("parseMessage", "パース失敗: " + e.getMessage());
-            model.addAttribute("parseSuccess", false);
-            model.addAttribute("readyToRun", false);
-            model.addAttribute("currentPc", -1);
+            addParsedModel(
+                    model,
+                    programText,
+                    programLines,
+                    "パース失敗: " + e.getMessage(),
+                    false,
+                    0,
+                    false);
         }
-
-        model.addAttribute("registerDiffs", List.of());
-        model.addAttribute("hiLoDiffs", List.of());
-        model.addAttribute("executedPcs", Set.of());
 
         return "mips";
     }
@@ -159,16 +148,7 @@ public class HomeController {
         WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
 
         if (mipsSession == null) {
-            model.addAttribute("programText", DEFAULT_PROGRAM);
-            model.addAttribute("programLines", splitLines(DEFAULT_PROGRAM));
-            model.addAttribute("parseMessage", "実行状態がありません。先にプログラムを解析してください。");
-            model.addAttribute("parseSuccess", false);
-            model.addAttribute("instructionCount", 0);
-            model.addAttribute("readyToRun", false);
-            model.addAttribute("registerDiffs", List.of());
-            model.addAttribute("hiLoDiffs", List.of());
-            model.addAttribute("currentPc", -1);
-            model.addAttribute("executedPcs", Set.of());
+            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
 
             return "mips";
         }
@@ -182,26 +162,14 @@ public class HomeController {
         List<HiLoDiff> hiLoDiffs = createHiLoDiffs(result);
         String executedInstructionText = getExecutedInstructionText(result, mipsSession.getProgramText());
 
-        model.addAttribute("programText", mipsSession.getProgramText());
-        model.addAttribute("programLines", splitLines(mipsSession.getProgramText()));
-
-        if (readyToRun) {
-            model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
-        } else {
-            model.addAttribute("parseMessage", "プログラムが終了しました。");
-        }
-
-        model.addAttribute("parseSuccess", true);
-        model.addAttribute("instructionCount", mipsSession.getProgram().size());
-        model.addAttribute("readyToRun", readyToRun);
-        model.addAttribute("stepResult", result);
-        model.addAttribute("registerDiffs", registerDiffs);
-        model.addAttribute("hiLoDiffs", hiLoDiffs);
-        model.addAttribute("executedInstructionText", executedInstructionText);
-        model.addAttribute("executedPcs", mipsSession.getExecutedPcs());
-
-        int currentPc = readyToRun ? result.getPcAfter() : -1;
-        model.addAttribute("currentPc", currentPc);
+        addStepResultModel(
+                model,
+                mipsSession,
+                result,
+                readyToRun,
+                registerDiffs,
+                hiLoDiffs,
+                executedInstructionText);
 
         return "mips";
     }
@@ -293,16 +261,7 @@ public class HomeController {
         WebMipsSession oldSession = (WebMipsSession) session.getAttribute("mipsSession");
 
         if (oldSession == null) {
-            model.addAttribute("programText", DEFAULT_PROGRAM);
-            model.addAttribute("programLines", splitLines(DEFAULT_PROGRAM));
-            model.addAttribute("parseMessage", "実行状態がありません。先にプログラムを解析してください。");
-            model.addAttribute("parseSuccess", false);
-            model.addAttribute("instructionCount", 0);
-            model.addAttribute("readyToRun", false);
-            model.addAttribute("registerDiffs", List.of());
-            model.addAttribute("hiLoDiffs", List.of());
-            model.addAttribute("currentPc", -1);
-            model.addAttribute("executedPcs", Set.of());
+            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
 
             return "mips";
         }
@@ -310,23 +269,140 @@ public class HomeController {
         String programText = oldSession.getProgramText();
         List<String> programLines = splitLines(programText);
         List<Instruction> instructions = parseProgram(programLines);
+        boolean readyToRun = !instructions.isEmpty();
 
         WebMipsSession newSession = WebMipsSession.create(programText, instructions);
         session.setAttribute("mipsSession", newSession);
 
-        boolean readyToRun = !instructions.isEmpty();
+        addParsedModel(
+                model,
+                programText,
+                programLines,
+                "実行状態をリセットしました。",
+                true,
+                instructions.size(),
+                readyToRun);
+
+        return "mips";
+    }
+
+    /**
+     * 初期表示用のModel属性を設定する。
+     *
+     * /mips に最初にアクセスしたときや、
+     * 実行状態が存在しない場合に使う。
+     *
+     * @param model HTMLテンプレートへデータを渡すための入れ物
+     */
+    private void addInitialModel(Model model) {
+        List<String> programLines = splitLines(DEFAULT_PROGRAM);
+
+        model.addAttribute("programText", DEFAULT_PROGRAM);
+        model.addAttribute("programLines", programLines);
+        model.addAttribute("parseMessage", null);
+        model.addAttribute("parseSuccess", null);
+        model.addAttribute("instructionCount", 0);
+        model.addAttribute("readyToRun", false);
+        model.addAttribute("registerDiffs", List.of());
+        model.addAttribute("hiLoDiffs", List.of());
+        model.addAttribute("currentPc", 0);
+        model.addAttribute("executedPcs", Set.of());
+    }
+
+    /**
+     * 実行状態が存在しない場合のModel属性を設定する。
+     *
+     * たとえば、セッションが切れた状態で1ステップ実行やリセットを押した場合に使う。
+     *
+     * @param model   HTMLテンプレートへデータを渡すための入れ物
+     * @param message 画面に表示するメッセージ
+     */
+    private void addNoSessionModel(Model model, String message) {
+        List<String> programLines = splitLines(DEFAULT_PROGRAM);
+
+        model.addAttribute("programText", DEFAULT_PROGRAM);
+        model.addAttribute("programLines", programLines);
+        model.addAttribute("parseMessage", message);
+        model.addAttribute("parseSuccess", false);
+        model.addAttribute("instructionCount", 0);
+        model.addAttribute("readyToRun", false);
+        model.addAttribute("registerDiffs", List.of());
+        model.addAttribute("hiLoDiffs", List.of());
+        model.addAttribute("currentPc", -1);
+        model.addAttribute("executedPcs", Set.of());
+    }
+
+    /**
+     * パース後のModel属性を設定する。
+     *
+     * @param model            HTMLテンプレートへデータを渡すための入れ物
+     * @param programText      ユーザーが入力したプログラム文字列
+     * @param programLines     行ごとに分割したプログラム文字列
+     * @param message          画面に表示するメッセージ
+     * @param parseSuccess     パースに成功した場合はtrue
+     * @param instructionCount 解析できた命令数
+     * @param readyToRun       1ステップ実行できる状態ならtrue
+     */
+    private void addParsedModel(
+            Model model,
+            String programText,
+            List<String> programLines,
+            String message,
+            boolean parseSuccess,
+            int instructionCount,
+            boolean readyToRun) {
 
         model.addAttribute("programText", programText);
         model.addAttribute("programLines", programLines);
-        model.addAttribute("parseMessage", "実行状態をリセットしました。");
-        model.addAttribute("parseSuccess", true);
-        model.addAttribute("instructionCount", instructions.size());
+        model.addAttribute("parseMessage", message);
+        model.addAttribute("parseSuccess", parseSuccess);
+        model.addAttribute("instructionCount", instructionCount);
         model.addAttribute("readyToRun", readyToRun);
         model.addAttribute("registerDiffs", List.of());
         model.addAttribute("hiLoDiffs", List.of());
         model.addAttribute("currentPc", readyToRun ? 0 : -1);
         model.addAttribute("executedPcs", Set.of());
+    }
 
-        return "mips";
+    /**
+     * 1ステップ実行後のModel属性を設定する。
+     *
+     * @param model                   HTMLテンプレートへデータを渡すための入れ物
+     * @param mipsSession             Web版の実行状態
+     * @param result                  1ステップ分の実行結果
+     * @param readyToRun              次の命令を実行できる場合はtrue
+     * @param registerDiffs           レジスタ変更差分
+     * @param hiLoDiffs               HI/LO変更差分
+     * @param executedInstructionText 実行した命令の表示文字列
+     */
+    private void addStepResultModel(
+            Model model,
+            WebMipsSession mipsSession,
+            StepResult result,
+            boolean readyToRun,
+            List<RegisterDiff> registerDiffs,
+            List<HiLoDiff> hiLoDiffs,
+            String executedInstructionText) {
+
+        model.addAttribute("programText", mipsSession.getProgramText());
+        model.addAttribute("programLines", splitLines(mipsSession.getProgramText()));
+
+        if (readyToRun) {
+            model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
+        } else {
+            model.addAttribute("parseMessage", "プログラムが終了しました。");
+        }
+
+        model.addAttribute("parseSuccess", true);
+        model.addAttribute("instructionCount", mipsSession.getProgram().size());
+        model.addAttribute("readyToRun", readyToRun);
+        model.addAttribute("stepResult", result);
+        model.addAttribute("registerDiffs", registerDiffs);
+        model.addAttribute("hiLoDiffs", hiLoDiffs);
+        model.addAttribute("executedInstructionText", executedInstructionText);
+        model.addAttribute("executedPcs", mipsSession.getExecutedPcs());
+
+        int currentPc = readyToRun ? result.getPcAfter() : -1;
+        model.addAttribute("currentPc", currentPc);
     }
 }
