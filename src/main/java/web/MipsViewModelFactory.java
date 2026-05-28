@@ -40,24 +40,16 @@ public class MipsViewModelFactory {
     public MipsViewModel createInitialViewModel(String defaultProgram) {
         List<String> programLines = mipsSessionService.splitLines(defaultProgram);
 
-        return new MipsViewModel(
-                defaultProgram,
-                programLines,
-                null,
-                MessageType.INFO.getCssClassName(),
-                null,
-                0,
-                false,
-                0,
-                Set.of(),
-                Set.of(),
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of());
+        return MipsViewModel.builder()
+                .programText(defaultProgram)
+                .programLines(programLines)
+                .message(null)
+                .messageType(MessageType.INFO)
+                .parseSuccess(null)
+                .instructionCount(0)
+                .readyToRun(false)
+                .currentPc(0)
+                .build();
     }
 
     /**
@@ -70,24 +62,16 @@ public class MipsViewModelFactory {
     public MipsViewModel createNoSessionViewModel(String defaultProgram, String message) {
         List<String> programLines = mipsSessionService.splitLines(defaultProgram);
 
-        return new MipsViewModel(
-                defaultProgram,
-                programLines,
-                message,
-                MessageType.ERROR.getCssClassName(),
-                false,
-                0,
-                false,
-                -1,
-                Set.of(),
-                Set.of(),
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of());
+        return MipsViewModel.builder()
+                .programText(defaultProgram)
+                .programLines(programLines)
+                .message(message)
+                .messageType(MessageType.ERROR)
+                .parseSuccess(false)
+                .instructionCount(0)
+                .readyToRun(false)
+                .currentPc(-1)
+                .build();
     }
 
     /**
@@ -113,24 +97,16 @@ public class MipsViewModelFactory {
             int instructionCount,
             boolean readyToRun) {
 
-        return new MipsViewModel(
-                programText,
-                programLines,
-                message,
-                messageType.getCssClassName(),
-                parseSuccess,
-                instructionCount,
-                readyToRun,
-                readyToRun ? 0 : -1,
-                Set.of(),
-                Set.of(),
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of());
+        return MipsViewModel.builder()
+                .programText(programText)
+                .programLines(programLines)
+                .message(message)
+                .messageType(messageType)
+                .parseSuccess(parseSuccess)
+                .instructionCount(instructionCount)
+                .readyToRun(readyToRun)
+                .currentPc(readyToRun ? 0 : -1)
+                .build();
     }
 
     /**
@@ -154,24 +130,18 @@ public class MipsViewModelFactory {
         boolean readyToRun = mipsSessionService.canStep(mipsSession);
         int currentPc = readyToRun ? mipsSession.getStepRunner().getPc() : -1;
 
-        return new MipsViewModel(
-                programText,
-                programLines,
-                message,
-                messageType.getCssClassName(),
-                true,
-                mipsSessionService.getInstructionCount(mipsSession),
-                readyToRun,
-                currentPc,
-                mipsSession.getExecutedPcs(),
-                mipsSessionService.getBreakpoints(mipsSession),
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of());
+        return MipsViewModel.builder()
+                .programText(programText)
+                .programLines(programLines)
+                .message(message)
+                .messageType(messageType)
+                .parseSuccess(true)
+                .instructionCount(mipsSessionService.getInstructionCount(mipsSession))
+                .readyToRun(readyToRun)
+                .currentPc(currentPc)
+                .executedPcs(mipsSession.getExecutedPcs())
+                .breakpoints(mipsSessionService.getBreakpoints(mipsSession))
+                .build();
     }
 
     /**
@@ -198,23 +168,24 @@ public class MipsViewModelFactory {
         boolean readyToRun = mipsSessionService.canStep(mipsSession);
         int currentPc = readyToRun ? mipsSession.getStepRunner().getPc() : -1;
 
-        return new MipsViewModel(
-                programText,
-                programLines,
-                message,
-                messageType.getCssClassName(),
-                true,
-                mipsSessionService.getInstructionCount(mipsSession),
-                readyToRun,
-                currentPc,
-                mipsSession.getExecutedPcs(),
-                mipsSessionService.getBreakpoints(mipsSession),
-                result,
-                executedInstructionText,
-                viewData.getRegisterDiffs(),
-                viewData.getRegisterValues(),
-                viewData.getHiLoDiffs(),
-                viewData.getHiLoValues(),
-                viewData.getMemoryDiffs());
+        return MipsViewModel.builder()
+                .programText(programText)
+                .programLines(programLines)
+                .message(message)
+                .messageType(messageType)
+                .parseSuccess(true)
+                .instructionCount(mipsSessionService.getInstructionCount(mipsSession))
+                .readyToRun(readyToRun)
+                .currentPc(currentPc)
+                .executedPcs(mipsSession.getExecutedPcs())
+                .breakpoints(mipsSessionService.getBreakpoints(mipsSession))
+                .stepResult(result)
+                .executedInstructionText(executedInstructionText)
+                .registerDiffs(viewData.getRegisterDiffs())
+                .registerValues(viewData.getRegisterValues())
+                .hiLoDiffs(viewData.getHiLoDiffs())
+                .hiLoValues(viewData.getHiLoValues())
+                .memoryDiffs(viewData.getMemoryDiffs())
+                .build();
     }
 }
