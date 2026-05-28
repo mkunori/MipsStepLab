@@ -22,6 +22,9 @@ import parser.InstructionParser;
 @Service
 public class WebMipsSessionService {
 
+    /** run操作で一度に実行できる最大ステップ数。 */
+    private static final int MAX_RUN_STEPS = 1000;
+
     /**
      * 入力されたプログラム文字列から、新しいWebMipsSessionを作成する。
      *
@@ -163,8 +166,8 @@ public class WebMipsSessionService {
     /**
      * 現在の実行状態を、ブレークポイントまたはプログラム終了まで連続実行する。
      *
-     * 現在PCがブレークポイントの場合は、その命令を実行せずに停止する。
-     * これは、CUI版の「ブレークポイントに到達したら止まる」挙動に近づけるため。
+     * 無限ループ対策として、一度のrun操作で実行できる最大ステップ数を制限する。
+     * 最大ステップ数に到達した場合は、そこで停止する。
      *
      * @param session 現在の実行状態
      * @return 連続実行の結果
@@ -173,7 +176,7 @@ public class WebMipsSessionService {
         int executedStepCount = 0;
         StepResult lastResult = null;
 
-        while (canStep(session)) {
+        while (canStep(session) && executedStepCount < MAX_RUN_STEPS) {
             int currentPc = session.getStepRunner().getPc();
 
             if (session.getBreakpointManager().contains(currentPc)) {
@@ -186,6 +189,13 @@ public class WebMipsSessionService {
 
             lastResult = step(session);
             executedStepCount++;
+        }
+
+        if (canStep(session)) {
+            return new RunResult(
+                    lastResult,
+                    executedStepCount,
+                    "最大実行ステップ数に到達したため停止しました。");
         }
 
         return new RunResult(lastResult, executedStepCount, "プログラムが終了しました。");
