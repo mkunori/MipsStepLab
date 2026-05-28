@@ -25,13 +25,26 @@ public class WebMipsSessionService {
     /** run操作で一度に実行できる最大ステップ数。 */
     private static final int MAX_RUN_STEPS = 1000;
 
+    /** 入力プログラム全体の最大文字数。 */
+    private static final int MAX_PROGRAM_TEXT_LENGTH = 10_000;
+
+    /** 入力プログラムの最大行数。 */
+    private static final int MAX_PROGRAM_LINE_COUNT = 200;
+
+    /** 入力プログラム1行あたりの最大文字数。 */
+    private static final int MAX_PROGRAM_LINE_LENGTH = 200;
+
     /**
      * 入力されたプログラム文字列から、新しいWebMipsSessionを作成する。
+     *
+     * 入力サイズを検証してから、MIPS命令として解析する。
      *
      * @param programText ユーザーが入力したMIPSプログラム文字列
      * @return 新しい実行状態
      */
     public WebMipsSession createSession(String programText) {
+        validateProgramText(programText);
+
         List<String> programLines = splitLines(programText);
         List<Instruction> instructions = parseProgram(programLines);
 
@@ -199,5 +212,49 @@ public class WebMipsSessionService {
         }
 
         return new RunResult(lastResult, executedStepCount, "プログラムが終了しました。");
+    }
+
+    /**
+     * 入力されたプログラム文字列が制限内か検証する。
+     *
+     * Webアプリでは、極端に大きい入力を受け付けると、
+     * パース処理や実行処理でサーバーに負荷がかかる可能性がある。
+     * そのため、パース前に入力サイズを確認する。
+     *
+     * @param programText ユーザーが入力したMIPSプログラム文字列
+     */
+    private void validateProgramText(String programText) {
+        if (programText == null || programText.isBlank()) {
+            throw new IllegalArgumentException("プログラムを入力してください。");
+        }
+
+        if (programText.length() > MAX_PROGRAM_TEXT_LENGTH) {
+            throw new IllegalArgumentException(
+                    "プログラムが長すぎます。最大 "
+                            + MAX_PROGRAM_TEXT_LENGTH
+                            + " 文字までです。");
+        }
+
+        List<String> lines = splitLines(programText);
+
+        if (lines.size() > MAX_PROGRAM_LINE_COUNT) {
+            throw new IllegalArgumentException(
+                    "プログラムの行数が多すぎます。最大 "
+                            + MAX_PROGRAM_LINE_COUNT
+                            + " 行までです。");
+        }
+
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+
+            if (line.length() > MAX_PROGRAM_LINE_LENGTH) {
+                throw new IllegalArgumentException(
+                        "プログラムの "
+                                + (i + 1)
+                                + " 行目が長すぎます。1行は最大 "
+                                + MAX_PROGRAM_LINE_LENGTH
+                                + " 文字までです。");
+            }
+        }
     }
 }

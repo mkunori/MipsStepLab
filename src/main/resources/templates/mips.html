@@ -23,6 +23,9 @@
             <form method="post" action="/mips">
                 <div>
                     <textarea name="programText" rows="8" cols="60" th:text="${programText}"></textarea>
+                    <p class="input-help">
+                        最大200行、1行200文字、全体10,000文字まで入力できます。
+                    </p>
                 </div>
 
                 <button type="submit">プログラムを解析</button>

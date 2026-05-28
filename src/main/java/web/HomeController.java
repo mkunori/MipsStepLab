@@ -105,7 +105,7 @@ public class HomeController {
                     model,
                     programText,
                     programLines,
-                    "パース失敗: " + e.getMessage(),
+                    "入力エラー: " + e.getMessage(),
                     false,
                     0,
                     false);

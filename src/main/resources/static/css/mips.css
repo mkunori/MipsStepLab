@@ -130,3 +130,9 @@ td {
     color: #c0392b;
     font-weight: bold;
 }
+
+/* 入力制限などの補足説明を控えめに表示する。 */
+.input-help {
+    color: #666;
+    font-size: 0.9rem;
+}
