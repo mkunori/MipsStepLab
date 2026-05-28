@@ -181,11 +181,7 @@ public class MipsViewModelFactory {
      * @param result                  1ステップ分の実行結果
      * @param message                 画面に表示するメッセージ
      * @param messageType             メッセージ種別
-     * @param registerDiffs           レジスタ変更差分
-     * @param registerValues          レジスタ現在値一覧
-     * @param hiLoDiffs               HI/LO変更差分
-     * @param hiLoValues              HI/LO現在値一覧
-     * @param memoryDiffs             メモリ変更差分
+     * @param viewData                StepResultから作成したWeb表示用データ
      * @param executedInstructionText 実行した命令の表示文字列
      * @return ステップ実行結果表示用ViewModel
      */
@@ -194,11 +190,7 @@ public class MipsViewModelFactory {
             StepResult result,
             String message,
             MessageType messageType,
-            List<RegisterDiff> registerDiffs,
-            List<RegisterValue> registerValues,
-            List<HiLoDiff> hiLoDiffs,
-            List<HiLoValue> hiLoValues,
-            List<MemoryDiff> memoryDiffs,
+            StepResultViewData viewData,
             String executedInstructionText) {
 
         String programText = mipsSession.getProgramText();
@@ -219,10 +211,10 @@ public class MipsViewModelFactory {
                 mipsSessionService.getBreakpoints(mipsSession),
                 result,
                 executedInstructionText,
-                registerDiffs,
-                registerValues,
-                hiLoDiffs,
-                hiLoValues,
-                memoryDiffs);
+                viewData.getRegisterDiffs(),
+                viewData.getRegisterValues(),
+                viewData.getHiLoDiffs(),
+                viewData.getHiLoValues(),
+                viewData.getMemoryDiffs());
     }
 }

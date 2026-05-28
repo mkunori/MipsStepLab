@@ -143,4 +143,24 @@ public class StepResultViewMapper {
 
         return values;
     }
+
+    /**
+     * StepResultからWeb表示用データ一式を作成する。
+     *
+     * Controller側でレジスタ差分、HI/LO差分、メモリ差分などを
+     * 個別に作成すると処理が長くなる。
+     * このメソッドでは、1ステップ実行結果から画面表示に必要な
+     * データをまとめて作成する。
+     *
+     * @param result 1ステップ分の実行結果
+     * @return Web表示用データ一式
+     */
+    public StepResultViewData toViewData(StepResult result) {
+        return new StepResultViewData(
+                createRegisterDiffs(result),
+                createRegisterValues(result),
+                createHiLoDiffs(result),
+                createHiLoValues(result),
+                createMemoryDiffs(result));
+    }
 }

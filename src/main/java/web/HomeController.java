@@ -1,7 +1,6 @@
 package web;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -147,15 +146,7 @@ public class HomeController {
 
         List<String> programLines = mipsSessionService.splitLines(mipsSession.getProgramText());
 
-        List<RegisterDiff> registerDiffs = stepResultViewMapper.createRegisterDiffs(result);
-
-        List<RegisterValue> registerValues = stepResultViewMapper.createRegisterValues(result);
-
-        List<HiLoDiff> hiLoDiffs = stepResultViewMapper.createHiLoDiffs(result);
-
-        List<HiLoValue> hiLoValues = stepResultViewMapper.createHiLoValues(result);
-
-        List<MemoryDiff> memoryDiffs = stepResultViewMapper.createMemoryDiffs(result);
+        StepResultViewData viewData = stepResultViewMapper.toViewData(result);
 
         String executedInstructionText = stepResultViewMapper.getExecutedInstructionText(result, programLines);
 
@@ -173,11 +164,7 @@ public class HomeController {
                 result,
                 message,
                 messageType,
-                registerDiffs,
-                registerValues,
-                hiLoDiffs,
-                hiLoValues,
-                memoryDiffs,
+                viewData,
                 executedInstructionText);
 
         return "mips";
@@ -279,11 +266,7 @@ public class HomeController {
      * @param result                  1ステップ分の実行結果
      * @param message                 画面に表示するメッセージ
      * @param messageType             メッセージ種別
-     * @param registerDiffs           レジスタ変更差分
-     * @param registerValues          レジスタ現在値一覧
-     * @param hiLoDiffs               HI/LO変更差分
-     * @param hiLoValues              HI/LO現在値一覧
-     * @param memoryDiffs             メモリ変更差分
+     * @param viewData                StepResultから作成したWeb表示用データ
      * @param executedInstructionText 実行した命令の表示文字列
      */
     private void addStepResultModel(
@@ -292,11 +275,7 @@ public class HomeController {
             StepResult result,
             String message,
             MessageType messageType,
-            List<RegisterDiff> registerDiffs,
-            List<RegisterValue> registerValues,
-            List<HiLoDiff> hiLoDiffs,
-            List<HiLoValue> hiLoValues,
-            List<MemoryDiff> memoryDiffs,
+            StepResultViewData viewData,
             String executedInstructionText) {
 
         MipsViewModel viewModel = viewModelFactory.createStepResultViewModel(
@@ -304,11 +283,7 @@ public class HomeController {
                 result,
                 message,
                 messageType,
-                registerDiffs,
-                registerValues,
-                hiLoDiffs,
-                hiLoValues,
-                memoryDiffs,
+                viewData,
                 executedInstructionText);
 
         addViewModel(model, viewModel);
@@ -435,25 +410,18 @@ public class HomeController {
 
             return "mips";
         }
+
+        List<String> programLines = mipsSessionService.splitLines(mipsSession.getProgramText());
+
+        StepResultViewData viewData = stepResultViewMapper.toViewData(result);
+
+        String executedInstructionText = stepResultViewMapper.getExecutedInstructionText(result, programLines);
+
         String message = createRunMessage(runResult);
 
         MessageType messageType = readyToRun
                 ? MessageType.INFO
                 : MessageType.SUCCESS;
-
-        List<String> programLines = mipsSessionService.splitLines(mipsSession.getProgramText());
-
-        List<RegisterDiff> registerDiffs = stepResultViewMapper.createRegisterDiffs(result);
-
-        List<RegisterValue> registerValues = stepResultViewMapper.createRegisterValues(result);
-
-        List<HiLoDiff> hiLoDiffs = stepResultViewMapper.createHiLoDiffs(result);
-
-        List<HiLoValue> hiLoValues = stepResultViewMapper.createHiLoValues(result);
-
-        List<MemoryDiff> memoryDiffs = stepResultViewMapper.createMemoryDiffs(result);
-
-        String executedInstructionText = stepResultViewMapper.getExecutedInstructionText(result, programLines);
 
         addStepResultModel(
                 model,
@@ -461,11 +429,7 @@ public class HomeController {
                 result,
                 message,
                 messageType,
-                registerDiffs,
-                registerValues,
-                hiLoDiffs,
-                hiLoValues,
-                memoryDiffs,
+                viewData,
                 executedInstructionText);
 
         model.addAttribute("message", createRunMessage(runResult));
