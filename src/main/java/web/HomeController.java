@@ -32,18 +32,24 @@ public class HomeController {
     /** StepResultをWeb表示用データに変換するMapper。 */
     private final StepResultViewMapper stepResultViewMapper;
 
+    /** MipsViewModelを生成するFactory。 */
+    private final MipsViewModelFactory viewModelFactory;
+
     /**
      * HomeControllerを生成する。
      *
      * @param mipsSessionService   Web版MipsStepLabの実行状態を扱うService
      * @param stepResultViewMapper StepResultをWeb表示用データに変換するMapper
+     * @param viewModelFactory     MipsViewModelを生成するFactory
      */
     public HomeController(
             WebMipsSessionService mipsSessionService,
-            StepResultViewMapper stepResultViewMapper) {
+            StepResultViewMapper stepResultViewMapper,
+            MipsViewModelFactory viewModelFactory) {
 
         this.mipsSessionService = mipsSessionService;
         this.stepResultViewMapper = stepResultViewMapper;
+        this.viewModelFactory = viewModelFactory;
     }
 
     /**
@@ -211,31 +217,10 @@ public class HomeController {
     /**
      * 初期表示用のModel属性を設定する。
      *
-     * /mips に最初にアクセスしたときに使う。
-     *
      * @param model HTMLテンプレートへデータを渡すための入れ物
      */
     private void addInitialModel(Model model) {
-        List<String> programLines = mipsSessionService.splitLines(DEFAULT_PROGRAM);
-
-        MipsViewModel viewModel = new MipsViewModel(
-                DEFAULT_PROGRAM,
-                programLines,
-                null,
-                MessageType.INFO.getCssClassName(),
-                null,
-                0,
-                false,
-                0,
-                Set.of(),
-                Set.of(),
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of());
+        MipsViewModel viewModel = viewModelFactory.createInitialViewModel(DEFAULT_PROGRAM);
 
         addViewModel(model, viewModel);
     }
@@ -243,42 +228,17 @@ public class HomeController {
     /**
      * 実行状態が存在しない場合のModel属性を設定する。
      *
-     * セッションが切れた状態で1ステップ実行やリセットを押した場合に使う。
-     *
      * @param model   HTMLテンプレートへデータを渡すための入れ物
      * @param message 画面に表示するメッセージ
      */
     private void addNoSessionModel(Model model, String message) {
-        List<String> programLines = mipsSessionService.splitLines(DEFAULT_PROGRAM);
-
-        MipsViewModel viewModel = new MipsViewModel(
-                DEFAULT_PROGRAM,
-                programLines,
-                message,
-                MessageType.ERROR.getCssClassName(),
-                false,
-                0,
-                false,
-                -1,
-                Set.of(),
-                Set.of(),
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of());
+        MipsViewModel viewModel = viewModelFactory.createNoSessionViewModel(DEFAULT_PROGRAM, message);
 
         addViewModel(model, viewModel);
     }
 
     /**
      * パース後または操作後のModel属性を設定する。
-     *
-     * 新しいプログラムを解析した直後や、パース失敗時に使う。
-     * この時点では、ステップ実行結果はまだ表示しないため、
-     * 差分表示やCPU状態表示は空にしている。
      *
      * @param model            HTMLテンプレートへデータを渡すための入れ物
      * @param programText      ユーザーが入力したプログラム文字列
@@ -299,33 +259,20 @@ public class HomeController {
             int instructionCount,
             boolean readyToRun) {
 
-        MipsViewModel viewModel = new MipsViewModel(
+        MipsViewModel viewModel = viewModelFactory.createParsedViewModel(
                 programText,
                 programLines,
                 message,
-                messageType.getCssClassName(),
+                messageType,
                 parseSuccess,
                 instructionCount,
-                readyToRun,
-                readyToRun ? 0 : -1,
-                Set.of(),
-                Set.of(),
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of());
+                readyToRun);
 
         addViewModel(model, viewModel);
     }
 
     /**
      * 1ステップ実行後、またはrun実行後のModel属性を設定する。
-     *
-     * StepResultと各種表示用データをMipsViewModelにまとめ、
-     * 画面へ渡す。
      *
      * @param model                   HTMLテンプレートへデータを渡すための入れ物
      * @param mipsSession             Web版の実行状態
@@ -352,29 +299,17 @@ public class HomeController {
             List<MemoryDiff> memoryDiffs,
             String executedInstructionText) {
 
-        String programText = mipsSession.getProgramText();
-        List<String> programLines = mipsSessionService.splitLines(programText);
-        boolean readyToRun = mipsSessionService.canStep(mipsSession);
-        int currentPc = readyToRun ? mipsSession.getStepRunner().getPc() : -1;
-
-        MipsViewModel viewModel = new MipsViewModel(
-                programText,
-                programLines,
-                message,
-                messageType.getCssClassName(),
-                true,
-                mipsSessionService.getInstructionCount(mipsSession),
-                readyToRun,
-                currentPc,
-                mipsSession.getExecutedPcs(),
-                mipsSessionService.getBreakpoints(mipsSession),
+        MipsViewModel viewModel = viewModelFactory.createStepResultViewModel(
+                mipsSession,
                 result,
-                executedInstructionText,
+                message,
+                messageType,
                 registerDiffs,
                 registerValues,
                 hiLoDiffs,
                 hiLoValues,
-                memoryDiffs);
+                memoryDiffs,
+                executedInstructionText);
 
         addViewModel(model, viewModel);
     }
@@ -553,13 +488,6 @@ public class HomeController {
     /**
      * 現在のWeb実行状態をModelに設定する。
      *
-     * WebMipsSessionが存在する場合に、
-     * 入力プログラム、命令一覧、実行済みPC、ブレークポイントなど、
-     * 画面表示に必要な共通情報をまとめて設定する。
-     *
-     * このメソッドでは、ステップ実行結果や差分表示は空にする。
-     * ステップ実行後の差分表示が必要な場合は addStepResultModel を使う。
-     *
      * @param model       HTMLテンプレートへデータを渡すための入れ物
      * @param mipsSession Web版の実行状態
      * @param message     画面に表示するメッセージ
@@ -571,29 +499,10 @@ public class HomeController {
             String message,
             MessageType messageType) {
 
-        String programText = mipsSession.getProgramText();
-        List<String> programLines = mipsSessionService.splitLines(programText);
-        boolean readyToRun = mipsSessionService.canStep(mipsSession);
-        int currentPc = readyToRun ? mipsSession.getStepRunner().getPc() : -1;
-
-        MipsViewModel viewModel = new MipsViewModel(
-                programText,
-                programLines,
+        MipsViewModel viewModel = viewModelFactory.createSessionStateViewModel(
+                mipsSession,
                 message,
-                messageType.getCssClassName(),
-                true,
-                mipsSessionService.getInstructionCount(mipsSession),
-                readyToRun,
-                currentPc,
-                mipsSession.getExecutedPcs(),
-                mipsSessionService.getBreakpoints(mipsSession),
-                null,
-                null,
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of());
+                messageType);
 
         addViewModel(model, viewModel);
     }
