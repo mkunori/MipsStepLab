@@ -28,6 +28,9 @@ public class StepResultViewData {
     /** メモリ変更差分。 */
     private final List<MemoryDiff> memoryDiffs;
 
+    /** メモリ現在値一覧。 */
+    private final List<MemoryValue> memoryValues;
+
     /**
      * StepResultViewDataを生成する。
      *
@@ -36,19 +39,22 @@ public class StepResultViewData {
      * @param hiLoDiffs      HI/LO変更差分
      * @param hiLoValues     HI/LO現在値一覧
      * @param memoryDiffs    メモリ変更差分
+     * @param memoryValues   メモリ現在値一覧
      */
     public StepResultViewData(
             List<RegisterDiff> registerDiffs,
             List<RegisterValue> registerValues,
             List<HiLoDiff> hiLoDiffs,
             List<HiLoValue> hiLoValues,
-            List<MemoryDiff> memoryDiffs) {
+            List<MemoryDiff> memoryDiffs,
+            List<MemoryValue> memoryValues) {
 
         this.registerDiffs = registerDiffs;
         this.registerValues = registerValues;
         this.hiLoDiffs = hiLoDiffs;
         this.hiLoValues = hiLoValues;
         this.memoryDiffs = memoryDiffs;
+        this.memoryValues = memoryValues;
     }
 
     /**
@@ -94,5 +100,14 @@ public class StepResultViewData {
      */
     public List<MemoryDiff> getMemoryDiffs() {
         return memoryDiffs;
+    }
+
+    /**
+     * メモリ現在値一覧を返す。
+     *
+     * @return メモリ現在値一覧
+     */
+    public List<MemoryValue> getMemoryValues() {
+        return memoryValues;
     }
 }

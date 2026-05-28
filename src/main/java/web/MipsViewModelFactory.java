@@ -186,6 +186,7 @@ public class MipsViewModelFactory {
                 .hiLoDiffs(viewData.getHiLoDiffs())
                 .hiLoValues(viewData.getHiLoValues())
                 .memoryDiffs(viewData.getMemoryDiffs())
+                .memoryValues(viewData.getMemoryValues())
                 .build();
     }
 }

@@ -19,6 +19,9 @@ import execution.StepResult;
 @Component
 public class StepResultViewMapper {
 
+    /** Web画面に表示するメモリの先頭バイト数。 */
+    private static final int MEMORY_DISPLAY_SIZE = 32;
+
     /**
      * StepResultからレジスタ変更差分のリストを作成する。
      *
@@ -147,11 +150,6 @@ public class StepResultViewMapper {
     /**
      * StepResultからWeb表示用データ一式を作成する。
      *
-     * Controller側でレジスタ差分、HI/LO差分、メモリ差分などを
-     * 個別に作成すると処理が長くなる。
-     * このメソッドでは、1ステップ実行結果から画面表示に必要な
-     * データをまとめて作成する。
-     *
      * @param result 1ステップ分の実行結果
      * @return Web表示用データ一式
      */
@@ -161,6 +159,29 @@ public class StepResultViewMapper {
                 createRegisterValues(result),
                 createHiLoDiffs(result),
                 createHiLoValues(result),
-                createMemoryDiffs(result));
+                createMemoryDiffs(result),
+                createMemoryValues(result));
+    }
+
+    /**
+     * StepResultから実行後のメモリ現在値一覧を作成する。
+     *
+     * 現時点では簡易表示として、先頭から一定バイト数だけを表示する。
+     *
+     * @param result 1ステップ分の実行結果
+     * @return 実行後のメモリ現在値一覧
+     */
+    public List<MemoryValue> createMemoryValues(StepResult result) {
+        byte[] memory = result.getMemoryAfter();
+
+        List<MemoryValue> values = new ArrayList<>();
+
+        int displaySize = Math.min(MEMORY_DISPLAY_SIZE, memory.length);
+
+        for (int address = 0; address < displaySize; address++) {
+            values.add(new MemoryValue(address, memory[address]));
+        }
+
+        return values;
     }
 }

@@ -66,6 +66,9 @@ public class MipsViewModel {
     /** メモリ変更差分。 */
     private final List<MemoryDiff> memoryDiffs;
 
+    /** メモリ現在値一覧。 */
+    private final List<MemoryValue> memoryValues;
+
     /**
      * MipsViewModelを生成する。
      *
@@ -86,6 +89,7 @@ public class MipsViewModel {
      * @param hiLoDiffs               HI/LO変更差分
      * @param hiLoValues              HI/LO現在値一覧
      * @param memoryDiffs             メモリ変更差分
+     * @param memoryValues            メモリ現在値一覧
      */
     private MipsViewModel(
             String programText,
@@ -104,7 +108,8 @@ public class MipsViewModel {
             List<RegisterValue> registerValues,
             List<HiLoDiff> hiLoDiffs,
             List<HiLoValue> hiLoValues,
-            List<MemoryDiff> memoryDiffs) {
+            List<MemoryDiff> memoryDiffs,
+            List<MemoryValue> memoryValues) {
 
         this.programText = programText;
         this.programLines = programLines;
@@ -123,6 +128,7 @@ public class MipsViewModel {
         this.hiLoDiffs = hiLoDiffs;
         this.hiLoValues = hiLoValues;
         this.memoryDiffs = memoryDiffs;
+        this.memoryValues = memoryValues;
     }
 
     public String getProgramText() {
@@ -193,6 +199,10 @@ public class MipsViewModel {
         return memoryDiffs;
     }
 
+    public List<MemoryValue> getMemoryValues() {
+        return memoryValues;
+    }
+
     /**
      * MipsViewModelを段階的に生成するBuilderクラス。
      *
@@ -253,6 +263,9 @@ public class MipsViewModel {
 
         /** メモリ変更差分。 */
         private List<MemoryDiff> memoryDiffs = List.of();
+
+        /** メモリ現在値一覧。 */
+        private List<MemoryValue> memoryValues = List.of();
 
         /**
          * 入力欄に表示するMIPSプログラム文字列を設定する。
@@ -442,6 +455,17 @@ public class MipsViewModel {
         }
 
         /**
+         * メモリ現在値一覧を設定する。
+         *
+         * @param memoryValues メモリ現在値一覧
+         * @return このBuilder
+         */
+        public Builder memoryValues(List<MemoryValue> memoryValues) {
+            this.memoryValues = memoryValues;
+            return this;
+        }
+
+        /**
          * 設定された値を使ってMipsViewModelを生成する。
          *
          * @return MipsViewModel
@@ -464,7 +488,8 @@ public class MipsViewModel {
                     registerValues,
                     hiLoDiffs,
                     hiLoValues,
-                    memoryDiffs);
+                    memoryDiffs,
+                    memoryValues);
         }
     }
 

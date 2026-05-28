@@ -230,6 +230,23 @@
                     </tr>
                 </tbody>
             </table>
+
+            <h3>メモリ一覧</h3>
+
+            <table th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
+                <thead>
+                    <tr>
+                        <th>アドレス</th>
+                        <th>現在値</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="memory : ${viewModel.memoryValues}">
+                        <td th:text="${memory.address}">0</td>
+                        <td th:text="${memory.value}">0</td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
     </main>
 </body>
