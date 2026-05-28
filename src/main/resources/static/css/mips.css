@@ -122,3 +122,11 @@ td {
 .register-value {
     text-align: right;
 }
+
+/* ブレークポイントが設定された命令行に目印を表示する。 */
+.breakpoint-mark {
+    display: inline-block;
+    margin-right: 8px;
+    color: #c0392b;
+    font-weight: bold;
+}

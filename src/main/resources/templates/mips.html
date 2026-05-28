@@ -34,10 +34,15 @@
 
             <ol start="0" class="program-list">
                 <li th:each="instruction, stat : ${programLines}" th:classappend="
-                        ${stat.index == currentPc} ? 'current-instruction' :
-                        (${executedPcs.contains(stat.index)} ? 'executed-instruction' : '')">
+            ${stat.index == currentPc} ? 'current-instruction' :
+            (${executedPcs.contains(stat.index)} ? 'executed-instruction' : '')">
+
+                    <span class="breakpoint-mark" th:if="${breakpoints.contains(stat.index)}">● BP</span>
+
                     <span th:text="${instruction}">addi $t0, $zero, 5</span>
+
                     <span th:if="${stat.index == currentPc}"> ← 次に実行</span>
+
                     <span th:if="${executedPcs.contains(stat.index) && stat.index != currentPc}">
                         ← 実行済み
                     </span>
