@@ -22,11 +22,12 @@
 
             <form method="post" action="/mips">
                 <div>
-                    <textarea name="programText" rows="8" cols="60" th:text="${programText}"></textarea>
-                    <p class="input-help">
-                        最大200行、1行200文字、全体10,000文字まで入力できます。
-                    </p>
+                    <textarea name="programText" rows="8" cols="60" th:text="${viewModel.programText}"></textarea>
                 </div>
+
+                <p class="input-help">
+                    最大200行、1行200文字、全体10,000文字まで入力できます。
+                </p>
 
                 <button type="submit">プログラムを解析</button>
             </form>
@@ -36,17 +37,17 @@
             <h2>プログラム一覧</h2>
 
             <ol start="0" class="program-list">
-                <li th:each="instruction, stat : ${programLines}" th:classappend="
-            ${stat.index == currentPc} ? 'current-instruction' :
-            (${executedPcs.contains(stat.index)} ? 'executed-instruction' : '')">
+                <li th:each="instruction, stat : ${viewModel.programLines}" th:classappend="
+                        ${stat.index == viewModel.currentPc} ? 'current-instruction' :
+                        (${viewModel.executedPcs.contains(stat.index)} ? 'executed-instruction' : '')">
 
-                    <span class="breakpoint-mark" th:if="${breakpoints.contains(stat.index)}">● BP</span>
+                    <span class="breakpoint-mark" th:if="${viewModel.breakpoints.contains(stat.index)}">● BP</span>
 
                     <span th:text="${instruction}">addi $t0, $zero, 5</span>
 
-                    <span th:if="${stat.index == currentPc}"> ← 次に実行</span>
+                    <span th:if="${stat.index == viewModel.currentPc}"> ← 次に実行</span>
 
-                    <span th:if="${executedPcs.contains(stat.index) && stat.index != currentPc}">
+                    <span th:if="${viewModel.executedPcs.contains(stat.index) && stat.index != viewModel.currentPc}">
                         ← 実行済み
                     </span>
                 </li>
@@ -56,18 +57,18 @@
         <section class="panel">
             <h2>解析・実行操作</h2>
 
-            <div th:if="${message != null}" th:class="'message ' + ${messageType}">
-                <p th:text="${message}">
+            <div th:if="${viewModel.message != null}" th:class="'message ' + ${viewModel.messageType}">
+                <p th:text="${viewModel.message}">
                     メッセージがここに表示されます。
                 </p>
             </div>
 
-            <div class="button-row" th:if="${parseSuccess}">
-                <form method="post" action="/mips/step" th:if="${readyToRun}">
+            <div class="button-row" th:if="${viewModel.parseSuccess}">
+                <form method="post" action="/mips/step" th:if="${viewModel.readyToRun}">
                     <button type="submit">1ステップ実行</button>
                 </form>
 
-                <form method="post" action="/mips/run" th:if="${readyToRun}">
+                <form method="post" action="/mips/run" th:if="${viewModel.readyToRun}">
                     <button type="submit">ブレークポイントまで実行</button>
                 </form>
 
@@ -76,7 +77,7 @@
                 </form>
             </div>
 
-            <div th:if="${parseSuccess}">
+            <div th:if="${viewModel.parseSuccess}">
                 <h3>ブレークポイント</h3>
 
                 <form method="post" action="/mips/breakpoints">
@@ -95,49 +96,49 @@
                     <button type="submit">削除</button>
                 </form>
 
-                <p th:if="${#lists.isEmpty(breakpoints)}">
+                <p th:if="${#lists.isEmpty(viewModel.breakpoints)}">
                     ブレークポイントなし
                 </p>
 
-                <ul th:if="${!#lists.isEmpty(breakpoints)}">
-                    <li th:each="pc : ${breakpoints}" th:text="'PC ' + ${pc}">
+                <ul th:if="${!#lists.isEmpty(viewModel.breakpoints)}">
+                    <li th:each="pc : ${viewModel.breakpoints}" th:text="'PC ' + ${pc}">
                         PC 0
                     </li>
                 </ul>
             </div>
         </section>
 
-        <section class="panel" th:if="${stepResult != null}">
+        <section class="panel" th:if="${viewModel.stepResult != null}">
             <h2>ステップ実行結果</h2>
 
             <p>
                 STEP:
-                <span th:text="${stepResult.step}">1</span>
+                <span th:text="${viewModel.stepResult.step}">1</span>
             </p>
 
             <p>
                 PC:
-                <span th:text="${stepResult.pcBefore}">0</span>
+                <span th:text="${viewModel.stepResult.pcBefore}">0</span>
                 →
-                <span th:text="${stepResult.pcAfter}">1</span>
+                <span th:text="${viewModel.stepResult.pcAfter}">1</span>
             </p>
 
             <p>
                 実行命令:
-                <span th:text="${executedInstructionText}">addi $t0, $zero, 5</span>
+                <span th:text="${viewModel.executedInstructionText}">addi $t0, $zero, 5</span>
             </p>
         </section>
 
-        <section class="panel" th:if="${stepResult != null}">
+        <section class="panel" th:if="${viewModel.stepResult != null}">
             <h2>変更差分</h2>
 
             <h3>レジスタ変更</h3>
 
-            <p th:if="${#lists.isEmpty(registerDiffs)}">
+            <p th:if="${#lists.isEmpty(viewModel.registerDiffs)}">
                 レジスタ変更なし
             </p>
 
-            <table th:if="${!#lists.isEmpty(registerDiffs)}">
+            <table th:if="${!#lists.isEmpty(viewModel.registerDiffs)}">
                 <thead>
                     <tr>
                         <th>レジスタ</th>
@@ -146,7 +147,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="diff : ${registerDiffs}">
+                    <tr th:each="diff : ${viewModel.registerDiffs}">
                         <td th:text="'R' + ${diff.registerNumber}">R8</td>
                         <td th:text="${diff.beforeValue}">0</td>
                         <td th:text="${diff.afterValue}">5</td>
@@ -156,11 +157,11 @@
 
             <h3>HI/LO変更</h3>
 
-            <p th:if="${#lists.isEmpty(hiLoDiffs)}">
+            <p th:if="${#lists.isEmpty(viewModel.hiLoDiffs)}">
                 HI/LO変更なし
             </p>
 
-            <table th:if="${!#lists.isEmpty(hiLoDiffs)}">
+            <table th:if="${!#lists.isEmpty(viewModel.hiLoDiffs)}">
                 <thead>
                     <tr>
                         <th>レジスタ</th>
@@ -169,7 +170,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="diff : ${hiLoDiffs}">
+                    <tr th:each="diff : ${viewModel.hiLoDiffs}">
                         <td th:text="${diff.registerName}">HI</td>
                         <td th:text="${diff.beforeValue}">0</td>
                         <td th:text="${diff.afterValue}">15</td>
@@ -179,11 +180,11 @@
 
             <h3>メモリ変更</h3>
 
-            <p th:if="${#lists.isEmpty(memoryDiffs)}">
+            <p th:if="${#lists.isEmpty(viewModel.memoryDiffs)}">
                 メモリ変更なし
             </p>
 
-            <table th:if="${!#lists.isEmpty(memoryDiffs)}">
+            <table th:if="${!#lists.isEmpty(viewModel.memoryDiffs)}">
                 <thead>
                     <tr>
                         <th>アドレス</th>
@@ -192,7 +193,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="diff : ${memoryDiffs}">
+                    <tr th:each="diff : ${viewModel.memoryDiffs}">
                         <td th:text="${diff.address}">0</td>
                         <td th:text="${diff.beforeValue}">0</td>
                         <td th:text="${diff.afterValue}">5</td>
@@ -201,13 +202,13 @@
             </table>
         </section>
 
-        <section class="panel" th:if="${stepResult != null}">
+        <section class="panel" th:if="${viewModel.stepResult != null}">
             <h2>CPU状態</h2>
 
             <h3>レジスタ一覧</h3>
 
-            <div class="register-grid" th:if="${!#lists.isEmpty(registerValues)}">
-                <div class="register-cell" th:each="register : ${registerValues}">
+            <div class="register-grid" th:if="${!#lists.isEmpty(viewModel.registerValues)}">
+                <div class="register-cell" th:each="register : ${viewModel.registerValues}">
                     <span class="register-name" th:text="'R' + ${register.registerNumber}">R0</span>
                     <span class="register-value" th:text="${register.value}">0</span>
                 </div>
@@ -215,7 +216,7 @@
 
             <h3>HI/LO一覧</h3>
 
-            <table th:if="${!#lists.isEmpty(hiLoValues)}">
+            <table th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
                 <thead>
                     <tr>
                         <th>レジスタ</th>
@@ -223,7 +224,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="register : ${hiLoValues}">
+                    <tr th:each="register : ${viewModel.hiLoValues}">
                         <td th:text="${register.registerName}">HI</td>
                         <td th:text="${register.value}">0</td>
                     </tr>
