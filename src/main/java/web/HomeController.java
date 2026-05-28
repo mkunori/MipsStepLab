@@ -293,14 +293,11 @@ public class HomeController {
         model.addAttribute("parseSuccess", parseSuccess);
         model.addAttribute("instructionCount", instructionCount);
         model.addAttribute("readyToRun", readyToRun);
-        model.addAttribute("registerDiffs", List.of());
-        model.addAttribute("registerValues", List.of());
-        model.addAttribute("hiLoDiffs", List.of());
-        model.addAttribute("hiLoValues", List.of());
-        model.addAttribute("memoryDiffs", List.of());
         model.addAttribute("currentPc", readyToRun ? 0 : -1);
         model.addAttribute("executedPcs", Set.of());
         model.addAttribute("breakpoints", Set.of());
+
+        addEmptyResultModel(model);
     }
 
     /**
@@ -311,9 +308,9 @@ public class HomeController {
      * @param result                  1ステップ分の実行結果
      * @param readyToRun              次の命令を実行できる場合はtrue
      * @param registerDiffs           レジスタ変更差分
-     * @param registerValues          レジスタ値群
+     * @param registerValues          レジスタ現在値一覧
      * @param hiLoDiffs               HI/LO変更差分
-     * @param hiLoValues              HI/LO値群
+     * @param hiLoValues              HI/LO現在値一覧
      * @param memoryDiffs             メモリ変更差分
      * @param executedInstructionText 実行した命令の表示文字列
      */
@@ -329,8 +326,7 @@ public class HomeController {
             List<MemoryDiff> memoryDiffs,
             String executedInstructionText) {
 
-        model.addAttribute("programText", mipsSession.getProgramText());
-        model.addAttribute("programLines", mipsSessionService.splitLines(mipsSession.getProgramText()));
+        addSessionStateModel(model, mipsSession);
 
         if (readyToRun) {
             model.addAttribute("message", "実行中: 1ステップ実行しました。");
@@ -340,9 +336,6 @@ public class HomeController {
             model.addAttribute("messageType", MessageType.SUCCESS.getCssClassName());
         }
 
-        model.addAttribute("parseSuccess", true);
-        model.addAttribute("instructionCount", mipsSession.getProgram().size());
-        model.addAttribute("readyToRun", readyToRun);
         model.addAttribute("stepResult", result);
         model.addAttribute("registerDiffs", registerDiffs);
         model.addAttribute("registerValues", registerValues);
@@ -350,11 +343,6 @@ public class HomeController {
         model.addAttribute("hiLoValues", hiLoValues);
         model.addAttribute("memoryDiffs", memoryDiffs);
         model.addAttribute("executedInstructionText", executedInstructionText);
-        model.addAttribute("executedPcs", mipsSession.getExecutedPcs());
-        model.addAttribute("breakpoints", mipsSession.getBreakpointManager().getAll());
-
-        int currentPc = readyToRun ? result.getPcAfter() : -1;
-        model.addAttribute("currentPc", currentPc);
     }
 
     /**
@@ -375,44 +363,27 @@ public class HomeController {
         }
 
         if (breakpointPc == null) {
-            addParsedModel(
-                    model,
-                    mipsSession.getProgramText(),
-                    mipsSessionService.splitLines(mipsSession.getProgramText()),
-                    "PC番号を入力してください。",
-                    MessageType.ERROR,
-                    false,
-                    mipsSessionService.getInstructionCount(mipsSession),
-                    mipsSessionService.canStep(mipsSession));
-            model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
+            addSessionStateModel(model, mipsSession);
+            addEmptyResultModel(model);
+            model.addAttribute("message", "PC番号を入力してください。");
+            model.addAttribute("messageType", MessageType.ERROR.getCssClassName());
+
             return "mips";
         }
 
         try {
             mipsSessionService.addBreakpoint(mipsSession, breakpointPc);
 
-            addParsedModel(
-                    model,
-                    mipsSession.getProgramText(),
-                    mipsSessionService.splitLines(mipsSession.getProgramText()),
-                    "ブレークポイントを追加しました: PC " + breakpointPc,
-                    MessageType.SUCCESS,
-                    true,
-                    mipsSessionService.getInstructionCount(mipsSession),
-                    mipsSessionService.canStep(mipsSession));
+            addSessionStateModel(model, mipsSession);
+            addEmptyResultModel(model);
+            model.addAttribute("message", "ブレークポイントを追加しました: PC " + breakpointPc);
+            model.addAttribute("messageType", MessageType.SUCCESS.getCssClassName());
         } catch (IllegalArgumentException e) {
-            addParsedModel(
-                    model,
-                    mipsSession.getProgramText(),
-                    mipsSessionService.splitLines(mipsSession.getProgramText()),
-                    "ブレークポイント追加失敗: " + e.getMessage(),
-                    MessageType.ERROR,
-                    false,
-                    mipsSessionService.getInstructionCount(mipsSession),
-                    mipsSessionService.canStep(mipsSession));
+            addSessionStateModel(model, mipsSession);
+            addEmptyResultModel(model);
+            model.addAttribute("message", "ブレークポイント追加失敗: " + e.getMessage());
+            model.addAttribute("messageType", MessageType.ERROR.getCssClassName());
         }
-
-        model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
 
         return "mips";
     }
@@ -435,16 +406,11 @@ public class HomeController {
         }
 
         if (breakpointPc == null) {
-            addParsedModel(
-                    model,
-                    mipsSession.getProgramText(),
-                    mipsSessionService.splitLines(mipsSession.getProgramText()),
-                    "削除するPC番号を入力してください。",
-                    MessageType.ERROR,
-                    false,
-                    mipsSessionService.getInstructionCount(mipsSession),
-                    mipsSessionService.canStep(mipsSession));
-            model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
+            addSessionStateModel(model, mipsSession);
+            addEmptyResultModel(model);
+            model.addAttribute("message", "削除するPC番号を入力してください。");
+            model.addAttribute("messageType", MessageType.ERROR.getCssClassName());
+
             return "mips";
         }
 
@@ -454,17 +420,12 @@ public class HomeController {
                 ? "ブレークポイントを削除しました: PC " + breakpointPc
                 : "ブレークポイントは登録されていません: PC " + breakpointPc;
 
-        addParsedModel(
-                model,
-                mipsSession.getProgramText(),
-                mipsSessionService.splitLines(mipsSession.getProgramText()),
-                message,
-                MessageType.INFO,
-                true,
-                mipsSessionService.getInstructionCount(mipsSession),
-                mipsSessionService.canStep(mipsSession));
-
-        model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
+        addSessionStateModel(model, mipsSession);
+        addEmptyResultModel(model);
+        model.addAttribute("message", message);
+        model.addAttribute("messageType", removed
+                ? MessageType.SUCCESS.getCssClassName()
+                : MessageType.WARNING.getCssClassName());
 
         return "mips";
     }
@@ -552,5 +513,50 @@ public class HomeController {
     private String createRunMessage(RunResult runResult) {
         return runResult.getMessage()
                 + "（実行ステップ数: " + runResult.getExecutedStepCount() + "）";
+    }
+
+    /**
+     * 現在のWeb実行状態をModelに設定する。
+     *
+     * WebMipsSessionが存在する場合に、
+     * 入力プログラム、命令一覧、実行済みPC、ブレークポイントなど、
+     * 画面表示に必要な共通情報をまとめて設定する。
+     *
+     * @param model       HTMLテンプレートへデータを渡すための入れ物
+     * @param mipsSession Web版の実行状態
+     */
+    private void addSessionStateModel(Model model, WebMipsSession mipsSession) {
+        String programText = mipsSession.getProgramText();
+        List<String> programLines = mipsSessionService.splitLines(programText);
+        boolean readyToRun = mipsSessionService.canStep(mipsSession);
+
+        model.addAttribute("programText", programText);
+        model.addAttribute("programLines", programLines);
+        model.addAttribute("instructionCount", mipsSessionService.getInstructionCount(mipsSession));
+        model.addAttribute("readyToRun", readyToRun);
+        model.addAttribute("parseSuccess", true);
+        model.addAttribute("executedPcs", mipsSession.getExecutedPcs());
+        model.addAttribute("breakpoints", mipsSessionService.getBreakpoints(mipsSession));
+
+        int currentPc = readyToRun ? mipsSession.getStepRunner().getPc() : -1;
+        model.addAttribute("currentPc", currentPc);
+    }
+
+    /**
+     * ステップ実行結果がない場合の空Model属性を設定する。
+     *
+     * パース直後やブレークポイント操作直後など、
+     * まだ表示するStepResultがない場面で使う。
+     *
+     * @param model HTMLテンプレートへデータを渡すための入れ物
+     */
+    private void addEmptyResultModel(Model model) {
+        model.addAttribute("stepResult", null);
+        model.addAttribute("registerDiffs", List.of());
+        model.addAttribute("registerValues", List.of());
+        model.addAttribute("hiLoDiffs", List.of());
+        model.addAttribute("hiLoValues", List.of());
+        model.addAttribute("memoryDiffs", List.of());
+        model.addAttribute("executedInstructionText", null);
     }
 }
