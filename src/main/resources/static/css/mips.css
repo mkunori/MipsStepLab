@@ -136,3 +136,34 @@ td {
     color: #666;
     font-size: 0.9rem;
 }
+
+/* 操作結果メッセージを見やすく表示する。 */
+.message {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+/* 成功メッセージを表示する。 */
+.message.success {
+    background-color: #e9f7ef;
+    border: 1px solid #8fd19e;
+}
+
+/* エラーメッセージを表示する。 */
+.message.error {
+    background-color: #fdecea;
+    border: 1px solid #f5a6a6;
+}
+
+/* 警告メッセージを表示する。 */
+.message.warning {
+    background-color: #fff8e1;
+    border: 1px solid #f0d98c;
+}
+
+/* 通常の情報メッセージを表示する。 */
+.message.info {
+    background-color: #eef5ff;
+    border: 1px solid #9cc5f5;
+}

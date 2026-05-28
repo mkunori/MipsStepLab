@@ -95,6 +95,7 @@ public class HomeController {
                     programText,
                     programLines,
                     message,
+                    MessageType.SUCCESS,
                     true,
                     mipsSessionService.getInstructionCount(mipsSession),
                     readyToRun);
@@ -106,6 +107,7 @@ public class HomeController {
                     programText,
                     programLines,
                     "入力エラー: " + e.getMessage(),
+                    MessageType.ERROR,
                     false,
                     0,
                     false);
@@ -198,6 +200,7 @@ public class HomeController {
                 programText,
                 programLines,
                 "実行状態をリセットしました。",
+                MessageType.INFO,
                 true,
                 mipsSessionService.getInstructionCount(newSession),
                 readyToRun);
@@ -218,7 +221,8 @@ public class HomeController {
 
         model.addAttribute("programText", DEFAULT_PROGRAM);
         model.addAttribute("programLines", programLines);
-        model.addAttribute("parseMessage", null);
+        model.addAttribute("message", null);
+        model.addAttribute("messageType", MessageType.INFO.getCssClassName());
         model.addAttribute("parseSuccess", null);
         model.addAttribute("instructionCount", 0);
         model.addAttribute("readyToRun", false);
@@ -245,7 +249,8 @@ public class HomeController {
 
         model.addAttribute("programText", DEFAULT_PROGRAM);
         model.addAttribute("programLines", programLines);
-        model.addAttribute("parseMessage", message);
+        model.addAttribute("message", message);
+        model.addAttribute("messageType", MessageType.ERROR.getCssClassName());
         model.addAttribute("parseSuccess", false);
         model.addAttribute("instructionCount", 0);
         model.addAttribute("readyToRun", false);
@@ -260,13 +265,14 @@ public class HomeController {
     }
 
     /**
-     * パース後のModel属性を設定する。
+     * パース後または操作後のModel属性を設定する。
      *
      * @param model            HTMLテンプレートへデータを渡すための入れ物
      * @param programText      ユーザーが入力したプログラム文字列
      * @param programLines     行ごとに分割したプログラム文字列
      * @param message          画面に表示するメッセージ
-     * @param parseSuccess     パースに成功した場合はtrue
+     * @param messageType      メッセージ種別
+     * @param parseSuccess     パースまたは操作に成功した場合はtrue
      * @param instructionCount 解析できた命令数
      * @param readyToRun       1ステップ実行できる状態ならtrue
      */
@@ -275,13 +281,15 @@ public class HomeController {
             String programText,
             List<String> programLines,
             String message,
+            MessageType messageType,
             boolean parseSuccess,
             int instructionCount,
             boolean readyToRun) {
 
         model.addAttribute("programText", programText);
         model.addAttribute("programLines", programLines);
-        model.addAttribute("parseMessage", message);
+        model.addAttribute("message", message);
+        model.addAttribute("messageType", messageType.getCssClassName());
         model.addAttribute("parseSuccess", parseSuccess);
         model.addAttribute("instructionCount", instructionCount);
         model.addAttribute("readyToRun", readyToRun);
@@ -325,9 +333,11 @@ public class HomeController {
         model.addAttribute("programLines", mipsSessionService.splitLines(mipsSession.getProgramText()));
 
         if (readyToRun) {
-            model.addAttribute("parseMessage", "実行中: 1ステップ実行しました。");
+            model.addAttribute("message", "実行中: 1ステップ実行しました。");
+            model.addAttribute("messageType", MessageType.INFO.getCssClassName());
         } else {
-            model.addAttribute("parseMessage", "プログラムが終了しました。");
+            model.addAttribute("message", "プログラムが終了しました。");
+            model.addAttribute("messageType", MessageType.SUCCESS.getCssClassName());
         }
 
         model.addAttribute("parseSuccess", true);
@@ -370,6 +380,7 @@ public class HomeController {
                     mipsSession.getProgramText(),
                     mipsSessionService.splitLines(mipsSession.getProgramText()),
                     "PC番号を入力してください。",
+                    MessageType.ERROR,
                     false,
                     mipsSessionService.getInstructionCount(mipsSession),
                     mipsSessionService.canStep(mipsSession));
@@ -385,6 +396,7 @@ public class HomeController {
                     mipsSession.getProgramText(),
                     mipsSessionService.splitLines(mipsSession.getProgramText()),
                     "ブレークポイントを追加しました: PC " + breakpointPc,
+                    MessageType.SUCCESS,
                     true,
                     mipsSessionService.getInstructionCount(mipsSession),
                     mipsSessionService.canStep(mipsSession));
@@ -394,6 +406,7 @@ public class HomeController {
                     mipsSession.getProgramText(),
                     mipsSessionService.splitLines(mipsSession.getProgramText()),
                     "ブレークポイント追加失敗: " + e.getMessage(),
+                    MessageType.ERROR,
                     false,
                     mipsSessionService.getInstructionCount(mipsSession),
                     mipsSessionService.canStep(mipsSession));
@@ -427,6 +440,7 @@ public class HomeController {
                     mipsSession.getProgramText(),
                     mipsSessionService.splitLines(mipsSession.getProgramText()),
                     "削除するPC番号を入力してください。",
+                    MessageType.ERROR,
                     false,
                     mipsSessionService.getInstructionCount(mipsSession),
                     mipsSessionService.canStep(mipsSession));
@@ -445,6 +459,7 @@ public class HomeController {
                 mipsSession.getProgramText(),
                 mipsSessionService.splitLines(mipsSession.getProgramText()),
                 message,
+                MessageType.INFO,
                 true,
                 mipsSessionService.getInstructionCount(mipsSession),
                 mipsSessionService.canStep(mipsSession));
@@ -482,6 +497,7 @@ public class HomeController {
                     mipsSession.getProgramText(),
                     mipsSessionService.splitLines(mipsSession.getProgramText()),
                     createRunMessage(runResult),
+                    MessageType.INFO,
                     true,
                     mipsSessionService.getInstructionCount(mipsSession),
                     readyToRun);
@@ -519,7 +535,10 @@ public class HomeController {
                 memoryDiffs,
                 executedInstructionText);
 
-        model.addAttribute("parseMessage", createRunMessage(runResult));
+        MessageType messageType = readyToRun ? MessageType.INFO : MessageType.SUCCESS;
+
+        model.addAttribute("message", createRunMessage(runResult));
+        model.addAttribute("messageType", messageType.getCssClassName());
 
         return "mips";
     }

@@ -56,9 +56,9 @@
         <section class="panel">
             <h2>解析・実行操作</h2>
 
-            <div th:if="${parseMessage != null}">
-                <p th:text="${parseMessage}">
-                    パース結果がここに表示されます。
+            <div th:if="${message != null}" th:class="'message ' + ${messageType}">
+                <p th:text="${message}">
+                    メッセージがここに表示されます。
                 </p>
             </div>
 
