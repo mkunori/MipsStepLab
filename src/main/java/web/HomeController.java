@@ -481,7 +481,7 @@ public class HomeController {
                     model,
                     mipsSession.getProgramText(),
                     mipsSessionService.splitLines(mipsSession.getProgramText()),
-                    runResult.getMessage(),
+                    createRunMessage(runResult),
                     true,
                     mipsSessionService.getInstructionCount(mipsSession),
                     readyToRun);
@@ -519,8 +519,19 @@ public class HomeController {
                 memoryDiffs,
                 executedInstructionText);
 
-        model.addAttribute("parseMessage", runResult.getMessage());
+        model.addAttribute("parseMessage", createRunMessage(runResult));
 
         return "mips";
+    }
+
+    /**
+     * run実行結果の表示メッセージを作成する。
+     *
+     * @param runResult 連続実行の結果
+     * @return 画面に表示するメッセージ
+     */
+    private String createRunMessage(RunResult runResult) {
+        return runResult.getMessage()
+                + "（実行ステップ数: " + runResult.getExecutedStepCount() + "）";
     }
 }
