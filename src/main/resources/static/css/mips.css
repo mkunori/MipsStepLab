@@ -167,3 +167,33 @@ td {
     background-color: #eef5ff;
     border: 1px solid #9cc5f5;
 }
+
+/* メモリ一覧を8列のグリッドで表示する。 */
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+}
+
+/* 1つのメモリアドレス表示枠を整える。 */
+.memory-cell {
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    font-family: monospace;
+}
+
+/* メモリアドレスを控えめに表示する。 */
+.memory-address {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* メモリ値を見やすく表示する。 */
+.memory-value {
+    font-weight: bold;
+    text-align: right;
+}
