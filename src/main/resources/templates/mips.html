@@ -130,7 +130,49 @@
         </section>
 
         <section class="panel" th:if="${viewModel.stepResult != null}">
-            <h2>変更差分</h2>
+            <h2>CPU状態</h2>
+
+            <h3>レジスタ一覧</h3>
+
+            <div class="register-grid" th:if="${!#lists.isEmpty(viewModel.registerValues)}">
+                <div class="register-cell" th:each="register : ${viewModel.registerValues}"
+                    th:classappend="${register.changed} ? ' changed-register' : ''">
+                    <span class="register-name" th:text="'R' + ${register.registerNumber}">R0</span>
+                    <span class="register-value" th:text="${register.value}">0</span>
+                </div>
+            </div>
+
+            <h3>HI/LO一覧</h3>
+
+            <table th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
+                <thead>
+                    <tr>
+                        <th>レジスタ</th>
+                        <th>現在値</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="register : ${viewModel.hiLoValues}"
+                        th:classappend="${register.changed} ? ' changed-hilo' : ''">
+                        <td th:text="${register.registerName}">HI</td>
+                        <td th:text="${register.value}">0</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>メモリ一覧</h3>
+
+            <div class="memory-grid" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
+                <div class="memory-cell" th:each="memory : ${viewModel.memoryValues}"
+                    th:classappend="${memory.changed} ? ' changed-memory' : ''">
+                    <span class="memory-address" th:text="${memory.address}">0</span>
+                    <span class="memory-value" th:text="${memory.value}">0</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" th:if="${viewModel.stepResult != null}">
+            <h2>今回の変更</h2>
 
             <h3>レジスタ変更</h3>
 
@@ -200,48 +242,6 @@
                     </tr>
                 </tbody>
             </table>
-        </section>
-
-        <section class="panel" th:if="${viewModel.stepResult != null}">
-            <h2>CPU状態</h2>
-
-            <h3>レジスタ一覧</h3>
-
-            <div class="register-grid" th:if="${!#lists.isEmpty(viewModel.registerValues)}">
-                <div class="register-cell" th:each="register : ${viewModel.registerValues}"
-                    th:classappend="${register.changed} ? ' changed-register' : ''">
-                    <span class="register-name" th:text="'R' + ${register.registerNumber}">R0</span>
-                    <span class="register-value" th:text="${register.value}">0</span>
-                </div>
-            </div>
-
-            <h3>HI/LO一覧</h3>
-
-            <table th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
-                <thead>
-                    <tr>
-                        <th>レジスタ</th>
-                        <th>現在値</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="register : ${viewModel.hiLoValues}"
-                        th:classappend="${register.changed} ? ' changed-hilo' : ''">
-                        <td th:text="${register.registerName}">HI</td>
-                        <td th:text="${register.value}">0</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>メモリ一覧</h3>
-
-            <div class="memory-grid" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
-                <div class="memory-cell" th:each="memory : ${viewModel.memoryValues}"
-                    th:classappend="${memory.changed} ? ' changed-memory' : ''">
-                    <span class="memory-address" th:text="${memory.address}">0</span>
-                    <span class="memory-value" th:text="${memory.value}">0</span>
-                </div>
-            </div>
         </section>
     </main>
 </body>
