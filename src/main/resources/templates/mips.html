@@ -22,25 +22,25 @@
                 <section class="panel">
                     <h2>プログラム入力</h2>
 
-                    <form method="post" action="/mips">
-                        <div class="sample-selector">
-                            <label for="sampleProgramSelect">サンプルプログラム:</label>
+                    <div class="sample-selector">
+                        <label for="sampleProgramSelect">サンプルプログラム:</label>
 
-                            <select id="sampleProgramSelect">
-                                <option value="">選択してください</option>
-                                <option value="arithmetic">算術命令</option>
-                                <option value="logical">論理命令</option>
-                                <option value="shift">シフト命令</option>
-                                <option value="compare">比較命令</option>
-                                <option value="branch">分岐・ジャンプ命令</option>
-                                <option value="memory">メモリアクセス命令</option>
-                                <option value="hilo">HI/LO命令</option>
-                                <option value="pseudo">擬似命令</option>
-                            </select>
+                        <select id="sampleProgramSelect">
+                            <option value="">選択してください</option>
+                            <option value="arithmetic">算術命令</option>
+                            <option value="logical">論理命令</option>
+                            <option value="shift">シフト命令</option>
+                            <option value="compare">比較命令</option>
+                            <option value="branch">分岐・ジャンプ命令</option>
+                            <option value="memory">メモリアクセス命令</option>
+                            <option value="hilo">HI/LO命令</option>
+                            <option value="pseudo">擬似命令</option>
+                        </select>
 
-                            <button type="button" id="loadSampleButton">選択したサンプルを入力</button>
-                        </div>
+                        <button type="button" id="loadSampleButton">サンプルを入力</button>
+                    </div>
 
+                    <form id="programParseForm" method="post" action="/mips">
                         <div>
                             <textarea id="programTextArea" name="programText" rows="8" cols="60"
                                 th:text="${viewModel.programText}"></textarea>
@@ -49,8 +49,18 @@
                         <p class="input-help">
                             最大200行、1行200文字、全体10,000文字まで入力できます。
                         </p>
+                    </form>
 
-                        <button type="submit">プログラムを解析</button>
+                    <form id="programClearForm" method="post" action="/mips/clear">
+                        <div class="program-action-row">
+                            <button type="submit" form="programParseForm">
+                                プログラムを解析
+                            </button>
+
+                            <button type="submit" form="programClearForm" class="secondary-button">
+                                入力欄をクリア
+                            </button>
+                        </div>
                     </form>
                 </section>
 

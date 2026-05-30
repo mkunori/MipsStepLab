@@ -482,4 +482,27 @@ public class HomeController {
     private void addViewModel(Model model, MipsViewModel viewModel) {
         model.addAttribute("viewModel", viewModel);
     }
+
+    /**
+     * 入力欄とWeb実行状態をクリアする。
+     *
+     * textareaだけをブラウザ側で消すと、次回のPOST時に
+     * セッション内のプログラムが再表示されてしまう。
+     * そのため、入力欄のクリア時にはセッション内の実行状態も削除する。
+     *
+     * @param model   HTMLテンプレートへデータを渡すための入れ物
+     * @param session ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return 表示するテンプレート名
+     */
+    @PostMapping("/mips/clear")
+    public String clear(Model model, HttpSession session) {
+        session.removeAttribute("mipsSession");
+
+        MipsViewModel viewModel = viewModelFactory.createClearedViewModel(
+                "入力欄をクリアしました。");
+
+        addViewModel(model, viewModel);
+
+        return "mips";
+    }
 }

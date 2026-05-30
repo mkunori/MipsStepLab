@@ -243,35 +243,6 @@ public class MipsViewModelFactory {
         return values;
     }
 
-    private List<RegisterValue> createRegisterValues(WebMipsSession session) {
-        List<RegisterValue> values = new ArrayList<>();
-
-        for (int i = 0; i < 32; i++) {
-            values.add(new RegisterValue(i, session.getCpu().getRegister(i), false));
-        }
-
-        return values;
-    }
-
-    private List<HiLoValue> createHiLoValues(WebMipsSession session) {
-        return List.of(
-                new HiLoValue("HI", session.getCpu().getHi(), false),
-                new HiLoValue("LO", session.getCpu().getLo(), false));
-    }
-
-    private List<MemoryValue> createMemoryValues(WebMipsSession session) {
-        byte[] memory = session.getCpu().copyMemory();
-        List<MemoryValue> values = new ArrayList<>();
-
-        int displaySize = Math.min(32, memory.length);
-
-        for (int address = 0; address < displaySize; address++) {
-            values.add(new MemoryValue(address, memory[address], false));
-        }
-
-        return values;
-    }
-
     /**
      * 現在のCPU状態から、レジスタ現在値一覧を作成する。
      *
@@ -324,5 +295,30 @@ public class MipsViewModelFactory {
         }
 
         return values;
+    }
+
+    /**
+     * 入力欄クリア後のViewModelを作成する。
+     *
+     * プログラム入力欄を空にし、実行状態も未解析状態として表示する。
+     * CPU状態は初期値として0を表示する。
+     *
+     * @param message 画面に表示するメッセージ
+     * @return 入力欄クリア後のViewModel
+     */
+    public MipsViewModel createClearedViewModel(String message) {
+        return MipsViewModel.builder()
+                .programText("")
+                .programLines(List.of())
+                .message(message)
+                .messageType(MessageType.INFO)
+                .parseSuccess(false)
+                .instructionCount(0)
+                .readyToRun(false)
+                .currentPc(-1)
+                .registerValues(createInitialRegisterValues())
+                .hiLoValues(createInitialHiLoValues())
+                .memoryValues(createInitialMemoryValues())
+                .build();
     }
 }

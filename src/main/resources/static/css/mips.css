@@ -482,3 +482,21 @@ textarea {
 .sample-selector button {
     margin-top: 0;
 }
+
+/* サンプル選択欄内のフォーム余白を抑える。 */
+.sample-selector form {
+    margin: 0;
+}
+
+/* プログラム入力欄の操作ボタンを横並びにする。 */
+.program-action-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* プログラム入力欄の操作ボタンの上余白をそろえる。 */
+.program-action-row button {
+    margin-top: 0;
+}
