@@ -42,7 +42,7 @@
 
                     <form id="programParseForm" method="post" action="/mips">
                         <div>
-                            <textarea id="programTextArea" name="programText" rows="8" cols="60"
+                            <textarea id="programTextArea" name="programText" rows="6" cols="60"
                                 th:text="${viewModel.programText}"></textarea>
                         </div>
 
@@ -102,7 +102,7 @@
                         </form>
 
                         <form method="post" action="/mips/reset">
-                            <button type="submit">リセット</button>
+                            <button type="submit">PC0からやり直す</button>
                         </form>
                     </div>
                 </section>

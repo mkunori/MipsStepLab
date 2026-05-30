@@ -96,6 +96,7 @@ td {
     gap: 8px;
     padding: 4px 8px;
     margin-bottom: 4px;
+    margin-top: 8px;
 }
 
 /* 操作ボタンを横並びに表示する。 */
@@ -280,16 +281,19 @@ textarea {
     padding: 12px;
 }
 
-/* メッセージ欄の中に表示するステップ実行結果を整える。 */
+/* メッセージ欄の中に表示するステップ実行結果を横並びにする。 */
 .step-summary {
-    margin-top: 8px;
-    padding-top: 8px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    padding-top: 6px;
     border-top: 1px solid #ccc;
 }
 
-/* ステップ実行結果の行間を少し詰める。 */
+/* ステップ実行結果の各項目の余白を詰める。 */
 .step-summary p {
-    margin: 4px 0;
+    margin: 0;
 }
 
 /* CPU状態内ではレジスタ一覧を8列にして縦幅を抑える。 */
