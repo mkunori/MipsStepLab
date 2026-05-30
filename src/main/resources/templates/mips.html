@@ -127,7 +127,7 @@
             </div>
 
             <div class="right-column">
-                <section class="panel">
+                <section class="panel cpu-panel">
                     <h2>CPU状態</h2>
 
                     <p th:if="${viewModel.stepResult == null}" class="empty-message">
@@ -147,21 +147,13 @@
 
                         <h3>HI/LO一覧</h3>
 
-                        <table th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
-                            <thead>
-                                <tr>
-                                    <th>レジスタ</th>
-                                    <th>現在値</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="register : ${viewModel.hiLoValues}"
-                                    th:classappend="${register.changed} ? ' changed-hilo' : ''">
-                                    <td th:text="${register.registerName}">HI</td>
-                                    <td th:text="${register.value}">0</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="hilo-grid" th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
+                            <div class="hilo-cell" th:each="register : ${viewModel.hiLoValues}"
+                                th:classappend="${register.changed} ? ' changed-hilo-cell' : ''">
+                                <span class="hilo-name" th:text="${register.registerName}">HI</span>
+                                <span class="hilo-value" th:text="${register.value}">0</span>
+                            </div>
+                        </div>
 
                         <h3>メモリ一覧</h3>
 

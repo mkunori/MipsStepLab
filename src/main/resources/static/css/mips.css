@@ -340,3 +340,76 @@ textarea {
 .step-summary p {
     margin: 4px 0;
 }
+
+/* CPU状態内ではレジスタ一覧を8列にして縦幅を抑える。 */
+.cpu-panel .register-grid {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+
+/* CPU状態内のレジスタセルをコンパクトに表示する。 */
+.cpu-panel .register-cell {
+    padding: 3px 5px;
+    font-size: 0.85rem;
+}
+
+/* HI/LOを横並びの小さなカードで表示する。 */
+.hilo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    margin-top: 4px;
+}
+
+/* HI/LOの1項目をコンパクトに表示する。 */
+.hilo-cell {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 5px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+/* HI/LO名を強調する。 */
+.hilo-name {
+    font-weight: bold;
+}
+
+/* HI/LO値を右寄せする。 */
+.hilo-value {
+    text-align: right;
+}
+
+/* 今回のステップで変更されたHI/LOを強調表示する。 */
+.changed-hilo-cell {
+    background-color: #fff3cd;
+    border-color: #f0ad4e;
+    font-weight: bold;
+}
+
+/* CPU状態内ではメモリ一覧を16列にして一覧性を高める。 */
+.cpu-panel .memory-grid {
+    grid-template-columns: repeat(16, 1fr);
+    gap: 4px;
+}
+
+/* メモリセルをコンパクトに表示する。 */
+.cpu-panel .memory-cell {
+    padding: 3px 4px;
+    font-size: 0.8rem;
+}
+
+/* CPU状態パネル内の余白を少し詰める。 */
+.cpu-panel h3 {
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+/* CPU状態パネル内の各グリッドの上余白を控えめにする。 */
+.cpu-panel .register-grid,
+.cpu-panel .hilo-grid,
+.cpu-panel .memory-grid {
+    margin-top: 4px;
+}
