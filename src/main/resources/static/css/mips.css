@@ -328,3 +328,15 @@ textarea {
     border-radius: 6px;
     padding: 12px;
 }
+
+/* メッセージ欄の中に表示するステップ実行結果を整える。 */
+.step-summary {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #ccc;
+}
+
+/* ステップ実行結果の行間を少し詰める。 */
+.step-summary p {
+    margin: 4px 0;
+}
