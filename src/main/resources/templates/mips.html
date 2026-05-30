@@ -17,226 +17,252 @@
             </p>
         </header>
 
-        <section class="panel">
-            <h2>プログラム入力</h2>
+        <div class="layout-grid">
+            <div class="left-column">
+                <section class="panel">
+                    <h2>プログラム入力</h2>
 
-            <form method="post" action="/mips">
-                <div>
-                    <textarea name="programText" rows="8" cols="60" th:text="${viewModel.programText}"></textarea>
-                </div>
+                    <form method="post" action="/mips">
+                        <div>
+                            <textarea name="programText" rows="8" cols="60"
+                                th:text="${viewModel.programText}"></textarea>
+                        </div>
 
-                <p class="input-help">
-                    最大200行、1行200文字、全体10,000文字まで入力できます。
-                </p>
+                        <p class="input-help">
+                            最大200行、1行200文字、全体10,000文字まで入力できます。
+                        </p>
 
-                <button type="submit">プログラムを解析</button>
-            </form>
-        </section>
+                        <button type="submit">プログラムを解析</button>
+                    </form>
+                </section>
 
-        <section class="panel">
-            <h2>プログラム一覧</h2>
+                <section class="panel">
+                    <h2>解析・実行操作</h2>
 
-            <ul class="program-list">
-                <li th:each="instruction, stat : ${viewModel.programLines}" th:classappend="
+                    <div th:if="${viewModel.message != null}" th:class="'message ' + ${viewModel.messageType}">
+                        <p th:text="${viewModel.message}">
+                            メッセージがここに表示されます。
+                        </p>
+                    </div>
+
+                    <div class="button-row" th:if="${viewModel.parseSuccess}">
+                        <form method="post" action="/mips/step" th:if="${viewModel.readyToRun}">
+                            <button type="submit">1ステップ実行</button>
+                        </form>
+
+                        <form method="post" action="/mips/run" th:if="${viewModel.readyToRun}">
+                            <button type="submit">ブレークポイントまで実行</button>
+                        </form>
+
+                        <form method="post" action="/mips/reset">
+                            <button type="submit">リセット</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <h2>プログラム一覧</h2>
+
+                    <ul class="program-list">
+                        <li th:each="instruction, stat : ${viewModel.programLines}" th:classappend="
                     (${stat.index == viewModel.currentPc} ? ' current-instruction' : '') +
                     (${viewModel.executedPcs.contains(stat.index)} ? ' executed-instruction' : '') +
                     (${viewModel.breakpoints.contains(stat.index)} ? ' breakpoint-instruction' : '')">
 
-                    <span class="pc-label" th:text="'PC ' + ${stat.index}">PC 0</span>
+                            <span class="pc-label" th:text="'PC ' + ${stat.index}">PC 0</span>
 
-                    <form class="inline-form" method="post" action="/mips/breakpoints"
-                        th:if="${!viewModel.breakpoints.contains(stat.index)}">
-                        <input type="hidden" name="breakpointPc" th:value="${stat.index}">
-                        <button class="small-button" type="submit" title="ブレークポイントを追加">BP+</button>
-                    </form>
+                            <form class="inline-form" method="post" action="/mips/breakpoints"
+                                th:if="${!viewModel.breakpoints.contains(stat.index)}">
+                                <input type="hidden" name="breakpointPc" th:value="${stat.index}">
+                                <button class="small-button" type="submit" title="ブレークポイントを追加">BP+</button>
+                            </form>
 
-                    <form class="inline-form" method="post" action="/mips/breakpoints/delete"
-                        th:if="${viewModel.breakpoints.contains(stat.index)}">
-                        <input type="hidden" name="breakpointPc" th:value="${stat.index}">
-                        <button class="small-button" type="submit" title="ブレークポイントを削除">BP-</button>
-                    </form>
+                            <form class="inline-form" method="post" action="/mips/breakpoints/delete"
+                                th:if="${viewModel.breakpoints.contains(stat.index)}">
+                                <input type="hidden" name="breakpointPc" th:value="${stat.index}">
+                                <button class="small-button" type="submit" title="ブレークポイントを削除">BP-</button>
+                            </form>
 
-                    <span class="breakpoint-area">
-                        <span class="breakpoint-mark" th:if="${viewModel.breakpoints.contains(stat.index)}">● BP</span>
-                    </span>
+                            <span class="breakpoint-area">
+                                <span class="breakpoint-mark" th:if="${viewModel.breakpoints.contains(stat.index)}">●
+                                    BP</span>
+                            </span>
 
-                    <span class="instruction-text" th:text="${instruction}">
-                        addi $t0, $zero, 5
-                    </span>
+                            <span class="instruction-text" th:text="${instruction}">
+                                addi $t0, $zero, 5
+                            </span>
 
-                    <span class="instruction-status">
-                        <span th:if="${stat.index == viewModel.currentPc}">
-                            次に実行
-                        </span>
+                            <span class="instruction-status">
+                                <span th:if="${stat.index == viewModel.currentPc}">
+                                    次に実行
+                                </span>
 
-                        <span
-                            th:if="${viewModel.executedPcs.contains(stat.index) && stat.index != viewModel.currentPc}">
-                            実行済み
-                        </span>
-                    </span>
-                </li>
-            </ul>
-        </section>
-
-        <section class="panel">
-            <h2>解析・実行操作</h2>
-
-            <div th:if="${viewModel.message != null}" th:class="'message ' + ${viewModel.messageType}">
-                <p th:text="${viewModel.message}">
-                    メッセージがここに表示されます。
-                </p>
+                                <span
+                                    th:if="${viewModel.executedPcs.contains(stat.index) && stat.index != viewModel.currentPc}">
+                                    実行済み
+                                </span>
+                            </span>
+                        </li>
+                    </ul>
+                </section>
             </div>
 
-            <div class="button-row" th:if="${viewModel.parseSuccess}">
-                <form method="post" action="/mips/step" th:if="${viewModel.readyToRun}">
-                    <button type="submit">1ステップ実行</button>
-                </form>
+            <div class="right-column">
+                <section class="panel">
+                    <h2>ステップ実行結果</h2>
 
-                <form method="post" action="/mips/run" th:if="${viewModel.readyToRun}">
-                    <button type="submit">ブレークポイントまで実行</button>
-                </form>
+                    <p th:if="${viewModel.stepResult == null}" class="empty-message">
+                        まだステップ実行されていません。
+                    </p>
 
-                <form method="post" action="/mips/reset">
-                    <button type="submit">リセット</button>
-                </form>
+                    <div th:if="${viewModel.stepResult != null}">
+                        <p>
+                            STEP:
+                            <span th:text="${viewModel.stepResult.step}">1</span>
+                        </p>
+
+                        <p>
+                            PC:
+                            <span th:text="${viewModel.stepResult.pcBefore}">0</span>
+                            →
+                            <span th:text="${viewModel.stepResult.pcAfter}">1</span>
+                        </p>
+
+                        <p>
+                            実行命令:
+                            <span th:text="${viewModel.executedInstructionText}">addi $t0, $zero, 5</span>
+                        </p>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <h2>CPU状態</h2>
+
+                    <p th:if="${viewModel.stepResult == null}" class="empty-message">
+                        ステップ実行後に、レジスタ・HI/LO・メモリの現在値を表示します。
+                    </p>
+
+                    <div th:if="${viewModel.stepResult != null}">
+                        <h3>レジスタ一覧</h3>
+
+                        <div class="register-grid" th:if="${!#lists.isEmpty(viewModel.registerValues)}">
+                            <div class="register-cell" th:each="register : ${viewModel.registerValues}"
+                                th:classappend="${register.changed} ? ' changed-register' : ''">
+                                <span class="register-name" th:text="'R' + ${register.registerNumber}">R0</span>
+                                <span class="register-value" th:text="${register.value}">0</span>
+                            </div>
+                        </div>
+
+                        <h3>HI/LO一覧</h3>
+
+                        <table th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
+                            <thead>
+                                <tr>
+                                    <th>レジスタ</th>
+                                    <th>現在値</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="register : ${viewModel.hiLoValues}"
+                                    th:classappend="${register.changed} ? ' changed-hilo' : ''">
+                                    <td th:text="${register.registerName}">HI</td>
+                                    <td th:text="${register.value}">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h3>メモリ一覧</h3>
+
+                        <div class="memory-grid" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
+                            <div class="memory-cell" th:each="memory : ${viewModel.memoryValues}"
+                                th:classappend="${memory.changed} ? ' changed-memory' : ''">
+                                <span class="memory-address" th:text="${memory.address}">0</span>
+                                <span class="memory-value" th:text="${memory.value}">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <h2>今回の変更</h2>
+
+                    <p th:if="${viewModel.stepResult == null}" class="empty-message">
+                        ステップ実行後に、今回変更された値を表示します。
+                    </p>
+
+                    <div th:if="${viewModel.stepResult != null}">
+                        <h3>レジスタ変更</h3>
+
+                        <p th:if="${#lists.isEmpty(viewModel.registerDiffs)}">
+                            レジスタ変更なし
+                        </p>
+
+                        <table th:if="${!#lists.isEmpty(viewModel.registerDiffs)}">
+                            <thead>
+                                <tr>
+                                    <th>レジスタ</th>
+                                    <th>実行前</th>
+                                    <th>実行後</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="diff : ${viewModel.registerDiffs}">
+                                    <td th:text="'R' + ${diff.registerNumber}">R8</td>
+                                    <td th:text="${diff.beforeValue}">0</td>
+                                    <td th:text="${diff.afterValue}">5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h3>HI/LO変更</h3>
+
+                        <p th:if="${#lists.isEmpty(viewModel.hiLoDiffs)}">
+                            HI/LO変更なし
+                        </p>
+
+                        <table th:if="${!#lists.isEmpty(viewModel.hiLoDiffs)}">
+                            <thead>
+                                <tr>
+                                    <th>レジスタ</th>
+                                    <th>実行前</th>
+                                    <th>実行後</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="diff : ${viewModel.hiLoDiffs}">
+                                    <td th:text="${diff.registerName}">HI</td>
+                                    <td th:text="${diff.beforeValue}">0</td>
+                                    <td th:text="${diff.afterValue}">15</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h3>メモリ変更</h3>
+
+                        <p th:if="${#lists.isEmpty(viewModel.memoryDiffs)}">
+                            メモリ変更なし
+                        </p>
+
+                        <table th:if="${!#lists.isEmpty(viewModel.memoryDiffs)}">
+                            <thead>
+                                <tr>
+                                    <th>アドレス</th>
+                                    <th>実行前</th>
+                                    <th>実行後</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="diff : ${viewModel.memoryDiffs}">
+                                    <td th:text="${diff.address}">0</td>
+                                    <td th:text="${diff.beforeValue}">0</td>
+                                    <td th:text="${diff.afterValue}">5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
-        </section>
-
-        <section class="panel" th:if="${viewModel.stepResult != null}">
-            <h2>ステップ実行結果</h2>
-
-            <p>
-                STEP:
-                <span th:text="${viewModel.stepResult.step}">1</span>
-            </p>
-
-            <p>
-                PC:
-                <span th:text="${viewModel.stepResult.pcBefore}">0</span>
-                →
-                <span th:text="${viewModel.stepResult.pcAfter}">1</span>
-            </p>
-
-            <p>
-                実行命令:
-                <span th:text="${viewModel.executedInstructionText}">addi $t0, $zero, 5</span>
-            </p>
-        </section>
-
-        <section class="panel" th:if="${viewModel.stepResult != null}">
-            <h2>CPU状態</h2>
-
-            <h3>レジスタ一覧</h3>
-
-            <div class="register-grid" th:if="${!#lists.isEmpty(viewModel.registerValues)}">
-                <div class="register-cell" th:each="register : ${viewModel.registerValues}"
-                    th:classappend="${register.changed} ? ' changed-register' : ''">
-                    <span class="register-name" th:text="'R' + ${register.registerNumber}">R0</span>
-                    <span class="register-value" th:text="${register.value}">0</span>
-                </div>
-            </div>
-
-            <h3>HI/LO一覧</h3>
-
-            <table th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
-                <thead>
-                    <tr>
-                        <th>レジスタ</th>
-                        <th>現在値</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="register : ${viewModel.hiLoValues}"
-                        th:classappend="${register.changed} ? ' changed-hilo' : ''">
-                        <td th:text="${register.registerName}">HI</td>
-                        <td th:text="${register.value}">0</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>メモリ一覧</h3>
-
-            <div class="memory-grid" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
-                <div class="memory-cell" th:each="memory : ${viewModel.memoryValues}"
-                    th:classappend="${memory.changed} ? ' changed-memory' : ''">
-                    <span class="memory-address" th:text="${memory.address}">0</span>
-                    <span class="memory-value" th:text="${memory.value}">0</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="panel" th:if="${viewModel.stepResult != null}">
-            <h2>今回の変更</h2>
-
-            <h3>レジスタ変更</h3>
-
-            <p th:if="${#lists.isEmpty(viewModel.registerDiffs)}">
-                レジスタ変更なし
-            </p>
-
-            <table th:if="${!#lists.isEmpty(viewModel.registerDiffs)}">
-                <thead>
-                    <tr>
-                        <th>レジスタ</th>
-                        <th>実行前</th>
-                        <th>実行後</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="diff : ${viewModel.registerDiffs}">
-                        <td th:text="'R' + ${diff.registerNumber}">R8</td>
-                        <td th:text="${diff.beforeValue}">0</td>
-                        <td th:text="${diff.afterValue}">5</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>HI/LO変更</h3>
-
-            <p th:if="${#lists.isEmpty(viewModel.hiLoDiffs)}">
-                HI/LO変更なし
-            </p>
-
-            <table th:if="${!#lists.isEmpty(viewModel.hiLoDiffs)}">
-                <thead>
-                    <tr>
-                        <th>レジスタ</th>
-                        <th>実行前</th>
-                        <th>実行後</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="diff : ${viewModel.hiLoDiffs}">
-                        <td th:text="${diff.registerName}">HI</td>
-                        <td th:text="${diff.beforeValue}">0</td>
-                        <td th:text="${diff.afterValue}">15</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>メモリ変更</h3>
-
-            <p th:if="${#lists.isEmpty(viewModel.memoryDiffs)}">
-                メモリ変更なし
-            </p>
-
-            <table th:if="${!#lists.isEmpty(viewModel.memoryDiffs)}">
-                <thead>
-                    <tr>
-                        <th>アドレス</th>
-                        <th>実行前</th>
-                        <th>実行後</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="diff : ${viewModel.memoryDiffs}">
-                        <td th:text="${diff.address}">0</td>
-                        <td th:text="${diff.beforeValue}">0</td>
-                        <td th:text="${diff.afterValue}">5</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+        </div>
     </main>
 
     <script th:src="@{/js/mips.js}"></script>

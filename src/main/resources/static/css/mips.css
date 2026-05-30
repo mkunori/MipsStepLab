@@ -55,7 +55,7 @@ td {
 
 /* アプリ全体の表示幅と余白を整える。 */
 .app-container {
-    max-width: 960px;
+    max-width: 1280px;
     margin: 24px auto;
     padding: 0 16px;
 }
@@ -63,6 +63,14 @@ td {
 /* タイトル周辺の余白を整える。 */
 .app-header {
     margin-bottom: 24px;
+}
+
+/* 画面全体を左右2カラムで表示する。 */
+.layout-grid {
+    display: grid;
+    grid-template-columns: minmax(360px, 42%) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
 }
 
 /* 画面内の各機能ブロックをカード風に表示する。 */
@@ -251,9 +259,10 @@ td {
     flex-shrink: 0;
 }
 
-/* 命令文字列をコードらしく表示する。 */
+/* 命令文字列が長い場合でも画面外にはみ出しにくくする。 */
 .instruction-text {
     flex: 1;
+    overflow-wrap: anywhere;
 }
 
 /* 行内フォームを固定幅で表示する。 */
@@ -284,4 +293,38 @@ td {
     color: #555;
     font-size: 0.9rem;
     font-weight: bold;
+}
+
+/* 画面幅が狭い場合は1カラムに戻す。 */
+@media (max-width: 900px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 左側カラムには入力欄・操作ボタン・プログラム一覧を配置する。 */
+.left-column {
+    min-width: 0;
+}
+
+/* 右側カラムにはCPU状態・差分表示を配置する。 */
+.right-column {
+    min-width: 0;
+}
+
+/* プログラム入力欄を左カラム内に収める。 */
+textarea {
+    width: 100%;
+    max-width: 100%;
+    padding: 8px;
+    font-family: monospace;
+}
+
+/* まだ表示する実行結果がない場合の案内文を控えめに表示する。 */
+.empty-message {
+    color: #666;
+    background-color: #f5f5f5;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+    padding: 12px;
 }
