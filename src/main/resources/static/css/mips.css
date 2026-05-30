@@ -74,9 +74,17 @@ td {
     background-color: #fff;
 }
 
-/* プログラム一覧をコードらしく表示する。 */
+/* プログラム一覧の標準リスト記号を消す。 */
 .program-list {
+    list-style: none;
+    padding-left: 0;
     font-family: monospace;
+}
+
+/* プログラム一覧の各命令行を整える。 */
+.program-list li {
+    padding: 4px 8px;
+    margin-bottom: 4px;
 }
 
 /* 操作ボタンを横並びに表示する。 */
@@ -240,4 +248,17 @@ td {
     background-color: #fff0f0;
     border-left: 4px solid #c0392b;
     font-weight: bold;
+}
+
+/* PC番号を固定幅で表示する。 */
+.pc-label {
+    display: inline-block;
+    width: 56px;
+    color: #555;
+    font-weight: bold;
+}
+
+/* 命令文字列をコードらしく表示する。 */
+.instruction-text {
+    display: inline-block;
 }

@@ -36,15 +36,19 @@
         <section class="panel">
             <h2>プログラム一覧</h2>
 
-            <ol start="0" class="program-list">
+            <ul class="program-list">
                 <li th:each="instruction, stat : ${viewModel.programLines}" th:classappend="
                     (${stat.index == viewModel.currentPc} ? ' current-instruction' : '') +
                     (${viewModel.executedPcs.contains(stat.index)} ? ' executed-instruction' : '') +
                     (${viewModel.breakpoints.contains(stat.index)} ? ' breakpoint-instruction' : '')">
 
+                    <span class="pc-label" th:text="'PC ' + ${stat.index}">PC 0</span>
+
                     <span class="breakpoint-mark" th:if="${viewModel.breakpoints.contains(stat.index)}">● BP</span>
 
-                    <span th:text="${instruction}">addi $t0, $zero, 5</span>
+                    <span class="instruction-text" th:text="${instruction}">
+                        addi $t0, $zero, 5
+                    </span>
 
                     <span th:if="${stat.index == viewModel.currentPc}"> ← 次に実行</span>
 
@@ -52,7 +56,7 @@
                         ← 実行済み
                     </span>
                 </li>
-            </ol>
+            </ul>
         </section>
 
         <section class="panel">
