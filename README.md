@@ -126,6 +126,36 @@ Windows PowerShellの場合：
 .\mvnw.cmd test
 ```
 
+### 主なテスト対象
+
+- WebMipsSessionServiceTest
+    - プログラム解析
+    - 入力制限
+    - ステップ実行
+    - ブレークポイント追加 / 削除
+    - run実行
+    - 最大実行ステップ数制限
+- StepResultViewMapperTest
+    - レジスタ表示用データの作成
+    - HI/LO表示用データの作成
+    - メモリ表示用データの作成
+    - 変更有無の changed 判定
+    - 実行命令テキストの取得
+- MipsViewModelFactoryTest
+    - 初期表示用ViewModel生成
+    - エラー表示用ViewModel生成
+    - パース後ViewModel生成
+    - セッション状態ViewModel生成
+    - ステップ実行結果ViewModel生成
+- HomeControllerTest
+    - /mips の画面表示
+    - プログラム解析
+    - ステップ実行
+    - run実行
+    - リセット
+    - ブレークポイント追加 / 削除
+    - セッションなし・範囲外PCなどの異常系
+
 ## CUI版の起動方法
 
 ```bash
