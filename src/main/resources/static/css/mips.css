@@ -258,7 +258,7 @@ td {
 
 /* 行内フォームを固定幅で表示する。 */
 .inline-form {
-    width: 64px;
+    width: 48px;
     margin: 0;
     flex-shrink: 0;
 }
@@ -268,6 +268,7 @@ td {
     margin-top: 0;
     padding: 2px 6px;
     font-size: 0.85rem;
+    min-width: 40px;
 }
 
 /* ブレークポイント表示用の固定幅エリアを確保する。 */

@@ -47,13 +47,13 @@
                     <form class="inline-form" method="post" action="/mips/breakpoints"
                         th:if="${!viewModel.breakpoints.contains(stat.index)}">
                         <input type="hidden" name="breakpointPc" th:value="${stat.index}">
-                        <button class="small-button" type="submit">BP追加</button>
+                        <button class="small-button" type="submit" title="ブレークポイントを追加">BP+</button>
                     </form>
 
                     <form class="inline-form" method="post" action="/mips/breakpoints/delete"
                         th:if="${viewModel.breakpoints.contains(stat.index)}">
                         <input type="hidden" name="breakpointPc" th:value="${stat.index}">
-                        <button class="small-button" type="submit">BP削除</button>
+                        <button class="small-button" type="submit" title="ブレークポイントを削除">BP-</button>
                     </form>
 
                     <span class="breakpoint-area">
