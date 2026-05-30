@@ -81,8 +81,11 @@ td {
     font-family: monospace;
 }
 
-/* プログラム一覧の各命令行を整える。 */
+/* プログラム一覧の各命令行を横並びで整える。 */
 .program-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 4px 8px;
     margin-bottom: 4px;
 }
@@ -123,10 +126,8 @@ td {
     text-align: right;
 }
 
-/* ブレークポイントが設定された命令行に目印を表示する。 */
+/* ブレークポイントの目印を強調表示する。 */
 .breakpoint-mark {
-    display: inline-block;
-    margin-right: 8px;
     color: #c0392b;
     font-weight: bold;
 }
@@ -235,14 +236,6 @@ td {
     padding-left: 8px;
 }
 
-/* ブレークポイントの目印を強調表示する。 */
-.breakpoint-mark {
-    display: inline-block;
-    margin-right: 8px;
-    color: #c0392b;
-    font-weight: bold;
-}
-
 /* 次に実行される命令がブレークポイントでもある場合、より強く表示する。 */
 .current-instruction.breakpoint-instruction {
     background-color: #fff0f0;
@@ -252,13 +245,33 @@ td {
 
 /* PC番号を固定幅で表示する。 */
 .pc-label {
-    display: inline-block;
     width: 56px;
     color: #555;
     font-weight: bold;
+    flex-shrink: 0;
 }
 
 /* 命令文字列をコードらしく表示する。 */
 .instruction-text {
-    display: inline-block;
+    flex: 1;
+}
+
+/* 行内フォームを固定幅で表示する。 */
+.inline-form {
+    width: 64px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* 命令行の中で使う小さめのボタンを表示する。 */
+.small-button {
+    margin-top: 0;
+    padding: 2px 6px;
+    font-size: 0.85rem;
+}
+
+/* ブレークポイント表示用の固定幅エリアを確保する。 */
+.breakpoint-area {
+    width: 56px;
+    flex-shrink: 0;
 }

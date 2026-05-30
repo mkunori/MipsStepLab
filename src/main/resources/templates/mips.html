@@ -44,7 +44,21 @@
 
                     <span class="pc-label" th:text="'PC ' + ${stat.index}">PC 0</span>
 
-                    <span class="breakpoint-mark" th:if="${viewModel.breakpoints.contains(stat.index)}">● BP</span>
+                    <form class="inline-form" method="post" action="/mips/breakpoints"
+                        th:if="${!viewModel.breakpoints.contains(stat.index)}">
+                        <input type="hidden" name="breakpointPc" th:value="${stat.index}">
+                        <button class="small-button" type="submit">BP追加</button>
+                    </form>
+
+                    <form class="inline-form" method="post" action="/mips/breakpoints/delete"
+                        th:if="${viewModel.breakpoints.contains(stat.index)}">
+                        <input type="hidden" name="breakpointPc" th:value="${stat.index}">
+                        <button class="small-button" type="submit">BP削除</button>
+                    </form>
+
+                    <span class="breakpoint-area">
+                        <span class="breakpoint-mark" th:if="${viewModel.breakpoints.contains(stat.index)}">● BP</span>
+                    </span>
 
                     <span class="instruction-text" th:text="${instruction}">
                         addi $t0, $zero, 5
@@ -80,36 +94,6 @@
                 <form method="post" action="/mips/reset">
                     <button type="submit">リセット</button>
                 </form>
-            </div>
-
-            <div th:if="${viewModel.parseSuccess}">
-                <h3>ブレークポイント</h3>
-
-                <form method="post" action="/mips/breakpoints">
-                    <label>
-                        PC:
-                        <input type="number" name="breakpointPc" min="0">
-                    </label>
-                    <button type="submit">追加</button>
-                </form>
-
-                <form method="post" action="/mips/breakpoints/delete">
-                    <label>
-                        PC:
-                        <input type="number" name="breakpointPc" min="0">
-                    </label>
-                    <button type="submit">削除</button>
-                </form>
-
-                <p th:if="${#lists.isEmpty(viewModel.breakpoints)}">
-                    ブレークポイントなし
-                </p>
-
-                <ul th:if="${!#lists.isEmpty(viewModel.breakpoints)}">
-                    <li th:each="pc : ${viewModel.breakpoints}" th:text="'PC ' + ${pc}">
-                        PC 0
-                    </li>
-                </ul>
             </div>
         </section>
 
