@@ -43,6 +43,7 @@ public class MipsViewModelFactory {
         return MipsViewModel.builder()
                 .programText(defaultProgram)
                 .programLines(programLines)
+                .programLineViews(createProgramLineViews(programLines))
                 .message(null)
                 .messageType(MessageType.INFO)
                 .parseSuccess(null)
@@ -68,6 +69,7 @@ public class MipsViewModelFactory {
         return MipsViewModel.builder()
                 .programText(defaultProgram)
                 .programLines(programLines)
+                .programLineViews(createProgramLineViews(programLines))
                 .message(message)
                 .messageType(MessageType.ERROR)
                 .parseSuccess(false)
@@ -106,6 +108,7 @@ public class MipsViewModelFactory {
         return MipsViewModel.builder()
                 .programText(programText)
                 .programLines(programLines)
+                .programLineViews(createProgramLineViews(programLines))
                 .message(message)
                 .messageType(messageType)
                 .parseSuccess(parseSuccess)
@@ -142,6 +145,7 @@ public class MipsViewModelFactory {
         return MipsViewModel.builder()
                 .programText(programText)
                 .programLines(programLines)
+                .programLineViews(createProgramLineViews(programLines))
                 .message(message)
                 .messageType(messageType)
                 .parseSuccess(true)
@@ -183,6 +187,7 @@ public class MipsViewModelFactory {
         return MipsViewModel.builder()
                 .programText(programText)
                 .programLines(programLines)
+                .programLineViews(createProgramLineViews(programLines))
                 .message(message)
                 .messageType(messageType)
                 .parseSuccess(true)
@@ -320,5 +325,50 @@ public class MipsViewModelFactory {
                 .hiLoValues(createInitialHiLoValues())
                 .memoryValues(createInitialMemoryValues())
                 .build();
+    }
+
+    /**
+     * プログラム一覧表示用の行情報を作成する。
+     *
+     * ラベル行は画面には表示するが、実行対象命令ではないためPCを持たない。
+     * それ以外の行には、実行対象命令としてPCを割り当てる。
+     *
+     * @param programLines textarea上のプログラム行一覧
+     * @return 画面表示用のプログラム行一覧
+     */
+    private List<ProgramLineView> createProgramLineViews(List<String> programLines) {
+        List<ProgramLineView> views = new ArrayList<>();
+
+        int pc = 0;
+
+        for (int lineNumber = 0; lineNumber < programLines.size(); lineNumber++) {
+            String line = programLines.get(lineNumber);
+            String trimmed = line.trim();
+
+            if (trimmed.isEmpty()) {
+                views.add(new ProgramLineView(lineNumber, null, line));
+                continue;
+            }
+
+            if (isLabelOnlyLine(trimmed)) {
+                views.add(new ProgramLineView(lineNumber, null, line));
+                continue;
+            }
+
+            views.add(new ProgramLineView(lineNumber, pc, line));
+            pc++;
+        }
+
+        return views;
+    }
+
+    /**
+     * ラベルだけの行かどうかを判定する。
+     *
+     * @param line 前後の空白を取り除いた1行
+     * @return ラベルだけの行ならtrue
+     */
+    private boolean isLabelOnlyLine(String line) {
+        return line.endsWith(":");
     }
 }

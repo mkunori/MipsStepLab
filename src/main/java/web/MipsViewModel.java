@@ -69,6 +69,9 @@ public class MipsViewModel {
     /** メモリ現在値一覧。 */
     private final List<MemoryValue> memoryValues;
 
+    /** 画面表示用のプログラム行一覧。 */
+    private final List<ProgramLineView> programLineViews;
+
     /**
      * MipsViewModelを生成する。
      *
@@ -90,6 +93,7 @@ public class MipsViewModel {
      * @param hiLoValues              HI/LO現在値一覧
      * @param memoryDiffs             メモリ変更差分
      * @param memoryValues            メモリ現在値一覧
+     * @param programLineViews        画面表示用のプログラム行一覧
      */
     private MipsViewModel(
             String programText,
@@ -109,7 +113,8 @@ public class MipsViewModel {
             List<HiLoDiff> hiLoDiffs,
             List<HiLoValue> hiLoValues,
             List<MemoryDiff> memoryDiffs,
-            List<MemoryValue> memoryValues) {
+            List<MemoryValue> memoryValues,
+            List<ProgramLineView> programLineViews) {
 
         this.programText = programText;
         this.programLines = programLines;
@@ -129,6 +134,7 @@ public class MipsViewModel {
         this.hiLoValues = hiLoValues;
         this.memoryDiffs = memoryDiffs;
         this.memoryValues = memoryValues;
+        this.programLineViews = programLineViews;
     }
 
     public String getProgramText() {
@@ -266,6 +272,9 @@ public class MipsViewModel {
 
         /** メモリ現在値一覧。 */
         private List<MemoryValue> memoryValues = List.of();
+
+        /** 画面表示用のプログラム行一覧。 */
+        private List<ProgramLineView> programLineViews = List.of();
 
         /**
          * 入力欄に表示するMIPSプログラム文字列を設定する。
@@ -489,7 +498,19 @@ public class MipsViewModel {
                     hiLoDiffs,
                     hiLoValues,
                     memoryDiffs,
-                    memoryValues);
+                    memoryValues,
+                    programLineViews);
+        }
+
+        /**
+         * 画面表示用のプログラム行一覧を設定する。
+         *
+         * @param programLineViews 画面表示用のプログラム行一覧
+         * @return このBuilder
+         */
+        public Builder programLineViews(List<ProgramLineView> programLineViews) {
+            this.programLineViews = programLineViews;
+            return this;
         }
     }
 
@@ -500,5 +521,14 @@ public class MipsViewModel {
      */
     public static Builder builder() {
         return new Builder();
+    }
+
+    /**
+     * 画面表示用のプログラム行一覧を返す。
+     *
+     * @return 画面表示用のプログラム行一覧
+     */
+    public List<ProgramLineView> getProgramLineViews() {
+        return programLineViews;
     }
 }

@@ -111,41 +111,48 @@
                     <h2>プログラム一覧</h2>
 
                     <ul class="program-list">
-                        <li th:each="instruction, stat : ${viewModel.programLines}" th:classappend="
-                    (${stat.index == viewModel.currentPc} ? ' current-instruction' : '') +
-                    (${viewModel.executedPcs.contains(stat.index)} ? ' executed-instruction' : '') +
-                    (${viewModel.breakpoints.contains(stat.index)} ? ' breakpoint-instruction' : '')">
+                        <li th:each="line : ${viewModel.programLineViews}" th:classappend="
+            (${line.instructionLine && line.pc == viewModel.currentPc} ? ' current-instruction' : '') +
+            (${line.instructionLine && viewModel.executedPcs.contains(line.pc)} ? ' executed-instruction' : '') +
+            (${line.instructionLine && viewModel.breakpoints.contains(line.pc)} ? ' breakpoint-instruction' : '')">
 
-                            <span class="pc-label" th:text="'PC ' + ${stat.index}">PC 0</span>
+                            <span class="pc-label" th:text="${line.instructionLine} ? 'PC ' + ${line.pc} : ''">
+                                PC 0
+                            </span>
 
                             <form class="inline-form" method="post" action="/mips/breakpoints"
-                                th:if="${!viewModel.breakpoints.contains(stat.index)}">
-                                <input type="hidden" name="breakpointPc" th:value="${stat.index}">
+                                th:if="${line.instructionLine && !viewModel.breakpoints.contains(line.pc)}">
+                                <input type="hidden" name="breakpointPc" th:value="${line.pc}">
                                 <button class="small-button" type="submit" title="ブレークポイントを追加">BP+</button>
                             </form>
 
                             <form class="inline-form" method="post" action="/mips/breakpoints/delete"
-                                th:if="${viewModel.breakpoints.contains(stat.index)}">
-                                <input type="hidden" name="breakpointPc" th:value="${stat.index}">
+                                th:if="${line.instructionLine && viewModel.breakpoints.contains(line.pc)}">
+                                <input type="hidden" name="breakpointPc" th:value="${line.pc}">
                                 <button class="small-button" type="submit" title="ブレークポイントを削除">BP-</button>
                             </form>
 
+                            <span class="inline-form" th:if="${!line.instructionLine}"></span>
+
                             <span class="breakpoint-area">
-                                <span class="breakpoint-mark" th:if="${viewModel.breakpoints.contains(stat.index)}">●
-                                    BP</span>
+                                <span class="breakpoint-mark"
+                                    th:if="${line.instructionLine && viewModel.breakpoints.contains(line.pc)}">
+                                    ●
+                                </span>
                             </span>
 
-                            <span class="instruction-text" th:text="${instruction}">
+                            <span class="instruction-text"
+                                th:classappend="${!line.instructionLine} ? ' label-line' : ''" th:text="${line.text}">
                                 addi $t0, $zero, 5
                             </span>
 
                             <span class="instruction-status">
-                                <span th:if="${stat.index == viewModel.currentPc}">
+                                <span th:if="${line.instructionLine && line.pc == viewModel.currentPc}">
                                     次に実行
                                 </span>
 
                                 <span
-                                    th:if="${viewModel.executedPcs.contains(stat.index) && stat.index != viewModel.currentPc}">
+                                    th:if="${line.instructionLine && viewModel.executedPcs.contains(line.pc) && line.pc != viewModel.currentPc}">
                                     実行済み
                                 </span>
                             </span>
@@ -163,7 +170,7 @@
                         「ブレークポイントまで実行」では、最後に実行された1命令で変化した値だけを強調します。
                     </p>
 
-                    <h3>レジスタ一覧</h3>
+                    <h3>レジスタ</h3>
 
                     <table class="register-table" th:if="${!#lists.isEmpty(viewModel.registerValues)}">
                         <thead>
@@ -194,7 +201,7 @@
                         </tbody>
                     </table>
 
-                    <h3>HI/LO一覧</h3>
+                    <h3>HI/LO</h3>
 
                     <div class="hilo-grid" th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
                         <div class="hilo-cell" th:each="register : ${viewModel.hiLoValues}"
@@ -204,7 +211,7 @@
                         </div>
                     </div>
 
-                    <h3>メモリ一覧</h3>
+                    <h3>メモリ</h3>
 
                     <table class="memory-table" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
                         <thead>
@@ -243,10 +250,10 @@
                     </p>
 
 
-                    <h3>レジスタ変更</h3>
+                    <h3>レジスタ</h3>
 
                     <p th:if="${#lists.isEmpty(viewModel.registerDiffs)}">
-                        レジスタ変更なし
+                        変化なし
                     </p>
 
                     <table th:if="${!#lists.isEmpty(viewModel.registerDiffs)}">
@@ -266,10 +273,10 @@
                         </tbody>
                     </table>
 
-                    <h3>HI/LO変更</h3>
+                    <h3>HI/LO</h3>
 
                     <p th:if="${#lists.isEmpty(viewModel.hiLoDiffs)}">
-                        HI/LO変更なし
+                        変化なし
                     </p>
 
                     <table th:if="${!#lists.isEmpty(viewModel.hiLoDiffs)}">
@@ -289,10 +296,10 @@
                         </tbody>
                     </table>
 
-                    <h3>メモリ変更</h3>
+                    <h3>メモリ</h3>
 
                     <p th:if="${#lists.isEmpty(viewModel.memoryDiffs)}">
-                        メモリ変更なし
+                        変化なし
                     </p>
 
                     <table th:if="${!#lists.isEmpty(viewModel.memoryDiffs)}">

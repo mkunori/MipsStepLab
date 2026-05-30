@@ -297,4 +297,64 @@ class MipsViewModelFactoryTest {
         assertEquals(15, lo.getValue());
         assertFalse(lo.isChanged());
     }
+
+    /**
+     * プログラム一覧表示用の行情報では、
+     * ラベル行にはPCが付かず、命令行だけにPCが割り当てられることを確認する。
+     */
+    @Test
+    void createParsedViewModel_shouldCreateProgramLineViewsSkippingLabelLines() {
+        String programText = String.join(System.lineSeparator(),
+                "addi $t0, $zero, 0",
+                "addi $t1, $zero, 3",
+                "loop:",
+                "addi $t0, $t0, 1",
+                "bne $t0, $t1, loop",
+                "addi $t2, $zero, 99");
+
+        List<String> programLines = service.splitLines(programText);
+
+        MipsViewModel viewModel = factory.createParsedViewModel(
+                programText,
+                programLines,
+                "パース成功: 5 命令",
+                MessageType.SUCCESS,
+                true,
+                5,
+                true);
+
+        List<ProgramLineView> lineViews = viewModel.getProgramLineViews();
+
+        assertEquals(6, lineViews.size());
+
+        assertEquals(0, lineViews.get(0).getLineNumber());
+        assertEquals(0, lineViews.get(0).getPc());
+        assertEquals("addi $t0, $zero, 0", lineViews.get(0).getText());
+        assertTrue(lineViews.get(0).isInstructionLine());
+
+        assertEquals(1, lineViews.get(1).getLineNumber());
+        assertEquals(1, lineViews.get(1).getPc());
+        assertEquals("addi $t1, $zero, 3", lineViews.get(1).getText());
+        assertTrue(lineViews.get(1).isInstructionLine());
+
+        assertEquals(2, lineViews.get(2).getLineNumber());
+        assertNull(lineViews.get(2).getPc());
+        assertEquals("loop:", lineViews.get(2).getText());
+        assertFalse(lineViews.get(2).isInstructionLine());
+
+        assertEquals(3, lineViews.get(3).getLineNumber());
+        assertEquals(2, lineViews.get(3).getPc());
+        assertEquals("addi $t0, $t0, 1", lineViews.get(3).getText());
+        assertTrue(lineViews.get(3).isInstructionLine());
+
+        assertEquals(4, lineViews.get(4).getLineNumber());
+        assertEquals(3, lineViews.get(4).getPc());
+        assertEquals("bne $t0, $t1, loop", lineViews.get(4).getText());
+        assertTrue(lineViews.get(4).isInstructionLine());
+
+        assertEquals(5, lineViews.get(5).getLineNumber());
+        assertEquals(4, lineViews.get(5).getPc());
+        assertEquals("addi $t2, $zero, 99", lineViews.get(5).getText());
+        assertTrue(lineViews.get(5).isInstructionLine());
+    }
 }

@@ -504,3 +504,10 @@ textarea {
 .program-action-row button {
     margin-top: 0;
 }
+
+/* ラベル行を命令行より控えめに表示する。 */
+.label-line {
+    color: #555;
+    font-weight: bold;
+    font-style: italic;
+}
