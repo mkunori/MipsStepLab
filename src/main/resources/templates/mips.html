@@ -64,10 +64,15 @@
                         addi $t0, $zero, 5
                     </span>
 
-                    <span th:if="${stat.index == viewModel.currentPc}"> ← 次に実行</span>
+                    <span class="instruction-status">
+                        <span th:if="${stat.index == viewModel.currentPc}">
+                            次に実行
+                        </span>
 
-                    <span th:if="${viewModel.executedPcs.contains(stat.index) && stat.index != viewModel.currentPc}">
-                        ← 実行済み
+                        <span
+                            th:if="${viewModel.executedPcs.contains(stat.index) && stat.index != viewModel.currentPc}">
+                            実行済み
+                        </span>
                     </span>
                 </li>
             </ul>

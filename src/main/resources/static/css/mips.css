@@ -275,3 +275,12 @@ td {
     width: 56px;
     flex-shrink: 0;
 }
+
+/* 命令行の状態表示欄を固定幅で確保する。 */
+.instruction-status {
+    width: 72px;
+    flex-shrink: 0;
+    color: #555;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
