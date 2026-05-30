@@ -14,15 +14,20 @@ public class RegisterValue {
     /** レジスタの現在値。 */
     private final int value;
 
+    /** このステップで値が変化した場合はtrue。 */
+    private final boolean changed;
+
     /**
      * RegisterValueを生成する。
      *
      * @param registerNumber レジスタ番号
      * @param value          レジスタの現在値
+     * @param changed        このステップで値が変化した場合はtrue
      */
-    public RegisterValue(int registerNumber, int value) {
+    public RegisterValue(int registerNumber, int value, boolean changed) {
         this.registerNumber = registerNumber;
         this.value = value;
+        this.changed = changed;
     }
 
     /**
@@ -41,5 +46,14 @@ public class RegisterValue {
      */
     public int getValue() {
         return value;
+    }
+
+    /**
+     * このステップで値が変化したかを返す。
+     *
+     * @return 値が変化した場合はtrue
+     */
+    public boolean isChanged() {
+        return changed;
     }
 }

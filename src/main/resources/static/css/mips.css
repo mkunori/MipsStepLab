@@ -197,3 +197,24 @@ td {
     font-weight: bold;
     text-align: right;
 }
+
+/* 今回のステップで変更されたメモリセルを強調表示する。 */
+.changed-memory {
+    background-color: #fff3cd;
+    border-color: #f0ad4e;
+    font-weight: bold;
+}
+
+/* 今回のステップで変更されたレジスタを強調表示する。 */
+.changed-register {
+    background-color: #fff3cd;
+    border-color: #f0ad4e;
+    font-weight: bold;
+}
+
+/* 今回のステップで変更されたHI/LOを強調表示する。 */
+.changed-hilo td {
+    background-color: #fff3cd;
+    border-color: #f0ad4e;
+    font-weight: bold;
+}

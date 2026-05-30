@@ -208,7 +208,8 @@
             <h3>レジスタ一覧</h3>
 
             <div class="register-grid" th:if="${!#lists.isEmpty(viewModel.registerValues)}">
-                <div class="register-cell" th:each="register : ${viewModel.registerValues}">
+                <div class="register-cell" th:each="register : ${viewModel.registerValues}"
+                    th:classappend="${register.changed} ? ' changed-register' : ''">
                     <span class="register-name" th:text="'R' + ${register.registerNumber}">R0</span>
                     <span class="register-value" th:text="${register.value}">0</span>
                 </div>
@@ -224,7 +225,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="register : ${viewModel.hiLoValues}">
+                    <tr th:each="register : ${viewModel.hiLoValues}"
+                        th:classappend="${register.changed} ? ' changed-hilo' : ''">
                         <td th:text="${register.registerName}">HI</td>
                         <td th:text="${register.value}">0</td>
                     </tr>
@@ -234,7 +236,8 @@
             <h3>メモリ一覧</h3>
 
             <div class="memory-grid" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
-                <div class="memory-cell" th:each="memory : ${viewModel.memoryValues}">
+                <div class="memory-cell" th:each="memory : ${viewModel.memoryValues}"
+                    th:classappend="${memory.changed} ? ' changed-memory' : ''">
                     <span class="memory-address" th:text="${memory.address}">0</span>
                     <span class="memory-value" th:text="${memory.value}">0</span>
                 </div>

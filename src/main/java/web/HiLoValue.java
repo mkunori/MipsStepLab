@@ -14,15 +14,20 @@ public class HiLoValue {
     /** レジスタの現在値。 */
     private final int value;
 
+    /** このステップで値が変化した場合はtrue。 */
+    private final boolean changed;
+
     /**
      * HiLoValueを生成する。
      *
      * @param registerName レジスタ名
      * @param value        レジスタの現在値
+     * @param changed      このステップで値が変化した場合はtrue
      */
-    public HiLoValue(String registerName, int value) {
+    public HiLoValue(String registerName, int value, boolean changed) {
         this.registerName = registerName;
         this.value = value;
+        this.changed = changed;
     }
 
     /**
@@ -41,5 +46,14 @@ public class HiLoValue {
      */
     public int getValue() {
         return value;
+    }
+
+    /**
+     * このステップで値が変化したかを返す。
+     *
+     * @return 値が変化した場合はtrue
+     */
+    public boolean isChanged() {
+        return changed;
     }
 }

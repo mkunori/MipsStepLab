@@ -117,16 +117,21 @@ public class StepResultViewMapper {
     /**
      * StepResultから実行後のレジスタ一覧を作成する。
      *
+     * 実行後のレジスタ値に加えて、今回のステップで変更されたかどうかも設定する。
+     *
      * @param result 1ステップ分の実行結果
      * @return 実行後のレジスタ一覧
      */
     public List<RegisterValue> createRegisterValues(StepResult result) {
-        int[] registers = result.getRegistersAfter();
+        int[] before = result.getRegistersBefore();
+        int[] after = result.getRegistersAfter();
 
         List<RegisterValue> values = new ArrayList<>();
 
-        for (int i = 0; i < registers.length; i++) {
-            values.add(new RegisterValue(i, registers[i]));
+        for (int i = 0; i < after.length; i++) {
+            boolean changed = before[i] != after[i];
+
+            values.add(new RegisterValue(i, after[i], changed));
         }
 
         return values;
@@ -135,14 +140,24 @@ public class StepResultViewMapper {
     /**
      * StepResultから実行後のHI/LOレジスタ一覧を作成する。
      *
+     * 実行後のHI/LOの値に加えて、
+     * 今回のステップで変更されたかどうかも設定する。
+     *
      * @param result 1ステップ分の実行結果
      * @return 実行後のHI/LOレジスタ一覧
      */
     public List<HiLoValue> createHiLoValues(StepResult result) {
         List<HiLoValue> values = new ArrayList<>();
 
-        values.add(new HiLoValue("HI", result.getHiAfter()));
-        values.add(new HiLoValue("LO", result.getLoAfter()));
+        values.add(new HiLoValue(
+                "HI",
+                result.getHiAfter(),
+                result.getHiBefore() != result.getHiAfter()));
+
+        values.add(new HiLoValue(
+                "LO",
+                result.getLoAfter(),
+                result.getLoBefore() != result.getLoAfter()));
 
         return values;
     }
@@ -167,19 +182,23 @@ public class StepResultViewMapper {
      * StepResultから実行後のメモリ現在値一覧を作成する。
      *
      * 現時点では簡易表示として、先頭から一定バイト数だけを表示する。
+     * さらに、今回のステップで変更されたアドレスにはchanged=trueを設定する。
      *
      * @param result 1ステップ分の実行結果
      * @return 実行後のメモリ現在値一覧
      */
     public List<MemoryValue> createMemoryValues(StepResult result) {
-        byte[] memory = result.getMemoryAfter();
+        byte[] before = result.getMemoryBefore();
+        byte[] after = result.getMemoryAfter();
 
         List<MemoryValue> values = new ArrayList<>();
 
-        int displaySize = Math.min(MEMORY_DISPLAY_SIZE, memory.length);
+        int displaySize = Math.min(MEMORY_DISPLAY_SIZE, after.length);
 
         for (int address = 0; address < displaySize; address++) {
-            values.add(new MemoryValue(address, memory[address]));
+            boolean changed = before[address] != after[address];
+
+            values.add(new MemoryValue(address, after[address], changed));
         }
 
         return values;
