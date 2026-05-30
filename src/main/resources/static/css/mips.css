@@ -46,14 +46,6 @@ td {
     border: 1px solid #ccc;
 }
 
-/* 次に実行される命令を強調表示する。 */
-.current-instruction {
-    font-weight: bold;
-    background-color: #fff3cd;
-    border-left: 4px solid #f0ad4e;
-    padding-left: 8px;
-}
-
 /* すでに実行済みの命令を控えめに表示する。 */
 .executed-instruction {
     color: #777;
@@ -216,5 +208,36 @@ td {
 .changed-hilo td {
     background-color: #fff3cd;
     border-color: #f0ad4e;
+    font-weight: bold;
+}
+
+/* ブレークポイントが設定された命令行を強調表示する。 */
+.breakpoint-instruction {
+    background-color: #fdecea;
+    border-left: 4px solid #c0392b;
+    padding-left: 8px;
+}
+
+
+/* 次に実行される命令を強調表示する。 */
+.current-instruction {
+    font-weight: bold;
+    background-color: #fff3cd;
+    border-left: 4px solid #f0ad4e;
+    padding-left: 8px;
+}
+
+/* ブレークポイントの目印を強調表示する。 */
+.breakpoint-mark {
+    display: inline-block;
+    margin-right: 8px;
+    color: #c0392b;
+    font-weight: bold;
+}
+
+/* 次に実行される命令がブレークポイントでもある場合、より強く表示する。 */
+.current-instruction.breakpoint-instruction {
+    background-color: #fff0f0;
+    border-left: 4px solid #c0392b;
     font-weight: bold;
 }

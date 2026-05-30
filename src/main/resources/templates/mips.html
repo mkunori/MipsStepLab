@@ -38,8 +38,9 @@
 
             <ol start="0" class="program-list">
                 <li th:each="instruction, stat : ${viewModel.programLines}" th:classappend="
-                        ${stat.index == viewModel.currentPc} ? 'current-instruction' :
-                        (${viewModel.executedPcs.contains(stat.index)} ? 'executed-instruction' : '')">
+                    (${stat.index == viewModel.currentPc} ? ' current-instruction' : '') +
+                    (${viewModel.executedPcs.contains(stat.index)} ? ' executed-instruction' : '') +
+                    (${viewModel.breakpoints.contains(stat.index)} ? ' breakpoint-instruction' : '')">
 
                     <span class="breakpoint-mark" th:if="${viewModel.breakpoints.contains(stat.index)}">● BP</span>
 
