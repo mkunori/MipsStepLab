@@ -23,8 +23,26 @@
                     <h2>プログラム入力</h2>
 
                     <form method="post" action="/mips">
+                        <div class="sample-selector">
+                            <label for="sampleProgramSelect">サンプルプログラム:</label>
+
+                            <select id="sampleProgramSelect">
+                                <option value="">選択してください</option>
+                                <option value="arithmetic">算術命令</option>
+                                <option value="logical">論理命令</option>
+                                <option value="shift">シフト命令</option>
+                                <option value="compare">比較命令</option>
+                                <option value="branch">分岐・ジャンプ命令</option>
+                                <option value="memory">メモリアクセス命令</option>
+                                <option value="hilo">HI/LO命令</option>
+                                <option value="pseudo">擬似命令</option>
+                            </select>
+
+                            <button type="button" id="loadSampleButton">選択したサンプルを入力</button>
+                        </div>
+
                         <div>
-                            <textarea name="programText" rows="8" cols="60"
+                            <textarea id="programTextArea" name="programText" rows="8" cols="60"
                                 th:text="${viewModel.programText}"></textarea>
                         </div>
 
