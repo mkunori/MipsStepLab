@@ -106,24 +106,6 @@ td {
     flex-wrap: wrap;
 }
 
-/* レジスタ一覧を4列のグリッドで表示する。 */
-.register-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-top: 8px;
-}
-
-/* 1つのレジスタ表示枠を整える。 */
-.register-cell {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 8px;
-    border: 1px solid #ccc;
-    background-color: #fafafa;
-    font-family: monospace;
-}
-
 /* レジスタ名を少し強調する。 */
 .register-name {
     font-weight: bold;
@@ -177,45 +159,14 @@ td {
     border: 1px solid #9cc5f5;
 }
 
-/* メモリ一覧を8列のグリッドで表示する。 */
-.memory-grid {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 6px;
-    margin-top: 8px;
-}
-
-/* 1つのメモリアドレス表示枠を整える。 */
-.memory-cell {
-    display: flex;
-    flex-direction: column;
-    padding: 6px;
-    border: 1px solid #ccc;
-    background-color: #fafafa;
-    font-family: monospace;
-}
-
-/* メモリアドレスを控えめに表示する。 */
-.memory-address {
-    color: #666;
-    font-size: 0.85rem;
-}
-
 /* メモリ値を見やすく表示する。 */
 .memory-value {
     font-weight: bold;
     text-align: right;
 }
 
-/* 今回のステップで変更されたメモリセルを強調表示する。 */
-.changed-memory {
-    background-color: #fff3cd;
-    border-color: #f0ad4e;
-    font-weight: bold;
-}
-
 /* 今回のステップで変更されたレジスタを強調表示する。 */
-.changed-register {
+.register-table td.changed-register {
     background-color: #fff3cd;
     border-color: #f0ad4e;
     font-weight: bold;
@@ -442,4 +393,73 @@ textarea {
     color: #666;
     font-size: 0.85rem;
     margin: 4px 0 8px;
+}
+
+/* レジスタ一覧を8列×4行の表で表示する。 */
+.register-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin-top: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+/* レジスタ表の見出しとセルをコンパクトに表示する。 */
+.register-table th,
+.register-table td {
+    padding: 3px 4px;
+    border: 1px solid #ccc;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* レジスタ表の見出しを控えめに強調する。 */
+.register-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+/* レジスタ値を見やすく表示する。 */
+.register-table .register-value {
+    font-weight: bold;
+    text-align: center;
+}
+
+/* メモリ一覧を8列×4行の表で表示する。 */
+.memory-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin-top: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+/* メモリ表の見出しとセルをコンパクトに表示する。 */
+.memory-table th,
+.memory-table td {
+    padding: 3px 4px;
+    border: 1px solid #ccc;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* メモリ表の見出しを控えめに強調する。 */
+.memory-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+/* メモリ値を見やすく表示する。 */
+.memory-table .memory-value {
+    font-weight: bold;
+    text-align: center;
+}
+
+/* 今回のステップで変更されたメモリセルを強調表示する。 */
+.memory-table td.changed-memory {
+    background-color: #fff3cd;
+    border-color: #f0ad4e;
+    font-weight: bold;
 }

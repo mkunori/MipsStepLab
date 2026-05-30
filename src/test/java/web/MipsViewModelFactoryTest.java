@@ -202,4 +202,99 @@ class MipsViewModelFactoryTest {
         assertEquals(2, viewModel.getHiLoValues().size());
         assertFalse(viewModel.getMemoryValues().isEmpty());
     }
+
+    /**
+     * 現在の実行状態を表示するViewModelでは、
+     * セッション内のCPU現在値がレジスタ一覧に反映されることを確認する。
+     */
+    @Test
+    void createSessionStateViewModel_shouldReflectCurrentRegisterValues() {
+        String programText = String.join(System.lineSeparator(),
+                "addi $t0, $zero, 5",
+                "addi $t1, $zero, 3");
+
+        WebMipsSession session = service.createSession(programText);
+
+        service.step(session);
+
+        MipsViewModel viewModel = factory.createSessionStateViewModel(
+                session,
+                "ブレークポイントを追加しました: PC 1",
+                MessageType.SUCCESS);
+
+        RegisterValue r8 = viewModel.getRegisterValues().get(8);
+        RegisterValue r9 = viewModel.getRegisterValues().get(9);
+
+        assertEquals(8, r8.getRegisterNumber());
+        assertEquals(5, r8.getValue());
+        assertFalse(r8.isChanged());
+
+        assertEquals(9, r9.getRegisterNumber());
+        assertEquals(0, r9.getValue());
+        assertFalse(r9.isChanged());
+    }
+
+    /**
+     * 現在の実行状態を表示するViewModelでは、
+     * セッション内のメモリ現在値がメモリ一覧に反映されることを確認する。
+     */
+    @Test
+    void createSessionStateViewModel_shouldReflectCurrentMemoryValues() {
+        String programText = String.join(System.lineSeparator(),
+                "addi $t0, $zero, 5",
+                "sw $t0, 0($zero)");
+
+        WebMipsSession session = service.createSession(programText);
+
+        service.step(session);
+        service.step(session);
+
+        MipsViewModel viewModel = factory.createSessionStateViewModel(
+                session,
+                "ブレークポイントを追加しました: PC 1",
+                MessageType.SUCCESS);
+
+        boolean existsNonZeroMemory = viewModel.getMemoryValues().stream()
+                .anyMatch(memory -> memory.getValue() != 0);
+
+        boolean existsChangedMemory = viewModel.getMemoryValues().stream()
+                .anyMatch(MemoryValue::isChanged);
+
+        assertTrue(existsNonZeroMemory);
+        assertFalse(existsChangedMemory);
+    }
+
+    /**
+     * 現在の実行状態を表示するViewModelでは、
+     * セッション内のHI/LO現在値がHI/LO一覧に反映されることを確認する。
+     */
+    @Test
+    void createSessionStateViewModel_shouldReflectCurrentHiLoValues() {
+        String programText = String.join(System.lineSeparator(),
+                "addi $t0, $zero, 5",
+                "addi $t1, $zero, 3",
+                "mult $t0, $t1");
+
+        WebMipsSession session = service.createSession(programText);
+
+        service.step(session);
+        service.step(session);
+        service.step(session);
+
+        MipsViewModel viewModel = factory.createSessionStateViewModel(
+                session,
+                "ブレークポイントを追加しました: PC 1",
+                MessageType.SUCCESS);
+
+        HiLoValue hi = viewModel.getHiLoValues().get(0);
+        HiLoValue lo = viewModel.getHiLoValues().get(1);
+
+        assertEquals("HI", hi.getRegisterName());
+        assertEquals(0, hi.getValue());
+        assertFalse(hi.isChanged());
+
+        assertEquals("LO", lo.getRegisterName());
+        assertEquals(15, lo.getValue());
+        assertFalse(lo.isChanged());
+    }
 }
