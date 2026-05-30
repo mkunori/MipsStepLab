@@ -413,3 +413,33 @@ textarea {
 .cpu-panel .memory-grid {
     margin-top: 4px;
 }
+
+/* 今回の変更パネル内の余白を少し詰める。 */
+.diff-panel h3 {
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+/* 今回の変更パネル内の表をコンパクトに表示する。 */
+.diff-panel table {
+    margin-top: 4px;
+    font-size: 0.85rem;
+}
+
+/* 今回の変更パネル内のセル余白を小さくする。 */
+.diff-panel th,
+.diff-panel td {
+    padding: 2px 6px;
+}
+
+/* 変更なしメッセージを控えめに表示する。 */
+.diff-panel p {
+    margin: 4px 0;
+}
+
+/* 表示ルールの補足説明を控えめに表示する。 */
+.display-note {
+    color: #666;
+    font-size: 0.85rem;
+    margin: 4px 0 8px;
+}

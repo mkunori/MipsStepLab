@@ -130,120 +130,118 @@
                 <section class="panel cpu-panel">
                     <h2>CPU状態</h2>
 
-                    <p th:if="${viewModel.stepResult == null}" class="empty-message">
-                        ステップ実行後に、レジスタ・HI/LO・メモリの現在値を表示します。
+                    <p class="display-note">
+                        黄色で強調されている値は、直前に実行された1命令で変化した値です。<br>
+                        「ブレークポイントまで実行」では、最後に実行された1命令で変化した値だけを強調します。
                     </p>
 
-                    <div th:if="${viewModel.stepResult != null}">
-                        <h3>レジスタ一覧</h3>
+                    <h3>レジスタ一覧</h3>
 
-                        <div class="register-grid" th:if="${!#lists.isEmpty(viewModel.registerValues)}">
-                            <div class="register-cell" th:each="register : ${viewModel.registerValues}"
-                                th:classappend="${register.changed} ? ' changed-register' : ''">
-                                <span class="register-name" th:text="'R' + ${register.registerNumber}">R0</span>
-                                <span class="register-value" th:text="${register.value}">0</span>
-                            </div>
+                    <div class="register-grid" th:if="${!#lists.isEmpty(viewModel.registerValues)}">
+                        <div class="register-cell" th:each="register : ${viewModel.registerValues}"
+                            th:classappend="${register.changed} ? ' changed-register' : ''">
+                            <span class="register-name" th:text="'R' + ${register.registerNumber}">R0</span>
+                            <span class="register-value" th:text="${register.value}">0</span>
                         </div>
+                    </div>
 
-                        <h3>HI/LO一覧</h3>
+                    <h3>HI/LO一覧</h3>
 
-                        <div class="hilo-grid" th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
-                            <div class="hilo-cell" th:each="register : ${viewModel.hiLoValues}"
-                                th:classappend="${register.changed} ? ' changed-hilo-cell' : ''">
-                                <span class="hilo-name" th:text="${register.registerName}">HI</span>
-                                <span class="hilo-value" th:text="${register.value}">0</span>
-                            </div>
+                    <div class="hilo-grid" th:if="${!#lists.isEmpty(viewModel.hiLoValues)}">
+                        <div class="hilo-cell" th:each="register : ${viewModel.hiLoValues}"
+                            th:classappend="${register.changed} ? ' changed-hilo-cell' : ''">
+                            <span class="hilo-name" th:text="${register.registerName}">HI</span>
+                            <span class="hilo-value" th:text="${register.value}">0</span>
                         </div>
+                    </div>
 
-                        <h3>メモリ一覧</h3>
+                    <h3>メモリ一覧</h3>
 
-                        <div class="memory-grid" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
-                            <div class="memory-cell" th:each="memory : ${viewModel.memoryValues}"
-                                th:classappend="${memory.changed} ? ' changed-memory' : ''">
-                                <span class="memory-address" th:text="${memory.address}">0</span>
-                                <span class="memory-value" th:text="${memory.value}">0</span>
-                            </div>
+                    <div class="memory-grid" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
+                        <div class="memory-cell" th:each="memory : ${viewModel.memoryValues}"
+                            th:classappend="${memory.changed} ? ' changed-memory' : ''">
+                            <span class="memory-address" th:text="${memory.address}">0</span>
+                            <span class="memory-value" th:text="${memory.value}">0</span>
                         </div>
                     </div>
                 </section>
 
-                <section class="panel">
-                    <h2>今回の変更</h2>
+                <section class="panel diff-panel">
+                    <h2>最後の命令による変化</h2>
 
-                    <p th:if="${viewModel.stepResult == null}" class="empty-message">
-                        ステップ実行後に、今回変更された値を表示します。
+                    <p class="display-note">
+                        ここには、最後に実行された1命令で変化した値だけを表示します。
                     </p>
 
-                    <div th:if="${viewModel.stepResult != null}">
-                        <h3>レジスタ変更</h3>
 
-                        <p th:if="${#lists.isEmpty(viewModel.registerDiffs)}">
-                            レジスタ変更なし
-                        </p>
+                    <h3>レジスタ変更</h3>
 
-                        <table th:if="${!#lists.isEmpty(viewModel.registerDiffs)}">
-                            <thead>
-                                <tr>
-                                    <th>レジスタ</th>
-                                    <th>実行前</th>
-                                    <th>実行後</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="diff : ${viewModel.registerDiffs}">
-                                    <td th:text="'R' + ${diff.registerNumber}">R8</td>
-                                    <td th:text="${diff.beforeValue}">0</td>
-                                    <td th:text="${diff.afterValue}">5</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <p th:if="${#lists.isEmpty(viewModel.registerDiffs)}">
+                        レジスタ変更なし
+                    </p>
 
-                        <h3>HI/LO変更</h3>
+                    <table th:if="${!#lists.isEmpty(viewModel.registerDiffs)}">
+                        <thead>
+                            <tr>
+                                <th>レジスタ</th>
+                                <th>実行前</th>
+                                <th>実行後</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="diff : ${viewModel.registerDiffs}">
+                                <td th:text="'R' + ${diff.registerNumber}">R8</td>
+                                <td th:text="${diff.beforeValue}">0</td>
+                                <td th:text="${diff.afterValue}">5</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-                        <p th:if="${#lists.isEmpty(viewModel.hiLoDiffs)}">
-                            HI/LO変更なし
-                        </p>
+                    <h3>HI/LO変更</h3>
 
-                        <table th:if="${!#lists.isEmpty(viewModel.hiLoDiffs)}">
-                            <thead>
-                                <tr>
-                                    <th>レジスタ</th>
-                                    <th>実行前</th>
-                                    <th>実行後</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="diff : ${viewModel.hiLoDiffs}">
-                                    <td th:text="${diff.registerName}">HI</td>
-                                    <td th:text="${diff.beforeValue}">0</td>
-                                    <td th:text="${diff.afterValue}">15</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <p th:if="${#lists.isEmpty(viewModel.hiLoDiffs)}">
+                        HI/LO変更なし
+                    </p>
 
-                        <h3>メモリ変更</h3>
+                    <table th:if="${!#lists.isEmpty(viewModel.hiLoDiffs)}">
+                        <thead>
+                            <tr>
+                                <th>レジスタ</th>
+                                <th>実行前</th>
+                                <th>実行後</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="diff : ${viewModel.hiLoDiffs}">
+                                <td th:text="${diff.registerName}">HI</td>
+                                <td th:text="${diff.beforeValue}">0</td>
+                                <td th:text="${diff.afterValue}">15</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-                        <p th:if="${#lists.isEmpty(viewModel.memoryDiffs)}">
-                            メモリ変更なし
-                        </p>
+                    <h3>メモリ変更</h3>
 
-                        <table th:if="${!#lists.isEmpty(viewModel.memoryDiffs)}">
-                            <thead>
-                                <tr>
-                                    <th>アドレス</th>
-                                    <th>実行前</th>
-                                    <th>実行後</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="diff : ${viewModel.memoryDiffs}">
-                                    <td th:text="${diff.address}">0</td>
-                                    <td th:text="${diff.beforeValue}">0</td>
-                                    <td th:text="${diff.afterValue}">5</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <p th:if="${#lists.isEmpty(viewModel.memoryDiffs)}">
+                        メモリ変更なし
+                    </p>
+
+                    <table th:if="${!#lists.isEmpty(viewModel.memoryDiffs)}">
+                        <thead>
+                            <tr>
+                                <th>アドレス</th>
+                                <th>実行前</th>
+                                <th>実行後</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="diff : ${viewModel.memoryDiffs}">
+                                <td th:text="${diff.address}">0</td>
+                                <td th:text="${diff.beforeValue}">0</td>
+                                <td th:text="${diff.afterValue}">5</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </section>
             </div>
         </div>
