@@ -357,4 +357,201 @@ class MipsViewModelFactoryTest {
         assertEquals("addi $t2, $zero, 99", lineViews.get(5).getText());
         assertTrue(lineViews.get(5).isInstructionLine());
     }
+
+    /**
+     * プログラム一覧表示用の行情報では、
+     * Serviceで除外された空行が含まれず、命令行だけにPCが割り当てられることを確認する。
+     */
+    @Test
+    void createParsedViewModel_shouldCreateProgramLineViewsWithoutEmptyLines() {
+        String programText = String.join(System.lineSeparator(),
+                "addi $t0, $zero, 1",
+                "",
+                "addi $t1, $zero, 2");
+
+        List<String> programLines = service.splitLines(programText);
+
+        MipsViewModel viewModel = factory.createParsedViewModel(
+                programText,
+                programLines,
+                "パース成功: 2 命令",
+                MessageType.SUCCESS,
+                true,
+                2,
+                true);
+
+        List<ProgramLineView> lineViews = viewModel.getProgramLineViews();
+
+        assertEquals(2, lineViews.size());
+
+        assertEquals(0, lineViews.get(0).getLineNumber());
+        assertEquals(0, lineViews.get(0).getPc());
+        assertEquals("addi $t0, $zero, 1", lineViews.get(0).getText());
+        assertTrue(lineViews.get(0).isInstructionLine());
+
+        assertEquals(1, lineViews.get(1).getLineNumber());
+        assertEquals(1, lineViews.get(1).getPc());
+        assertEquals("addi $t1, $zero, 2", lineViews.get(1).getText());
+        assertTrue(lineViews.get(1).isInstructionLine());
+    }
+
+    /**
+     * プログラム一覧表示用の行情報では、
+     * Serviceで除外された空白だけの行が含まれず、命令行だけにPCが割り当てられることを確認する。
+     */
+    @Test
+    void createParsedViewModel_shouldCreateProgramLineViewsWithoutBlankLines() {
+        String programText = String.join(System.lineSeparator(),
+                "addi $t0, $zero, 1",
+                "    ",
+                "\t",
+                "addi $t1, $zero, 2");
+
+        List<String> programLines = service.splitLines(programText);
+
+        MipsViewModel viewModel = factory.createParsedViewModel(
+                programText,
+                programLines,
+                "パース成功: 2 命令",
+                MessageType.SUCCESS,
+                true,
+                2,
+                true);
+
+        List<ProgramLineView> lineViews = viewModel.getProgramLineViews();
+
+        assertEquals(2, lineViews.size());
+
+        assertEquals(0, lineViews.get(0).getLineNumber());
+        assertEquals(0, lineViews.get(0).getPc());
+        assertEquals("addi $t0, $zero, 1", lineViews.get(0).getText());
+        assertTrue(lineViews.get(0).isInstructionLine());
+
+        assertEquals(1, lineViews.get(1).getLineNumber());
+        assertEquals(1, lineViews.get(1).getPc());
+        assertEquals("addi $t1, $zero, 2", lineViews.get(1).getText());
+        assertTrue(lineViews.get(1).isInstructionLine());
+    }
+
+    /**
+     * プログラム一覧表示用の行情報では、
+     * 複数のラベル行があっても命令行のPCがずれないことを確認する。
+     */
+    @Test
+    void createParsedViewModel_shouldCreateProgramLineViewsSkippingMultipleLabelLines() {
+        String programText = String.join(System.lineSeparator(),
+                "start:",
+                "addi $t0, $zero, 1",
+                "loop:",
+                "addi $t0, $t0, 1",
+                "end:",
+                "nop");
+
+        List<String> programLines = service.splitLines(programText);
+
+        MipsViewModel viewModel = factory.createParsedViewModel(
+                programText,
+                programLines,
+                "パース成功: 3 命令",
+                MessageType.SUCCESS,
+                true,
+                3,
+                true);
+
+        List<ProgramLineView> lineViews = viewModel.getProgramLineViews();
+
+        assertEquals(6, lineViews.size());
+
+        assertNull(lineViews.get(0).getPc());
+        assertFalse(lineViews.get(0).isInstructionLine());
+
+        assertEquals(0, lineViews.get(1).getPc());
+        assertTrue(lineViews.get(1).isInstructionLine());
+
+        assertNull(lineViews.get(2).getPc());
+        assertFalse(lineViews.get(2).isInstructionLine());
+
+        assertEquals(1, lineViews.get(3).getPc());
+        assertTrue(lineViews.get(3).isInstructionLine());
+
+        assertNull(lineViews.get(4).getPc());
+        assertFalse(lineViews.get(4).isInstructionLine());
+
+        assertEquals(2, lineViews.get(5).getPc());
+        assertTrue(lineViews.get(5).isInstructionLine());
+    }
+
+    /**
+     * プログラム一覧表示用の行情報では、
+     * Serviceで空行が除外されたあとも、ラベル行と命令行のPC対応がずれないことを確認する。
+     */
+    @Test
+    void createParsedViewModel_shouldCreateProgramLineViewsWithoutEmptyLinesAndSkippingLabels() {
+        String programText = String.join(System.lineSeparator(),
+                "",
+                "start:",
+                "",
+                "addi $t0, $zero, 1",
+                "    ",
+                "loop:",
+                "addi $t0, $t0, 1",
+                "bne $t0, $t1, loop");
+
+        List<String> programLines = service.splitLines(programText);
+
+        MipsViewModel viewModel = factory.createParsedViewModel(
+                programText,
+                programLines,
+                "パース成功: 3 命令",
+                MessageType.SUCCESS,
+                true,
+                3,
+                true);
+
+        List<ProgramLineView> lineViews = viewModel.getProgramLineViews();
+
+        assertEquals(5, lineViews.size());
+
+        assertEquals(0, lineViews.get(0).getLineNumber());
+        assertNull(lineViews.get(0).getPc());
+        assertEquals("start:", lineViews.get(0).getText());
+        assertFalse(lineViews.get(0).isInstructionLine());
+
+        assertEquals(1, lineViews.get(1).getLineNumber());
+        assertEquals(0, lineViews.get(1).getPc());
+        assertEquals("addi $t0, $zero, 1", lineViews.get(1).getText());
+        assertTrue(lineViews.get(1).isInstructionLine());
+
+        assertEquals(2, lineViews.get(2).getLineNumber());
+        assertNull(lineViews.get(2).getPc());
+        assertEquals("loop:", lineViews.get(2).getText());
+        assertFalse(lineViews.get(2).isInstructionLine());
+
+        assertEquals(3, lineViews.get(3).getLineNumber());
+        assertEquals(1, lineViews.get(3).getPc());
+        assertEquals("addi $t0, $t0, 1", lineViews.get(3).getText());
+        assertTrue(lineViews.get(3).isInstructionLine());
+
+        assertEquals(4, lineViews.get(4).getLineNumber());
+        assertEquals(2, lineViews.get(4).getPc());
+        assertEquals("bne $t0, $t1, loop", lineViews.get(4).getText());
+        assertTrue(lineViews.get(4).isInstructionLine());
+    }
+
+    /**
+     * クリア後のViewModelでは、
+     * プログラム一覧表示用の行情報が空になることを確認する。
+     */
+    @Test
+    void createClearedViewModel_shouldCreateEmptyProgramLineViews() {
+        MipsViewModel viewModel = factory.createClearedViewModel("入力欄をクリアしました。");
+
+        assertEquals("", viewModel.getProgramText());
+        assertTrue(viewModel.getProgramLines().isEmpty());
+        assertTrue(viewModel.getProgramLineViews().isEmpty());
+        assertEquals(32, viewModel.getRegisterValues().size());
+        assertEquals(2, viewModel.getHiLoValues().size());
+        assertEquals(32, viewModel.getMemoryValues().size());
+    }
+
 }

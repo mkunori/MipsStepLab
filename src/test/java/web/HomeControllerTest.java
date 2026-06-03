@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -443,4 +444,58 @@ class HomeControllerTest {
 
         assertFalse(session.getBreakpointManager().contains(1));
     }
+
+    /**
+     * POST /mips/clear で入力欄とWeb実行状態をクリアできることを確認する。
+     *
+     * @throws Exception MockMvc実行時に例外が発生した場合
+     */
+    @Test
+    void clear_shouldRemoveSessionAndCreateClearedViewModel() throws Exception {
+        String programText = String.join(System.lineSeparator(),
+                "addi $t0, $zero, 5",
+                "sw $t0, 0($zero)");
+
+        WebMipsSession session = service.createSession(programText);
+        service.step(session);
+        service.step(session);
+
+        MvcResult result = mockMvc.perform(post("/mips/clear")
+                .sessionAttr("mipsSession", session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("mips"))
+                .andExpect(model().attributeExists("viewModel"))
+                .andExpect(content().string(containsString("入力欄をクリアしました。")))
+                .andReturn();
+
+        HttpSession httpSession = result.getRequest().getSession(false);
+        MipsViewModel viewModel = (MipsViewModel) result.getModelAndView()
+                .getModel()
+                .get("viewModel");
+
+        assertNotNull(httpSession);
+        assertNull(httpSession.getAttribute("mipsSession"));
+
+        assertEquals("", viewModel.getProgramText());
+        assertTrue(viewModel.getProgramLines().isEmpty());
+        assertTrue(viewModel.getProgramLineViews().isEmpty());
+        assertEquals(MessageType.INFO.getCssClassName(), viewModel.getMessageType());
+        assertEquals(false, viewModel.getParseSuccess());
+        assertEquals(0, viewModel.getInstructionCount());
+        assertFalse(viewModel.isReadyToRun());
+        assertEquals(-1, viewModel.getCurrentPc());
+
+        assertEquals(32, viewModel.getRegisterValues().size());
+        assertTrue(viewModel.getRegisterValues().stream()
+                .allMatch(register -> register.getValue() == 0 && !register.isChanged()));
+
+        assertEquals(2, viewModel.getHiLoValues().size());
+        assertTrue(viewModel.getHiLoValues().stream()
+                .allMatch(hiLo -> hiLo.getValue() == 0 && !hiLo.isChanged()));
+
+        assertEquals(32, viewModel.getMemoryValues().size());
+        assertTrue(viewModel.getMemoryValues().stream()
+                .allMatch(memory -> memory.getValue() == 0 && !memory.isChanged()));
+    }
+
 }
