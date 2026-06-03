@@ -199,10 +199,13 @@ td {
     margin: 0;
 }
 
-/* プログラム一覧の標準リスト記号を消す。 */
+/* プログラム一覧の標準リスト記号を消し、一覧内スクロールできるようにする。 */
 .program-list {
     list-style: none;
+    max-height: 360px;
+    overflow-y: auto;
     padding-left: 0;
+    padding-right: 4px;
     font-family: monospace;
 }
 
@@ -211,6 +214,7 @@ td {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-height: 32px;
     padding: 4px 8px;
     margin-top: 8px;
     margin-bottom: 4px;

@@ -6,12 +6,14 @@
  * - ボタンの多重送信を防ぐ
  * - サンプルプログラムの入力と説明表示を行う
  * - メモリ表示を10進数 / 16進数で切り替える
+ * - 現在PC行がプログラム一覧内で見える位置へ自動スクロールする
  */
 document.addEventListener("DOMContentLoaded", () => {
     restoreScrollPosition();
     setupFormSubmitHandlers();
     setupSampleProgramSelector();
     setupMemoryDisplayToggle();
+    scrollCurrentInstructionIntoView();
 });
 
 /** スクロール位置を保存するためのキー。 */
@@ -204,6 +206,27 @@ function updateMemoryDisplay(mode) {
     buttons.forEach((button) => {
         button.classList.toggle("active", button.dataset.memoryDisplayMode === mode);
     });
+}
+
+/**
+ * 現在PC行がプログラム一覧内で見える位置へスクロールする。
+ *
+ * プログラム一覧が縦に長い場合でも、ステップ実行後に次の実行位置を追いやすくする。
+ */
+function scrollCurrentInstructionIntoView() {
+    const programList = document.querySelector(".program-list");
+    const currentInstruction = document.querySelector(".program-list .current-instruction");
+
+    if (programList === null || currentInstruction === null) {
+        return;
+    }
+
+    const targetScrollTop = currentInstruction.offsetTop
+        - programList.offsetTop
+        - (programList.clientHeight / 2)
+        + (currentInstruction.clientHeight / 2);
+
+    programList.scrollTop = Math.max(0, targetScrollTop);
 }
 
 /**
