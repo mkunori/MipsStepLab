@@ -378,6 +378,13 @@ td {
     font-weight: bold;
 }
 
+/* メモリアドレス見出しを値より少し控えめに表示する。 */
+.memory-address-label {
+    color: #555;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
 /* レジスタ表とメモリ表を共通の見た目で表示する。 */
 .register-table,
 .memory-table {

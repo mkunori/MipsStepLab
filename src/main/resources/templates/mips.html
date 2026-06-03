@@ -235,17 +235,23 @@
                     <table class="memory-table" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
                         <thead>
                             <tr>
-                                <th></th>
-                                <th th:each="col : ${#numbers.sequence(0, 7)}" th:text="'+' + ${col}">
-                                    +0
+                                <th>addr</th>
+                                <th th:each="col : ${#numbers.sequence(0, 7)}">
+                                    <span class="memory-address-label" data-memory-address-role="column"
+                                        th:attr="data-address=${col}" th:text="'+' + ${col}">
+                                        +0
+                                    </span>
                                 </th>
                             </tr>
                         </thead>
 
                         <tbody>
                             <tr th:each="row : ${#numbers.sequence(0, 3)}">
-                                <th th:text="'+' + ${row * 8}">
-                                    +0
+                                <th>
+                                    <span class="memory-address-label" data-memory-address-role="row"
+                                        th:attr="data-address=${row * 8}" th:text="'+' + ${row * 8}">
+                                        +0
+                                    </span>
                                 </th>
 
                                 <td th:each="col : ${#numbers.sequence(0, 7)}"

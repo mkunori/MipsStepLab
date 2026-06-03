@@ -6,6 +6,7 @@
  * - ボタンの多重送信を防ぐ
  * - サンプルプログラムの入力と説明表示を行う
  * - メモリ表示を10進数 / 16進数で切り替える
+ * - メモリアドレス見出しを10進数 / 16進数で切り替える
  * - 現在PC行がプログラム一覧内で見える位置へ自動スクロールする
  */
 document.addEventListener("DOMContentLoaded", () => {
@@ -203,9 +204,51 @@ function updateMemoryDisplay(mode) {
         }
     });
 
+    updateMemoryAddressLabels(mode);
+
     buttons.forEach((button) => {
         button.classList.toggle("active", button.dataset.memoryDisplayMode === mode);
     });
+}
+
+/**
+ * メモリアドレス見出しを指定された表示形式へ切り替える。
+ *
+ * @param {string} mode 表示形式
+ */
+function updateMemoryAddressLabels(mode) {
+    const labels = document.querySelectorAll(".memory-address-label");
+
+    labels.forEach((label) => {
+        const address = Number(label.dataset.address);
+        const role = label.dataset.memoryAddressRole;
+
+        if (!Number.isInteger(address)) {
+            return;
+        }
+
+        label.textContent = createMemoryAddressLabel(address, role, mode);
+    });
+}
+
+/**
+ * メモリアドレス見出しに表示する文字列を作成する。
+ *
+ * @param {number} address メモリアドレスまたは列オフセット
+ * @param {string | undefined} role 行見出しか列見出しか
+ * @param {string} mode 表示形式
+ * @returns {string} 表示文字列
+ */
+function createMemoryAddressLabel(address, role, mode) {
+    if (mode === "hex") {
+        if (role === "row") {
+            return `0x${address.toString(16).toUpperCase().padStart(4, "0")}`;
+        }
+
+        return `+0x${address.toString(16).toUpperCase()}`;
+    }
+
+    return `+${address}`;
 }
 
 /**
