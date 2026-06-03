@@ -116,6 +116,7 @@
 
                     <ul class="program-list">
                         <li th:each="line : ${viewModel.programLineViews}" th:classappend="
+            (${!line.instructionLine} ? ' non-instruction-line' : '') +
             (${line.instructionLine && line.pc == viewModel.currentPc} ? ' current-instruction' : '') +
             (${line.instructionLine && viewModel.executedPcs.contains(line.pc)} ? ' executed-instruction' : '') +
             (${line.instructionLine && viewModel.breakpoints.contains(line.pc)} ? ' breakpoint-instruction' : '')">
