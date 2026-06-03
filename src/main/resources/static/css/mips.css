@@ -122,6 +122,16 @@ td {
     margin: 0;
 }
 
+/* サンプルプログラムの説明を控えめなカード風に表示する。 */
+.sample-description {
+    margin: 0 0 8px;
+    padding: 8px 10px;
+    border-left: 4px solid #9cc5f5;
+    background-color: #eef5ff;
+    color: #444;
+    font-size: 0.9rem;
+}
+
 /* プログラム入力欄の操作ボタンを横並びにする。 */
 .program-action-row {
     display: flex;
