@@ -180,13 +180,17 @@ class MipsViewModelFactoryTest {
         StepResult result = service.step(session);
         StepResultViewData viewData = mapper.toViewData(result);
 
+        ExecutedInstructionView executedInstructionView = mapper.createExecutedInstructionView(
+                result,
+                service.splitLines(programText));
+
         MipsViewModel viewModel = factory.createStepResultViewModel(
                 session,
                 result,
                 "プログラムが終了しました。",
                 MessageType.SUCCESS,
                 viewData,
-                "addi $t0, $zero, 5");
+                executedInstructionView);
 
         assertEquals(programText, viewModel.getProgramText());
         assertEquals(MessageType.SUCCESS.getCssClassName(), viewModel.getMessageType());
@@ -195,7 +199,11 @@ class MipsViewModelFactoryTest {
         assertEquals(-1, viewModel.getCurrentPc());
 
         assertNotNull(viewModel.getStepResult());
+        assertNotNull(viewModel.getExecutedInstructionView());
+        assertEquals(0, viewModel.getExecutedInstructionView().getPcBefore());
+        assertEquals(1, viewModel.getExecutedInstructionView().getPcAfter());
         assertEquals("addi $t0, $zero, 5", viewModel.getExecutedInstructionText());
+        assertEquals("addi $t0, $zero, 5", viewModel.getExecutedInstructionView().getInstructionText());
 
         assertEquals(1, viewModel.getRegisterDiffs().size());
         assertEquals(32, viewModel.getRegisterValues().size());

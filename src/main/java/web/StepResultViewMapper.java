@@ -91,6 +91,27 @@ public class StepResultViewMapper {
     }
 
     /**
+     * StepResultから実行命令の表示用データを作成する。
+     *
+     * 画面では、実行ステップ番号、実行前後のPC、実行された命令文字列を
+     * まとめて表示するため、専用の表示用データに変換する。
+     *
+     * @param result       1ステップ分の実行結果
+     * @param programLines 行ごとに分割した入力プログラム
+     * @return 実行命令表示用データ
+     */
+    public ExecutedInstructionView createExecutedInstructionView(
+            StepResult result,
+            List<String> programLines) {
+
+        return new ExecutedInstructionView(
+                result.getStep(),
+                result.getPcBefore(),
+                result.getPcAfter(),
+                getExecutedInstructionText(result, programLines));
+    }
+
+    /**
      * StepResultからメモリ変更差分のリストを作成する。
      *
      * 実行前と実行後のメモリ配列を比較し、

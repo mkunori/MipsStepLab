@@ -168,7 +168,7 @@ public class MipsViewModelFactory {
      * @param message                 画面に表示するメッセージ
      * @param messageType             メッセージ種別
      * @param viewData                StepResultから作成したWeb表示用データ
-     * @param executedInstructionText 実行した命令の表示文字列
+     * @param executedInstructionView 実行命令の表示用データ
      * @return ステップ実行結果表示用ViewModel
      */
     public MipsViewModel createStepResultViewModel(
@@ -177,7 +177,7 @@ public class MipsViewModelFactory {
             String message,
             MessageType messageType,
             StepResultViewData viewData,
-            String executedInstructionText) {
+            ExecutedInstructionView executedInstructionView) {
 
         String programText = mipsSession.getProgramText();
         List<String> programLines = mipsSessionService.splitLines(programText);
@@ -197,7 +197,7 @@ public class MipsViewModelFactory {
                 .executedPcs(mipsSession.getExecutedPcs())
                 .breakpoints(mipsSessionService.getBreakpoints(mipsSession))
                 .stepResult(result)
-                .executedInstructionText(executedInstructionText)
+                .executedInstructionView(executedInstructionView)
                 .registerDiffs(viewData.getRegisterDiffs())
                 .registerValues(viewData.getRegisterValues())
                 .hiLoDiffs(viewData.getHiLoDiffs())

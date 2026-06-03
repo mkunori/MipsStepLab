@@ -129,6 +129,29 @@ class StepResultViewMapperTest {
     }
 
     /**
+     * StepResultから実行命令表示用データを作成できることを確認する。
+     */
+    @Test
+    void createExecutedInstructionView_shouldCreateViewData() {
+        String programText = String.join(System.lineSeparator(),
+                "addi $t0, $zero, 5",
+                "addi $t1, $zero, 3");
+
+        WebMipsSession session = service.createSession(programText);
+
+        StepResult result = service.step(session);
+        List<String> programLines = service.splitLines(programText);
+
+        ExecutedInstructionView view = mapper.createExecutedInstructionView(result, programLines);
+
+        assertEquals(1, view.getStep());
+        assertEquals(0, view.getPcBefore());
+        assertEquals(1, view.getPcAfter());
+        assertEquals("addi $t0, $zero, 5", view.getInstructionText());
+        assertTrue(view.hasInstructionText());
+    }
+
+    /**
      * toViewDataで、StepResult由来の表示用データ一式を作成できることを確認する。
      */
     @Test

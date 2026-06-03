@@ -148,7 +148,9 @@ public class HomeController {
 
         StepResultViewData viewData = stepResultViewMapper.toViewData(result);
 
-        String executedInstructionText = stepResultViewMapper.getExecutedInstructionText(result, programLines);
+        ExecutedInstructionView executedInstructionView = stepResultViewMapper.createExecutedInstructionView(
+                result,
+                programLines);
 
         String message = readyToRun
                 ? "実行中: 1ステップ実行しました。"
@@ -165,7 +167,7 @@ public class HomeController {
                 message,
                 messageType,
                 viewData,
-                executedInstructionText);
+                executedInstructionView);
 
         return "mips";
     }
@@ -267,7 +269,7 @@ public class HomeController {
      * @param message                 画面に表示するメッセージ
      * @param messageType             メッセージ種別
      * @param viewData                StepResultから作成したWeb表示用データ
-     * @param executedInstructionText 実行した命令の表示文字列
+     * @param executedInstructionView 実行命令の表示用データ
      */
     private void addStepResultModel(
             Model model,
@@ -276,7 +278,7 @@ public class HomeController {
             String message,
             MessageType messageType,
             StepResultViewData viewData,
-            String executedInstructionText) {
+            ExecutedInstructionView executedInstructionView) {
 
         MipsViewModel viewModel = viewModelFactory.createStepResultViewModel(
                 mipsSession,
@@ -284,7 +286,7 @@ public class HomeController {
                 message,
                 messageType,
                 viewData,
-                executedInstructionText);
+                executedInstructionView);
 
         addViewModel(model, viewModel);
     }
@@ -415,7 +417,9 @@ public class HomeController {
 
         StepResultViewData viewData = stepResultViewMapper.toViewData(result);
 
-        String executedInstructionText = stepResultViewMapper.getExecutedInstructionText(result, programLines);
+        ExecutedInstructionView executedInstructionView = stepResultViewMapper.createExecutedInstructionView(
+                result,
+                programLines);
 
         String message = createRunMessage(runResult);
 
@@ -430,7 +434,7 @@ public class HomeController {
                 message,
                 messageType,
                 viewData,
-                executedInstructionText);
+                executedInstructionView);
 
         model.addAttribute("message", createRunMessage(runResult));
         model.addAttribute("messageType", messageType.getCssClassName());

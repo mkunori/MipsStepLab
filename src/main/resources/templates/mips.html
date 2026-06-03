@@ -76,22 +76,25 @@
                             メッセージがここに表示されます。
                         </p>
 
-                        <div class="step-summary" th:if="${viewModel.stepResult != null}">
+                        <div class="step-summary" th:if="${viewModel.executedInstructionView != null}">
                             <p>
                                 STEP:
-                                <span th:text="${viewModel.stepResult.step}">1</span>
+                                <span th:text="${viewModel.executedInstructionView.step}">1</span>
                             </p>
 
                             <p>
                                 PC:
-                                <span th:text="${viewModel.stepResult.pcBefore}">0</span>
+                                <span th:text="${viewModel.executedInstructionView.pcBefore}">0</span>
                                 →
-                                <span th:text="${viewModel.stepResult.pcAfter}">1</span>
+                                <span th:text="${viewModel.executedInstructionView.pcAfter}">1</span>
                             </p>
 
                             <p>
                                 実行命令:
-                                <span th:text="${viewModel.executedInstructionText}">addi $t0, $zero, 5</span>
+                                <span class="executed-instruction-text"
+                                    th:text="${viewModel.executedInstructionView.instructionText}">
+                                    addi $t0, $zero, 5
+                                </span>
                             </p>
                         </div>
                     </div>

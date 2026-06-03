@@ -199,6 +199,12 @@ td {
     margin: 0;
 }
 
+/* 実行命令はアセンブリらしく等幅フォントで表示する。 */
+.executed-instruction-text {
+    font-family: monospace;
+    font-weight: bold;
+}
+
 /* プログラム一覧の標準リスト記号を消し、一覧内スクロールできるようにする。 */
 .program-list {
     list-style: none;

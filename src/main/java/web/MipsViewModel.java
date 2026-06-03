@@ -51,6 +51,9 @@ public class MipsViewModel {
     /** 実行した命令の表示文字列。 */
     private final String executedInstructionText;
 
+    /** 実行命令の表示用データ。 */
+    private final ExecutedInstructionView executedInstructionView;
+
     /** レジスタ変更差分。 */
     private final List<RegisterDiff> registerDiffs;
 
@@ -87,6 +90,7 @@ public class MipsViewModel {
      * @param breakpoints             ブレークポイント一覧
      * @param stepResult              1ステップ実行結果
      * @param executedInstructionText 実行した命令の表示文字列
+     * @param executedInstructionView 実行命令の表示用データ
      * @param registerDiffs           レジスタ変更差分
      * @param registerValues          レジスタ現在値一覧
      * @param hiLoDiffs               HI/LO変更差分
@@ -108,6 +112,7 @@ public class MipsViewModel {
             Set<Integer> breakpoints,
             StepResult stepResult,
             String executedInstructionText,
+            ExecutedInstructionView executedInstructionView,
             List<RegisterDiff> registerDiffs,
             List<RegisterValue> registerValues,
             List<HiLoDiff> hiLoDiffs,
@@ -128,6 +133,7 @@ public class MipsViewModel {
         this.breakpoints = breakpoints;
         this.stepResult = stepResult;
         this.executedInstructionText = executedInstructionText;
+        this.executedInstructionView = executedInstructionView;
         this.registerDiffs = registerDiffs;
         this.registerValues = registerValues;
         this.hiLoDiffs = hiLoDiffs;
@@ -182,7 +188,19 @@ public class MipsViewModel {
     }
 
     public String getExecutedInstructionText() {
-        return executedInstructionText;
+        if (executedInstructionText != null) {
+            return executedInstructionText;
+        }
+
+        if (executedInstructionView != null) {
+            return executedInstructionView.getInstructionText();
+        }
+
+        return null;
+    }
+
+    public ExecutedInstructionView getExecutedInstructionView() {
+        return executedInstructionView;
     }
 
     public List<RegisterDiff> getRegisterDiffs() {
@@ -254,6 +272,9 @@ public class MipsViewModel {
 
         /** 実行した命令の表示文字列。 */
         private String executedInstructionText;
+
+        /** 実行命令の表示用データ。 */
+        private ExecutedInstructionView executedInstructionView;
 
         /** レジスタ変更差分。 */
         private List<RegisterDiff> registerDiffs = List.of();
@@ -409,6 +430,22 @@ public class MipsViewModel {
         }
 
         /**
+         * 実行命令の表示用データを設定する。
+         *
+         * @param executedInstructionView 実行命令の表示用データ
+         * @return このBuilder
+         */
+        public Builder executedInstructionView(ExecutedInstructionView executedInstructionView) {
+            this.executedInstructionView = executedInstructionView;
+
+            if (executedInstructionView != null) {
+                this.executedInstructionText = executedInstructionView.getInstructionText();
+            }
+
+            return this;
+        }
+
+        /**
          * レジスタ変更差分を設定する。
          *
          * @param registerDiffs レジスタ変更差分
@@ -493,6 +530,7 @@ public class MipsViewModel {
                     breakpoints,
                     stepResult,
                     executedInstructionText,
+                    executedInstructionView,
                     registerDiffs,
                     registerValues,
                     hiLoDiffs,
