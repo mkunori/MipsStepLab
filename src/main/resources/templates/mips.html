@@ -214,7 +214,19 @@
                         </div>
                     </div>
 
-                    <h3>メモリ</h3>
+                    <div class="section-heading-row">
+                        <h3>メモリ</h3>
+                        <div class="display-toggle" aria-label="メモリ表示形式">
+                            <button type="button" class="small-button display-toggle-button active"
+                                data-memory-display-mode="decimal">
+                                10進数
+                            </button>
+                            <button type="button" class="small-button display-toggle-button"
+                                data-memory-display-mode="hex">
+                                16進数
+                            </button>
+                        </div>
+                    </div>
 
                     <table class="memory-table" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
                         <thead>
@@ -235,8 +247,10 @@
                                 <td th:each="col : ${#numbers.sequence(0, 7)}"
                                     th:with="memory=${viewModel.memoryValues[row * 8 + col]}"
                                     th:classappend="${memory.changed} ? ' changed-memory' : ''"
-                                    th:title="'address ' + ${memory.address}">
-                                    <span class="memory-value" th:text="${memory.value}">
+                                    th:title="'address ' + ${memory.address} + ' / ' + ${memory.hexAddress}">
+                                    <span class="memory-value memory-display-number"
+                                        th:attr="data-decimal=${memory.unsignedValue},data-hex=${memory.hexValue}"
+                                        th:text="${memory.unsignedValue}">
                                         0
                                     </span>
                                 </td>
@@ -315,9 +329,27 @@
                         </thead>
                         <tbody>
                             <tr th:each="diff : ${viewModel.memoryDiffs}">
-                                <td th:text="${diff.address}">0</td>
-                                <td th:text="${diff.beforeValue}">0</td>
-                                <td th:text="${diff.afterValue}">5</td>
+                                <td>
+                                    <span class="memory-display-number"
+                                        th:attr="data-decimal=${diff.address},data-hex=${diff.hexAddress}"
+                                        th:text="${diff.address}">
+                                        0
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="memory-display-number"
+                                        th:attr="data-decimal=${diff.unsignedBeforeValue},data-hex=${diff.hexBeforeValue}"
+                                        th:text="${diff.unsignedBeforeValue}">
+                                        0
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="memory-display-number"
+                                        th:attr="data-decimal=${diff.unsignedAfterValue},data-hex=${diff.hexAfterValue}"
+                                        th:text="${diff.unsignedAfterValue}">
+                                        5
+                                    </span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

@@ -5,15 +5,23 @@
  * - フォーム送信後もスクロール位置を維持する
  * - ボタンの多重送信を防ぐ
  * - サンプルプログラムの入力と説明表示を行う
+ * - メモリ表示を10進数 / 16進数で切り替える
  */
 document.addEventListener("DOMContentLoaded", () => {
     restoreScrollPosition();
     setupFormSubmitHandlers();
     setupSampleProgramSelector();
+    setupMemoryDisplayToggle();
 });
 
 /** スクロール位置を保存するためのキー。 */
 const SCROLL_KEY = "mips-scroll-y";
+
+/** メモリ表示形式を保存するためのキー。 */
+const MEMORY_DISPLAY_MODE_KEY = "mips-memory-display-mode";
+
+/** メモリ表示形式の初期値。 */
+const DEFAULT_MEMORY_DISPLAY_MODE = "decimal";
 
 /**
  * 保存されているスクロール位置へ戻す。
@@ -131,6 +139,71 @@ function findSelectedSample(select) {
     }
 
     return sample;
+}
+
+
+
+/**
+ * メモリ表示形式切り替えボタンのイベントを設定する。
+ */
+function setupMemoryDisplayToggle() {
+    const buttons = document.querySelectorAll("[data-memory-display-mode]");
+
+    if (buttons.length === 0) {
+        return;
+    }
+
+    const savedMode = sessionStorage.getItem(MEMORY_DISPLAY_MODE_KEY);
+    const initialMode = isValidMemoryDisplayMode(savedMode)
+        ? savedMode
+        : DEFAULT_MEMORY_DISPLAY_MODE;
+
+    updateMemoryDisplay(initialMode);
+
+    buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const mode = button.dataset.memoryDisplayMode;
+
+            if (!isValidMemoryDisplayMode(mode)) {
+                return;
+            }
+
+            sessionStorage.setItem(MEMORY_DISPLAY_MODE_KEY, mode);
+            updateMemoryDisplay(mode);
+        });
+    });
+}
+
+/**
+ * メモリ表示形式として使える値かを判定する。
+ *
+ * @param {string | null | undefined} mode 表示形式
+ * @returns {boolean} 使える表示形式の場合はtrue
+ */
+function isValidMemoryDisplayMode(mode) {
+    return mode === "decimal" || mode === "hex";
+}
+
+/**
+ * メモリ表示を指定された形式へ切り替える。
+ *
+ * @param {string} mode 表示形式
+ */
+function updateMemoryDisplay(mode) {
+    const numbers = document.querySelectorAll(".memory-display-number");
+    const buttons = document.querySelectorAll("[data-memory-display-mode]");
+
+    numbers.forEach((number) => {
+        const text = mode === "hex" ? number.dataset.hex : number.dataset.decimal;
+
+        if (text !== undefined) {
+            number.textContent = text;
+        }
+    });
+
+    buttons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.memoryDisplayMode === mode);
+    });
 }
 
 /**

@@ -315,6 +315,36 @@ td {
     margin-bottom: 4px;
 }
 
+/* セクション見出しと補助操作を横並びにする。 */
+.section-heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+/* 横並び見出し内のh3余白を調整する。 */
+.section-heading-row h3 {
+    margin: 0;
+}
+
+/* 表示形式切り替えボタンを横並びにする。 */
+.display-toggle {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+/* 選択中の表示形式ボタンを強調する。 */
+.display-toggle-button.active {
+    background-color: #eef5ff;
+    border-color: #9cc5f5;
+    font-weight: bold;
+}
+
 /* レジスタ表とメモリ表を共通の見た目で表示する。 */
 .register-table,
 .memory-table {
