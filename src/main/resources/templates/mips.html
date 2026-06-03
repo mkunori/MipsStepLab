@@ -57,7 +57,7 @@
                                 プログラムを解析
                             </button>
 
-                            <button type="submit" form="programClearForm" class="secondary-button">
+                            <button type="submit" form="programClearForm">
                                 入力欄をクリア
                             </button>
                         </div>
@@ -191,11 +191,9 @@
                                 <td th:each="col : ${#numbers.sequence(0, 7)}"
                                     th:with="register=${viewModel.registerValues[row * 8 + col]}"
                                     th:classappend="${register.changed} ? ' changed-register' : ''">
-                                    <div class="register-table-cell">
-                                        <span class="register-value" th:text="${register.value}">
-                                            0
-                                        </span>
-                                    </div>
+                                    <span class="register-value" th:text="${register.value}">
+                                        0
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
