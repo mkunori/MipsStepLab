@@ -103,6 +103,10 @@ class StepResultViewMapperTest {
 
         List<MemoryValue> values = mapper.createMemoryValues(result);
 
+        assertEquals(96, values.size());
+        assertEquals(0, values.get(0).getAddress());
+        assertEquals(95, values.get(95).getAddress());
+
         boolean existsChangedMemory = values.stream()
                 .anyMatch(MemoryValue::isChanged);
 
@@ -166,6 +170,6 @@ class StepResultViewMapperTest {
         assertEquals(1, viewData.getRegisterDiffs().size());
         assertEquals(32, viewData.getRegisterValues().size());
         assertEquals(2, viewData.getHiLoValues().size());
-        assertFalse(viewData.getMemoryValues().isEmpty());
+        assertEquals(96, viewData.getMemoryValues().size());
     }
 }

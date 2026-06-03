@@ -493,7 +493,7 @@ class HomeControllerTest {
         assertTrue(viewModel.getHiLoValues().stream()
                 .allMatch(hiLo -> hiLo.getValue() == 0 && !hiLo.isChanged()));
 
-        assertEquals(32, viewModel.getMemoryValues().size());
+        assertEquals(96, viewModel.getMemoryValues().size());
         assertTrue(viewModel.getMemoryValues().stream()
                 .allMatch(memory -> memory.getValue() == 0 && !memory.isChanged()));
     }

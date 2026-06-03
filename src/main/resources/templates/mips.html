@@ -232,6 +232,24 @@
                         </div>
                     </div>
 
+                    <div class="memory-range-row" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
+                        <span class="memory-range-label">表示範囲:</span>
+                        <div class="display-toggle" aria-label="メモリ表示範囲">
+                            <button type="button" class="small-button display-toggle-button active"
+                                data-memory-range-start="0">
+                                0〜31
+                            </button>
+                            <button type="button" class="small-button display-toggle-button"
+                                data-memory-range-start="32">
+                                32〜63
+                            </button>
+                            <button type="button" class="small-button display-toggle-button"
+                                data-memory-range-start="64">
+                                64〜95
+                            </button>
+                        </div>
+                    </div>
+
                     <table class="memory-table" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
                         <thead>
                             <tr>
@@ -246,7 +264,8 @@
                         </thead>
 
                         <tbody>
-                            <tr th:each="row : ${#numbers.sequence(0, 3)}">
+                            <tr th:each="row : ${#numbers.sequence(0, 11)}" class="memory-range-row-item"
+                                th:attr="data-memory-range-start=${row < 4 ? 0 : (row < 8 ? 32 : 64)}">
                                 <th>
                                     <span class="memory-address-label" data-memory-address-role="row"
                                         th:attr="data-address=${row * 8}" th:text="'+' + ${row * 8}">

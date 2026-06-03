@@ -20,7 +20,7 @@ import execution.StepResult;
 public class StepResultViewMapper {
 
     /** Web画面に表示するメモリの先頭バイト数。 */
-    private static final int MEMORY_DISPLAY_SIZE = 32;
+    private static final int MEMORY_DISPLAY_SIZE = 96;
 
     /**
      * StepResultからレジスタ変更差分のリストを作成する。

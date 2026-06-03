@@ -7,6 +7,7 @@
  * - サンプルプログラムの入力と説明表示を行う
  * - メモリ表示を10進数 / 16進数で切り替える
  * - メモリアドレス見出しを10進数 / 16進数で切り替える
+ * - メモリ表示範囲を切り替える
  * - 現在PC行がプログラム一覧内で見える位置へ自動スクロールする
  */
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupFormSubmitHandlers();
     setupSampleProgramSelector();
     setupMemoryDisplayToggle();
+    setupMemoryRangeSelector();
     scrollCurrentInstructionIntoView();
 });
 
@@ -25,6 +27,12 @@ const MEMORY_DISPLAY_MODE_KEY = "mips-memory-display-mode";
 
 /** メモリ表示形式の初期値。 */
 const DEFAULT_MEMORY_DISPLAY_MODE = "decimal";
+
+/** メモリ表示範囲を保存するためのキー。 */
+const MEMORY_RANGE_START_KEY = "mips-memory-range-start";
+
+/** メモリ表示範囲の初期値。 */
+const DEFAULT_MEMORY_RANGE_START = 0;
 
 /**
  * 保存されているスクロール位置へ戻す。
@@ -249,6 +257,68 @@ function createMemoryAddressLabel(address, role, mode) {
     }
 
     return `+${address}`;
+}
+
+/**
+ * メモリ表示範囲切り替えボタンのイベントを設定する。
+ */
+function setupMemoryRangeSelector() {
+    const buttons = document.querySelectorAll("[data-memory-range-start]");
+
+    if (buttons.length === 0) {
+        return;
+    }
+
+    const savedRangeStart = Number(sessionStorage.getItem(MEMORY_RANGE_START_KEY));
+    const initialRangeStart = isValidMemoryRangeStart(savedRangeStart)
+        ? savedRangeStart
+        : DEFAULT_MEMORY_RANGE_START;
+
+    updateMemoryRange(initialRangeStart);
+
+    buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const rangeStart = Number(button.dataset.memoryRangeStart);
+
+            if (!isValidMemoryRangeStart(rangeStart)) {
+                return;
+            }
+
+            sessionStorage.setItem(MEMORY_RANGE_START_KEY, String(rangeStart));
+            updateMemoryRange(rangeStart);
+        });
+    });
+}
+
+/**
+ * メモリ表示範囲として使える開始アドレスかを判定する。
+ *
+ * @param {number} rangeStart 表示範囲の開始アドレス
+ * @returns {boolean} 使える開始アドレスの場合はtrue
+ */
+function isValidMemoryRangeStart(rangeStart) {
+    return rangeStart === 0 || rangeStart === 32 || rangeStart === 64;
+}
+
+/**
+ * メモリ表に表示する範囲を切り替える。
+ *
+ * @param {number} rangeStart 表示範囲の開始アドレス
+ */
+function updateMemoryRange(rangeStart) {
+    const rows = document.querySelectorAll(".memory-range-row-item");
+    const buttons = document.querySelectorAll("[data-memory-range-start]");
+
+    rows.forEach((row) => {
+        const rowRangeStart = Number(row.dataset.memoryRangeStart);
+
+        row.hidden = rowRangeStart !== rangeStart;
+    });
+
+    buttons.forEach((button) => {
+        const buttonRangeStart = Number(button.dataset.memoryRangeStart);
+        button.classList.toggle("active", buttonRangeStart === rangeStart);
+    });
 }
 
 /**

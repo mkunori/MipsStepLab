@@ -559,7 +559,7 @@ class MipsViewModelFactoryTest {
         assertTrue(viewModel.getProgramLineViews().isEmpty());
         assertEquals(32, viewModel.getRegisterValues().size());
         assertEquals(2, viewModel.getHiLoValues().size());
-        assertEquals(32, viewModel.getMemoryValues().size());
+        assertEquals(96, viewModel.getMemoryValues().size());
     }
 
 }

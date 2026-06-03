@@ -19,6 +19,9 @@ import execution.StepResult;
 @Component
 public class MipsViewModelFactory {
 
+    /** Web画面に表示するメモリの先頭バイト数。 */
+    private static final int MEMORY_DISPLAY_SIZE = 96;
+
     /** Web版MipsStepLabの実行状態を扱うService。 */
     private final WebMipsSessionService mipsSessionService;
 
@@ -241,7 +244,7 @@ public class MipsViewModelFactory {
     private List<MemoryValue> createInitialMemoryValues() {
         List<MemoryValue> values = new ArrayList<>();
 
-        for (int address = 0; address < 32; address++) {
+        for (int address = 0; address < MEMORY_DISPLAY_SIZE; address++) {
             values.add(new MemoryValue(address, (byte) 0, false));
         }
 
@@ -284,7 +287,7 @@ public class MipsViewModelFactory {
      * 現在のCPU状態から、メモリ現在値一覧を作成する。
      *
      * Cpu#copyMemory()でメモリ内容のコピーを取得し、
-     * Web画面で表示する先頭32バイト分だけMemoryValueに変換する。
+     * Web画面で表示する先頭一定バイト分だけMemoryValueに変換する。
      *
      * @param mipsSession Web版の実行状態
      * @return メモリ現在値一覧
@@ -293,7 +296,7 @@ public class MipsViewModelFactory {
         byte[] memory = mipsSession.getCpu().copyMemory();
         List<MemoryValue> values = new ArrayList<>();
 
-        int displaySize = Math.min(32, memory.length);
+        int displaySize = Math.min(MEMORY_DISPLAY_SIZE, memory.length);
 
         for (int address = 0; address < displaySize; address++) {
             values.add(new MemoryValue(address, memory[address], false));
