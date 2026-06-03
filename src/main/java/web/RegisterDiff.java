@@ -1,5 +1,7 @@
 package web;
 
+import cpu.RegisterNames;
+
 /**
  * レジスタの変更差分を表すクラス。
  *
@@ -28,6 +30,8 @@ public class RegisterDiff {
      * @param afterValue     実行後の値
      */
     public RegisterDiff(int registerNumber, int beforeValue, int afterValue) {
+        RegisterNames.validateRegisterIndex(registerNumber);
+
         this.registerNumber = registerNumber;
         this.beforeValue = beforeValue;
         this.afterValue = afterValue;
@@ -40,6 +44,15 @@ public class RegisterDiff {
      */
     public int getRegisterNumber() {
         return registerNumber;
+    }
+
+    /**
+     * レジスタの別名を返す。
+     *
+     * @return レジスタの別名
+     */
+    public String getRegisterName() {
+        return RegisterNames.getName(registerNumber);
     }
 
     /**

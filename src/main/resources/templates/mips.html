@@ -194,7 +194,8 @@
 
                                 <td th:each="col : ${#numbers.sequence(0, 7)}"
                                     th:with="register=${viewModel.registerValues[row * 8 + col]}"
-                                    th:classappend="${register.changed} ? ' changed-register' : ''">
+                                    th:classappend="${register.changed} ? ' changed-register' : ''"
+                                    th:title="'R' + ${register.registerNumber} + ' / ' + ${register.registerName}">
                                     <span class="register-value" th:text="${register.value}">
                                         0
                                     </span>
@@ -268,7 +269,7 @@
                         </thead>
                         <tbody>
                             <tr th:each="diff : ${viewModel.registerDiffs}">
-                                <td th:text="'R' + ${diff.registerNumber}">R8</td>
+                                <td th:text="'R' + ${diff.registerNumber} + ' / ' + ${diff.registerName}">R8 / $t0</td>
                                 <td th:text="${diff.beforeValue}">0</td>
                                 <td th:text="${diff.afterValue}">5</td>
                             </tr>

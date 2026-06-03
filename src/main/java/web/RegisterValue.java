@@ -1,5 +1,7 @@
 package web;
 
+import cpu.RegisterNames;
+
 /**
  * レジスタの現在値を表すクラス。
  *
@@ -25,6 +27,8 @@ public class RegisterValue {
      * @param changed        このステップで値が変化した場合はtrue
      */
     public RegisterValue(int registerNumber, int value, boolean changed) {
+        RegisterNames.validateRegisterIndex(registerNumber);
+
         this.registerNumber = registerNumber;
         this.value = value;
         this.changed = changed;
@@ -37,6 +41,15 @@ public class RegisterValue {
      */
     public int getRegisterNumber() {
         return registerNumber;
+    }
+
+    /**
+     * レジスタの別名を返す。
+     *
+     * @return レジスタの別名
+     */
+    public String getRegisterName() {
+        return RegisterNames.getName(registerNumber);
     }
 
     /**
