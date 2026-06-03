@@ -18,10 +18,10 @@ h3 {
     margin-top: 0;
 }
 
-/* プログラム入力欄を見やすく表示する。 */
+/* プログラム入力欄を左カラム内に収める。 */
 textarea {
     width: 100%;
-    max-width: 900px;
+    max-width: 100%;
     padding: 8px;
     font-family: monospace;
 }
@@ -46,13 +46,6 @@ td {
     border: 1px solid #ccc;
 }
 
-/* すでに実行済みの命令を控えめに表示する。 */
-.executed-instruction {
-    color: #777;
-    background-color: #f5f5f5;
-    opacity: 0.75;
-}
-
 /* アプリ全体の表示幅と余白を整える。 */
 .app-container {
     max-width: 1280px;
@@ -73,187 +66,6 @@ td {
     align-items: start;
 }
 
-/* 画面内の各機能ブロックをカード風に表示する。 */
-.panel {
-    margin-bottom: 20px;
-    padding: 16px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
-}
-
-/* プログラム一覧の標準リスト記号を消す。 */
-.program-list {
-    list-style: none;
-    padding-left: 0;
-    font-family: monospace;
-}
-
-/* プログラム一覧の各命令行を横並びで整える。 */
-.program-list li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 8px;
-    margin-bottom: 4px;
-    margin-top: 8px;
-}
-
-/* 操作ボタンを横並びに表示する。 */
-.button-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-/* レジスタ名を少し強調する。 */
-.register-name {
-    font-weight: bold;
-}
-
-/* レジスタ値を右寄せで見やすくする。 */
-.register-value {
-    text-align: right;
-}
-
-/* ブレークポイントの目印を強調表示する。 */
-.breakpoint-mark {
-    color: #c0392b;
-    font-weight: bold;
-}
-
-/* 入力制限などの補足説明を控えめに表示する。 */
-.input-help {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-/* 操作結果メッセージを見やすく表示する。 */
-.message {
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-bottom: 12px;
-}
-
-/* 成功メッセージを表示する。 */
-.message.success {
-    background-color: #e9f7ef;
-    border: 1px solid #8fd19e;
-}
-
-/* エラーメッセージを表示する。 */
-.message.error {
-    background-color: #fdecea;
-    border: 1px solid #f5a6a6;
-}
-
-/* 警告メッセージを表示する。 */
-.message.warning {
-    background-color: #fff8e1;
-    border: 1px solid #f0d98c;
-}
-
-/* 通常の情報メッセージを表示する。 */
-.message.info {
-    background-color: #eef5ff;
-    border: 1px solid #9cc5f5;
-}
-
-/* メモリ値を見やすく表示する。 */
-.memory-value {
-    font-weight: bold;
-    text-align: right;
-}
-
-/* 今回のステップで変更されたレジスタを強調表示する。 */
-.register-table td.changed-register {
-    background-color: #fff3cd;
-    border-color: #f0ad4e;
-    font-weight: bold;
-}
-
-/* 今回のステップで変更されたHI/LOを強調表示する。 */
-.changed-hilo td {
-    background-color: #fff3cd;
-    border-color: #f0ad4e;
-    font-weight: bold;
-}
-
-/* ブレークポイントが設定された命令行を強調表示する。 */
-.breakpoint-instruction {
-    background-color: #fdecea;
-    border-left: 4px solid #c0392b;
-    padding-left: 8px;
-}
-
-
-/* 次に実行される命令を強調表示する。 */
-.current-instruction {
-    font-weight: bold;
-    background-color: #fff3cd;
-    border-left: 4px solid #f0ad4e;
-    padding-left: 8px;
-}
-
-/* 次に実行される命令がブレークポイントでもある場合、より強く表示する。 */
-.current-instruction.breakpoint-instruction {
-    background-color: #fff0f0;
-    border-left: 4px solid #c0392b;
-    font-weight: bold;
-}
-
-/* PC番号を固定幅で表示する。 */
-.pc-label {
-    width: 56px;
-    color: #555;
-    font-weight: bold;
-    flex-shrink: 0;
-}
-
-/* 命令文字列が長い場合でも画面外にはみ出しにくくする。 */
-.instruction-text {
-    flex: 1;
-    overflow-wrap: anywhere;
-}
-
-/* 行内フォームを固定幅で表示する。 */
-.inline-form {
-    width: 48px;
-    margin: 0;
-    flex-shrink: 0;
-}
-
-/* 命令行の中で使う小さめのボタンを表示する。 */
-.small-button {
-    margin-top: 0;
-    padding: 2px 6px;
-    font-size: 0.85rem;
-    min-width: 40px;
-}
-
-/* ブレークポイント表示用の固定幅エリアを確保する。 */
-.breakpoint-area {
-    width: 56px;
-    flex-shrink: 0;
-}
-
-/* 命令行の状態表示欄を固定幅で確保する。 */
-.instruction-status {
-    width: 72px;
-    flex-shrink: 0;
-    color: #555;
-    font-size: 0.9rem;
-    font-weight: bold;
-}
-
-/* 画面幅が狭い場合は1カラムに戻す。 */
-@media (max-width: 900px) {
-    .layout-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 /* 左側カラムには入力欄・操作ボタン・プログラム一覧を配置する。 */
 .left-column {
     min-width: 0;
@@ -264,208 +76,26 @@ td {
     min-width: 0;
 }
 
-/* プログラム入力欄を左カラム内に収める。 */
-textarea {
-    width: 100%;
-    max-width: 100%;
-    padding: 8px;
-    font-family: monospace;
+/* 画面内の各機能ブロックをカード風に表示する。 */
+.panel {
+    margin-bottom: 20px;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
 }
 
-/* まだ表示する実行結果がない場合の案内文を控えめに表示する。 */
-.empty-message {
+/* 画面幅が狭い場合は1カラムに戻す。 */
+@media (max-width: 900px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 入力制限などの補足説明を控えめに表示する。 */
+.input-help {
     color: #666;
-    background-color: #f5f5f5;
-    border: 1px dashed #ccc;
-    border-radius: 6px;
-    padding: 12px;
-}
-
-/* メッセージ欄の中に表示するステップ実行結果を横並びにする。 */
-.step-summary {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px solid #ccc;
-}
-
-/* ステップ実行結果の各項目の余白を詰める。 */
-.step-summary p {
-    margin: 0;
-}
-
-/* CPU状態内ではレジスタ一覧を8列にして縦幅を抑える。 */
-.cpu-panel .register-grid {
-    grid-template-columns: repeat(8, 1fr);
-    gap: 4px;
-}
-
-/* CPU状態内のレジスタセルをコンパクトに表示する。 */
-.cpu-panel .register-cell {
-    padding: 3px 5px;
-    font-size: 0.85rem;
-}
-
-/* HI/LOを横並びの小さなカードで表示する。 */
-.hilo-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
-    margin-top: 4px;
-}
-
-/* HI/LOの1項目をコンパクトに表示する。 */
-.hilo-cell {
-    display: flex;
-    justify-content: space-between;
-    padding: 3px 5px;
-    border: 1px solid #ccc;
-    background-color: #fafafa;
-    font-family: monospace;
-    font-size: 0.85rem;
-}
-
-/* HI/LO名を強調する。 */
-.hilo-name {
-    font-weight: bold;
-}
-
-/* HI/LO値を右寄せする。 */
-.hilo-value {
-    text-align: right;
-}
-
-/* 今回のステップで変更されたHI/LOを強調表示する。 */
-.changed-hilo-cell {
-    background-color: #fff3cd;
-    border-color: #f0ad4e;
-    font-weight: bold;
-}
-
-/* CPU状態内ではメモリ一覧を16列にして一覧性を高める。 */
-.cpu-panel .memory-grid {
-    grid-template-columns: repeat(16, 1fr);
-    gap: 4px;
-}
-
-/* メモリセルをコンパクトに表示する。 */
-.cpu-panel .memory-cell {
-    padding: 3px 4px;
-    font-size: 0.8rem;
-}
-
-/* CPU状態パネル内の余白を少し詰める。 */
-.cpu-panel h3 {
-    margin-top: 12px;
-    margin-bottom: 4px;
-}
-
-/* CPU状態パネル内の各グリッドの上余白を控えめにする。 */
-.cpu-panel .register-grid,
-.cpu-panel .hilo-grid,
-.cpu-panel .memory-grid {
-    margin-top: 4px;
-}
-
-/* 今回の変更パネル内の余白を少し詰める。 */
-.diff-panel h3 {
-    margin-top: 12px;
-    margin-bottom: 4px;
-}
-
-/* 今回の変更パネル内の表をコンパクトに表示する。 */
-.diff-panel table {
-    margin-top: 4px;
-    font-size: 0.85rem;
-}
-
-/* 今回の変更パネル内のセル余白を小さくする。 */
-.diff-panel th,
-.diff-panel td {
-    padding: 2px 6px;
-}
-
-/* 変更なしメッセージを控えめに表示する。 */
-.diff-panel p {
-    margin: 4px 0;
-}
-
-/* 表示ルールの補足説明を控えめに表示する。 */
-.display-note {
-    color: #666;
-    font-size: 0.85rem;
-    margin: 4px 0 8px;
-}
-
-/* レジスタ一覧を8列×4行の表で表示する。 */
-.register-table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-    margin-top: 4px;
-    font-family: monospace;
-    font-size: 0.85rem;
-}
-
-/* レジスタ表の見出しとセルをコンパクトに表示する。 */
-.register-table th,
-.register-table td {
-    padding: 3px 4px;
-    border: 1px solid #ccc;
-    text-align: center;
-    vertical-align: middle;
-}
-
-/* レジスタ表の見出しを控えめに強調する。 */
-.register-table th {
-    background-color: #f5f5f5;
-    font-weight: bold;
-}
-
-/* レジスタ値を見やすく表示する。 */
-.register-table .register-value {
-    font-weight: bold;
-    text-align: center;
-}
-
-/* メモリ一覧を8列×4行の表で表示する。 */
-.memory-table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-    margin-top: 4px;
-    font-family: monospace;
-    font-size: 0.85rem;
-}
-
-/* メモリ表の見出しとセルをコンパクトに表示する。 */
-.memory-table th,
-.memory-table td {
-    padding: 3px 4px;
-    border: 1px solid #ccc;
-    text-align: center;
-    vertical-align: middle;
-}
-
-/* メモリ表の見出しを控えめに強調する。 */
-.memory-table th {
-    background-color: #f5f5f5;
-    font-weight: bold;
-}
-
-/* メモリ値を見やすく表示する。 */
-.memory-table .memory-value {
-    font-weight: bold;
-    text-align: center;
-}
-
-/* 今回のステップで変更されたメモリセルを強調表示する。 */
-.memory-table td.changed-memory {
-    background-color: #fff3cd;
-    border-color: #f0ad4e;
-    font-weight: bold;
+    font-size: 0.9rem;
 }
 
 /* サンプルプログラム選択欄を横並びで表示する。 */
@@ -505,9 +135,281 @@ textarea {
     margin-top: 0;
 }
 
+/* 操作ボタンを横並びに表示する。 */
+.button-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* 操作結果メッセージを見やすく表示する。 */
+.message {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+/* 成功メッセージを表示する。 */
+.message.success {
+    background-color: #e9f7ef;
+    border: 1px solid #8fd19e;
+}
+
+/* エラーメッセージを表示する。 */
+.message.error {
+    background-color: #fdecea;
+    border: 1px solid #f5a6a6;
+}
+
+/* 警告メッセージを表示する。 */
+.message.warning {
+    background-color: #fff8e1;
+    border: 1px solid #f0d98c;
+}
+
+/* 通常の情報メッセージを表示する。 */
+.message.info {
+    background-color: #eef5ff;
+    border: 1px solid #9cc5f5;
+}
+
+/* メッセージ欄の中に表示するステップ実行結果を横並びにする。 */
+.step-summary {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #ccc;
+}
+
+/* ステップ実行結果の各項目の余白を詰める。 */
+.step-summary p {
+    margin: 0;
+}
+
+/* プログラム一覧の標準リスト記号を消す。 */
+.program-list {
+    list-style: none;
+    padding-left: 0;
+    font-family: monospace;
+}
+
+/* プログラム一覧の各行を横並びで整える。 */
+.program-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+/* すでに実行済みの命令を控えめに表示する。 */
+.executed-instruction {
+    color: #777;
+    background-color: #f5f5f5;
+    opacity: 0.75;
+}
+
+/* ブレークポイントが設定された命令行を強調表示する。 */
+.breakpoint-instruction {
+    background-color: #fdecea;
+    border-left: 4px solid #c0392b;
+    padding-left: 8px;
+}
+
+/* 次に実行される命令を強調表示する。 */
+.current-instruction {
+    font-weight: bold;
+    background-color: #fff3cd;
+    border-left: 4px solid #f0ad4e;
+    padding-left: 8px;
+}
+
+/* 次に実行される命令がブレークポイントでもある場合、より強く表示する。 */
+.current-instruction.breakpoint-instruction {
+    background-color: #fff0f0;
+    border-left: 4px solid #c0392b;
+    font-weight: bold;
+}
+
 /* ラベル行を命令行より控えめに表示する。 */
 .label-line {
     color: #555;
     font-weight: bold;
     font-style: italic;
+}
+
+/* PC番号を固定幅で表示する。 */
+.pc-label {
+    width: 56px;
+    color: #555;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* 行内フォームを固定幅で表示する。 */
+.inline-form {
+    width: 48px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* 命令行の中で使う小さめのボタンを表示する。 */
+.small-button {
+    margin-top: 0;
+    padding: 2px 6px;
+    font-size: 0.85rem;
+    min-width: 40px;
+}
+
+/* ブレークポイント表示用の固定幅エリアを確保する。 */
+.breakpoint-area {
+    width: 56px;
+    flex-shrink: 0;
+}
+
+/* ブレークポイントの目印を強調表示する。 */
+.breakpoint-mark {
+    color: #c0392b;
+    font-weight: bold;
+}
+
+/* 命令文字列が長い場合でも画面外にはみ出しにくくする。 */
+.instruction-text {
+    flex: 1;
+    overflow-wrap: anywhere;
+}
+
+/* 命令行の状態表示欄を固定幅で確保する。 */
+.instruction-status {
+    width: 72px;
+    flex-shrink: 0;
+    color: #555;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+/* 表示ルールの補足説明を控えめに表示する。 */
+.display-note {
+    color: #666;
+    font-size: 0.85rem;
+    margin: 4px 0 8px;
+}
+
+/* CPU状態パネル内の余白を少し詰める。 */
+.cpu-panel h3 {
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+/* レジスタ表とメモリ表を共通の見た目で表示する。 */
+.register-table,
+.memory-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin-top: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+/* レジスタ表とメモリ表のセルをコンパクトに表示する。 */
+.register-table th,
+.register-table td,
+.memory-table th,
+.memory-table td {
+    padding: 3px 4px;
+    border: 1px solid #ccc;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* レジスタ表とメモリ表の見出しを控えめに強調する。 */
+.register-table th,
+.memory-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+/* レジスタ値とメモリ値を見やすく表示する。 */
+.register-table .register-value,
+.memory-table .memory-value {
+    font-weight: bold;
+    text-align: center;
+}
+
+/* 今回のステップで変更されたレジスタを強調表示する。 */
+.register-table td.changed-register {
+    background-color: #fff3cd;
+    border-color: #f0ad4e;
+    font-weight: bold;
+}
+
+/* 今回のステップで変更されたメモリセルを強調表示する。 */
+.memory-table td.changed-memory {
+    background-color: #fff3cd;
+    border-color: #f0ad4e;
+    font-weight: bold;
+}
+
+/* HI/LOを横並びの小さなカードで表示する。 */
+.hilo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    margin-top: 4px;
+}
+
+/* HI/LOの1項目をコンパクトに表示する。 */
+.hilo-cell {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 5px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+/* HI/LO名を強調する。 */
+.hilo-name {
+    font-weight: bold;
+}
+
+/* HI/LO値を右寄せする。 */
+.hilo-value {
+    text-align: right;
+}
+
+/* 今回のステップで変更されたHI/LOを強調表示する。 */
+.changed-hilo-cell {
+    background-color: #fff3cd;
+    border-color: #f0ad4e;
+    font-weight: bold;
+}
+
+/* 最後の命令による変化パネル内の余白を少し詰める。 */
+.diff-panel h3 {
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+/* 最後の命令による変化パネル内の表をコンパクトに表示する。 */
+.diff-panel table {
+    margin-top: 4px;
+    font-size: 0.85rem;
+}
+
+/* 最後の命令による変化パネル内のセル余白を小さくする。 */
+.diff-panel th,
+.diff-panel td {
+    padding: 2px 6px;
+}
+
+/* 変更なしメッセージを控えめに表示する。 */
+.diff-panel p {
+    margin: 4px 0;
 }
