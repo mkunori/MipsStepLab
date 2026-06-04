@@ -60,17 +60,17 @@
                         </p>
                     </form>
 
-                    <form id="programClearForm" method="post" th:action="@{/clear}">
-                        <div class="program-action-row">
-                            <button type="submit" form="programParseForm">
-                                プログラムを解析
-                            </button>
+                    <form id="programClearForm" method="post" th:action="@{/clear}"></form>
 
-                            <button type="submit" form="programClearForm">
-                                入力欄をクリア
-                            </button>
-                        </div>
-                    </form>
+                    <div class="program-action-row">
+                        <button type="submit" form="programParseForm">
+                            プログラムを解析
+                        </button>
+
+                        <button type="submit" form="programClearForm">
+                            入力欄をクリア
+                        </button>
+                    </div>
                 </section>
 
                 <section class="panel">
