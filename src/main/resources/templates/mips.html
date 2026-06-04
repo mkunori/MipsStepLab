@@ -250,13 +250,20 @@
                         </div>
                     </div>
 
+                    <p class="memory-word-note" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
+                        太い縦線は4バイトごとの区切りです。
+                    </p>
+
                     <table class="memory-table" th:if="${!#lists.isEmpty(viewModel.memoryValues)}">
                         <thead>
                             <tr>
                                 <th>addr</th>
-                                <th th:each="col : ${#numbers.sequence(0, 7)}">
-                                    <span class="memory-address-label" data-memory-address-role="column"
-                                        th:attr="data-address=${col}" th:text="'+' + ${col}">
+                                <th th:each="col : ${#numbers.sequence(0, 7)}"
+                                    th:classappend="${col == 3} ? ' memory-word-boundary' : ''">
+                                    <span class="memory-address-label"
+                                        data-memory-address-role="column"
+                                        th:attr="data-address=${col}"
+                                        th:text="'+' + ${col}">
                                         +0
                                     </span>
                                 </th>
@@ -264,18 +271,21 @@
                         </thead>
 
                         <tbody>
-                            <tr th:each="row : ${#numbers.sequence(0, 11)}" class="memory-range-row-item"
+                            <tr th:each="row : ${#numbers.sequence(0, 11)}"
+                                class="memory-range-row-item"
                                 th:attr="data-memory-range-start=${row < 4 ? 0 : (row < 8 ? 32 : 64)}">
                                 <th>
-                                    <span class="memory-address-label" data-memory-address-role="row"
-                                        th:attr="data-address=${row * 8}" th:text="'+' + ${row * 8}">
+                                    <span class="memory-address-label"
+                                        data-memory-address-role="row"
+                                        th:attr="data-address=${row * 8}"
+                                        th:text="'+' + ${row * 8}">
                                         +0
                                     </span>
                                 </th>
 
                                 <td th:each="col : ${#numbers.sequence(0, 7)}"
                                     th:with="memory=${viewModel.memoryValues[row * 8 + col]}"
-                                    th:classappend="${memory.changed} ? ' changed-memory' : ''"
+                                    th:classappend="(${memory.changed} ? ' changed-memory' : '') + (${col == 3} ? ' memory-word-boundary' : '')"
                                     th:title="'address ' + ${memory.address} + ' / ' + ${memory.hexAddress}">
                                     <span class="memory-value memory-display-number"
                                         th:attr="data-decimal=${memory.unsignedValue},data-hex=${memory.hexValue}"

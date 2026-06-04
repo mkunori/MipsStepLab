@@ -400,6 +400,18 @@ td {
     font-size: 0.9rem;
 }
 
+/* メモリ表の4バイト区切りの説明を控えめに表示する。 */
+.memory-word-note {
+    margin: 0 0 6px;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* メモリ表で4バイトごとの境界を少し太く表示する。 */
+.memory-table th.memory-word-boundary,
+.memory-table td.memory-word-boundary {
+    border-right: 2px solid #888;
+}
 
 /* レジスタ表とメモリ表を共通の見た目で表示する。 */
 .register-table,
