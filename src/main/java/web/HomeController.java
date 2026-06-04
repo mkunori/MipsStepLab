@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import execution.StepResult;
 import jakarta.servlet.http.HttpSession;
@@ -18,6 +19,9 @@ import jakarta.servlet.http.HttpSession;
  */
 @Controller
 public class HomeController {
+
+    /** POST後に戻るMipsStepLab画面のパス。 */
+    private static final String REDIRECT_MIPS = "redirect:/mips";
 
     /** 画面に初期表示するサンプルプログラム。 */
     private static final String DEFAULT_PROGRAM = String.join(System.lineSeparator(),
@@ -54,6 +58,7 @@ public class HomeController {
     /**
      * MipsStepLab Web版のトップ画面を表示する。
      *
+     * POST後のリダイレクトでViewModelが渡されている場合は、そのViewModelを表示する。
      * 初回表示時は、サンプルプログラムを入力欄に表示する。
      *
      * @param model HTMLテンプレートへデータを渡すための入れ物
@@ -61,7 +66,9 @@ public class HomeController {
      */
     @GetMapping("/mips")
     public String home(Model model) {
-        addInitialModel(model);
+        if (!model.containsAttribute("viewModel")) {
+            addInitialModel(model);
+        }
 
         return "mips";
     }
@@ -72,13 +79,17 @@ public class HomeController {
      * パースに成功した場合は、CpuとStepRunnerを作成し、
      * WebMipsSessionとしてHTTPセッションに保存する。
      *
-     * @param programText textareaから送信されたプログラム文字列
-     * @param model       HTMLテンプレートへデータを渡すための入れ物
-     * @param session     ブラウザ利用者ごとの状態を保存するHTTPセッション
-     * @return 表示するテンプレート名
+     * @param programText        textareaから送信されたプログラム文字列
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return リダイレクト先
      */
     @PostMapping("/mips")
-    public String submitProgram(String programText, Model model, HttpSession session) {
+    public String submitProgram(
+            String programText,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+
         List<String> programLines = mipsSessionService.splitLines(programText);
 
         try {
@@ -95,8 +106,8 @@ public class HomeController {
                     ? "パース成功: " + mipsSessionService.getInstructionCount(mipsSession) + " 命令"
                     : "パース成功しましたが、実行できる命令がありません。";
 
-            addParsedModel(
-                    model,
+            addParsedFlashModel(
+                    redirectAttributes,
                     programText,
                     programLines,
                     message,
@@ -107,8 +118,8 @@ public class HomeController {
         } catch (IllegalArgumentException e) {
             session.removeAttribute("mipsSession");
 
-            addParsedModel(
-                    model,
+            addParsedFlashModel(
+                    redirectAttributes,
                     programText,
                     programLines,
                     "入力エラー: " + e.getMessage(),
@@ -118,7 +129,7 @@ public class HomeController {
                     false);
         }
 
-        return "mips";
+        return REDIRECT_MIPS;
     }
 
     /**
@@ -127,18 +138,18 @@ public class HomeController {
      * HttpSessionに保存してあるWebMipsSessionを取り出し、
      * StepRunnerを使って1ステップだけ進める。
      *
-     * @param model   HTMLテンプレートへデータを渡すための入れ物
-     * @param session ブラウザ利用者ごとの状態を保存するHTTPセッション
-     * @return 表示するテンプレート名
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return リダイレクト先
      */
     @PostMapping("/mips/step")
-    public String step(Model model, HttpSession session) {
+    public String step(RedirectAttributes redirectAttributes, HttpSession session) {
         WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
 
         if (mipsSession == null) {
-            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
+            addNoSessionFlashModel(redirectAttributes, "実行状態がありません。先にプログラムを解析してください。");
 
-            return "mips";
+            return REDIRECT_MIPS;
         }
 
         StepResult result = mipsSessionService.step(mipsSession);
@@ -160,8 +171,8 @@ public class HomeController {
                 ? MessageType.INFO
                 : MessageType.SUCCESS;
 
-        addStepResultModel(
-                model,
+        addStepResultFlashModel(
+                redirectAttributes,
                 mipsSession,
                 result,
                 message,
@@ -169,7 +180,7 @@ public class HomeController {
                 viewData,
                 executedInstructionView);
 
-        return "mips";
+        return REDIRECT_MIPS;
     }
 
     /**
@@ -178,29 +189,219 @@ public class HomeController {
      * 入力されたプログラム文字列はそのまま使い、
      * CpuとStepRunnerだけを新しく作り直す。
      *
-     * @param model   HTMLテンプレートへデータを渡すための入れ物
-     * @param session ブラウザ利用者ごとの状態を保存するHTTPセッション
-     * @return 表示するテンプレート名
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return リダイレクト先
      */
     @PostMapping("/mips/reset")
-    public String reset(Model model, HttpSession session) {
+    public String reset(RedirectAttributes redirectAttributes, HttpSession session) {
         WebMipsSession oldSession = (WebMipsSession) session.getAttribute("mipsSession");
 
         if (oldSession == null) {
-            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
-            return "mips";
+            addNoSessionFlashModel(redirectAttributes, "実行状態がありません。先にプログラムを解析してください。");
+            return REDIRECT_MIPS;
         }
 
         WebMipsSession newSession = mipsSessionService.resetSession(oldSession);
         session.setAttribute("mipsSession", newSession);
 
-        addSessionStateModel(
-                model,
+        addSessionStateFlashModel(
+                redirectAttributes,
                 newSession,
                 "実行状態をリセットしました。",
                 MessageType.INFO);
 
-        return "mips";
+        return REDIRECT_MIPS;
+    }
+
+    /**
+     * ブレークポイントを追加する。
+     *
+     * @param breakpointPc       ブレークポイントとして追加するPC番号
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return リダイレクト先
+     */
+    @PostMapping("/mips/breakpoints")
+    public String addBreakpoint(
+            Integer breakpointPc,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+
+        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
+
+        if (mipsSession == null) {
+            addNoSessionFlashModel(redirectAttributes, "実行状態がありません。先にプログラムを解析してください。");
+            return REDIRECT_MIPS;
+        }
+
+        if (breakpointPc == null) {
+            addSessionStateFlashModel(
+                    redirectAttributes,
+                    mipsSession,
+                    "PC番号を入力してください。",
+                    MessageType.ERROR);
+            return REDIRECT_MIPS;
+        }
+
+        try {
+            mipsSessionService.addBreakpoint(mipsSession, breakpointPc);
+
+            addSessionStateFlashModel(
+                    redirectAttributes,
+                    mipsSession,
+                    "ブレークポイントを追加しました: PC " + breakpointPc,
+                    MessageType.SUCCESS);
+        } catch (IllegalArgumentException e) {
+            addSessionStateFlashModel(
+                    redirectAttributes,
+                    mipsSession,
+                    "ブレークポイント追加失敗: " + e.getMessage(),
+                    MessageType.ERROR);
+        }
+
+        return REDIRECT_MIPS;
+    }
+
+    /**
+     * ブレークポイントを削除する。
+     *
+     * @param breakpointPc       削除するPC番号
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return リダイレクト先
+     */
+    @PostMapping("/mips/breakpoints/delete")
+    public String deleteBreakpoint(
+            Integer breakpointPc,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+
+        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
+
+        if (mipsSession == null) {
+            addNoSessionFlashModel(redirectAttributes, "実行状態がありません。先にプログラムを解析してください。");
+            return REDIRECT_MIPS;
+        }
+
+        if (breakpointPc == null) {
+            addSessionStateFlashModel(
+                    redirectAttributes,
+                    mipsSession,
+                    "削除するPC番号を入力してください。",
+                    MessageType.ERROR);
+            return REDIRECT_MIPS;
+        }
+
+        boolean removed = mipsSessionService.removeBreakpoint(mipsSession, breakpointPc);
+
+        if (removed) {
+            addSessionStateFlashModel(
+                    redirectAttributes,
+                    mipsSession,
+                    "ブレークポイントを削除しました: PC " + breakpointPc,
+                    MessageType.SUCCESS);
+        } else {
+            addSessionStateFlashModel(
+                    redirectAttributes,
+                    mipsSession,
+                    "ブレークポイントは登録されていません: PC " + breakpointPc,
+                    MessageType.WARNING);
+        }
+
+        return REDIRECT_MIPS;
+    }
+
+    /**
+     * ブレークポイントまたはプログラム終了まで連続実行する。
+     *
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return リダイレクト先
+     */
+    @PostMapping("/mips/run")
+    public String run(RedirectAttributes redirectAttributes, HttpSession session) {
+        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
+
+        if (mipsSession == null) {
+            addNoSessionFlashModel(redirectAttributes, "実行状態がありません。先にプログラムを解析してください。");
+
+            return REDIRECT_MIPS;
+        }
+
+        RunResult runResult = mipsSessionService.runUntilBreakpoint(mipsSession);
+        StepResult result = runResult.getLastStepResult();
+
+        boolean readyToRun = mipsSessionService.canStep(mipsSession);
+
+        if (result == null) {
+            addSessionStateFlashModel(
+                    redirectAttributes,
+                    mipsSession,
+                    createRunMessage(runResult),
+                    MessageType.INFO);
+
+            return REDIRECT_MIPS;
+        }
+
+        List<String> programLines = mipsSessionService.splitLines(mipsSession.getProgramText());
+
+        StepResultViewData viewData = stepResultViewMapper.toViewData(result);
+
+        ExecutedInstructionView executedInstructionView = stepResultViewMapper.createExecutedInstructionView(
+                result,
+                programLines);
+
+        String message = createRunMessage(runResult);
+
+        MessageType messageType = readyToRun
+                ? MessageType.INFO
+                : MessageType.SUCCESS;
+
+        addStepResultFlashModel(
+                redirectAttributes,
+                mipsSession,
+                result,
+                message,
+                messageType,
+                viewData,
+                executedInstructionView);
+
+        return REDIRECT_MIPS;
+    }
+
+    /**
+     * 入力欄とWeb実行状態をクリアする。
+     *
+     * textareaだけをブラウザ側で消すと、次回のPOST時に
+     * セッション内のプログラムが再表示されてしまう。
+     * そのため、入力欄のクリア時にはセッション内の実行状態も削除する。
+     *
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
+     * @return リダイレクト先
+     */
+    @PostMapping("/mips/clear")
+    public String clear(RedirectAttributes redirectAttributes, HttpSession session) {
+        session.removeAttribute("mipsSession");
+
+        MipsViewModel viewModel = viewModelFactory.createClearedViewModel(
+                "入力欄をクリアしました。");
+
+        addFlashViewModel(redirectAttributes, viewModel);
+
+        return REDIRECT_MIPS;
+    }
+
+    /**
+     * run実行結果の表示メッセージを作成する。
+     *
+     * @param runResult 連続実行の結果
+     * @return 画面に表示するメッセージ
+     */
+    private String createRunMessage(RunResult runResult) {
+        return runResult.getMessage()
+                + "（実行ステップ数: " + runResult.getExecutedStepCount() + "）";
     }
 
     /**
@@ -215,31 +416,31 @@ public class HomeController {
     }
 
     /**
-     * 実行状態が存在しない場合のModel属性を設定する。
+     * 実行状態が存在しない場合のFlash属性を設定する。
      *
-     * @param model   HTMLテンプレートへデータを渡すための入れ物
-     * @param message 画面に表示するメッセージ
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param message            画面に表示するメッセージ
      */
-    private void addNoSessionModel(Model model, String message) {
+    private void addNoSessionFlashModel(RedirectAttributes redirectAttributes, String message) {
         MipsViewModel viewModel = viewModelFactory.createNoSessionViewModel(DEFAULT_PROGRAM, message);
 
-        addViewModel(model, viewModel);
+        addFlashViewModel(redirectAttributes, viewModel);
     }
 
     /**
-     * パース後または操作後のModel属性を設定する。
+     * パース後または操作後のFlash属性を設定する。
      *
-     * @param model            HTMLテンプレートへデータを渡すための入れ物
-     * @param programText      ユーザーが入力したプログラム文字列
-     * @param programLines     行ごとに分割したプログラム文字列
-     * @param message          画面に表示するメッセージ
-     * @param messageType      メッセージ種別
-     * @param parseSuccess     パースまたは操作に成功した場合はtrue
-     * @param instructionCount 解析できた命令数
-     * @param readyToRun       1ステップ実行できる状態ならtrue
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param programText        ユーザーが入力したプログラム文字列
+     * @param programLines       行ごとに分割したプログラム文字列
+     * @param message            画面に表示するメッセージ
+     * @param messageType        メッセージ種別
+     * @param parseSuccess       パースまたは操作に成功した場合はtrue
+     * @param instructionCount   解析できた命令数
+     * @param readyToRun         1ステップ実行できる状態ならtrue
      */
-    private void addParsedModel(
-            Model model,
+    private void addParsedFlashModel(
+            RedirectAttributes redirectAttributes,
             String programText,
             List<String> programLines,
             String message,
@@ -257,13 +458,13 @@ public class HomeController {
                 instructionCount,
                 readyToRun);
 
-        addViewModel(model, viewModel);
+        addFlashViewModel(redirectAttributes, viewModel);
     }
 
     /**
-     * 1ステップ実行後、またはrun実行後のModel属性を設定する。
+     * 1ステップ実行後、またはrun実行後のFlash属性を設定する。
      *
-     * @param model                   HTMLテンプレートへデータを渡すための入れ物
+     * @param redirectAttributes      リダイレクト後の画面へデータを渡すための入れ物
      * @param mipsSession             Web版の実行状態
      * @param result                  1ステップ分の実行結果
      * @param message                 画面に表示するメッセージ
@@ -271,8 +472,8 @@ public class HomeController {
      * @param viewData                StepResultから作成したWeb表示用データ
      * @param executedInstructionView 実行命令の表示用データ
      */
-    private void addStepResultModel(
-            Model model,
+    private void addStepResultFlashModel(
+            RedirectAttributes redirectAttributes,
             WebMipsSession mipsSession,
             StepResult result,
             String message,
@@ -288,181 +489,19 @@ public class HomeController {
                 viewData,
                 executedInstructionView);
 
-        addViewModel(model, viewModel);
+        addFlashViewModel(redirectAttributes, viewModel);
     }
 
     /**
-     * ブレークポイントを追加する。
+     * 現在のWeb実行状態をFlash属性に設定する。
      *
-     * @param breakpointPc ブレークポイントとして追加するPC番号
-     * @param model        HTMLテンプレートへデータを渡すための入れ物
-     * @param session      ブラウザ利用者ごとの状態を保存するHTTPセッション
-     * @return 表示するテンプレート名
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param mipsSession        Web版の実行状態
+     * @param message            画面に表示するメッセージ
+     * @param messageType        メッセージ種別
      */
-    @PostMapping("/mips/breakpoints")
-    public String addBreakpoint(Integer breakpointPc, Model model, HttpSession session) {
-        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
-
-        if (mipsSession == null) {
-            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
-            return "mips";
-        }
-
-        if (breakpointPc == null) {
-            addSessionStateModel(
-                    model,
-                    mipsSession,
-                    "PC番号を入力してください。",
-                    MessageType.ERROR);
-            return "mips";
-        }
-
-        try {
-            mipsSessionService.addBreakpoint(mipsSession, breakpointPc);
-
-            addSessionStateModel(
-                    model,
-                    mipsSession,
-                    "ブレークポイントを追加しました: PC " + breakpointPc,
-                    MessageType.SUCCESS);
-        } catch (IllegalArgumentException e) {
-            addSessionStateModel(
-                    model,
-                    mipsSession,
-                    "ブレークポイント追加失敗: " + e.getMessage(),
-                    MessageType.ERROR);
-        }
-
-        return "mips";
-    }
-
-    /**
-     * ブレークポイントを削除する。
-     *
-     * @param breakpointPc 削除するPC番号
-     * @param model        HTMLテンプレートへデータを渡すための入れ物
-     * @param session      ブラウザ利用者ごとの状態を保存するHTTPセッション
-     * @return 表示するテンプレート名
-     */
-    @PostMapping("/mips/breakpoints/delete")
-    public String deleteBreakpoint(Integer breakpointPc, Model model, HttpSession session) {
-        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
-
-        if (mipsSession == null) {
-            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
-            return "mips";
-        }
-
-        if (breakpointPc == null) {
-            addSessionStateModel(
-                    model,
-                    mipsSession,
-                    "削除するPC番号を入力してください。",
-                    MessageType.ERROR);
-            return "mips";
-        }
-
-        boolean removed = mipsSessionService.removeBreakpoint(mipsSession, breakpointPc);
-
-        if (removed) {
-            addSessionStateModel(
-                    model,
-                    mipsSession,
-                    "ブレークポイントを削除しました: PC " + breakpointPc,
-                    MessageType.SUCCESS);
-        } else {
-            addSessionStateModel(
-                    model,
-                    mipsSession,
-                    "ブレークポイントは登録されていません: PC " + breakpointPc,
-                    MessageType.WARNING);
-        }
-
-        return "mips";
-    }
-
-    /**
-     * ブレークポイントまたはプログラム終了まで連続実行する。
-     *
-     * @param model   HTMLテンプレートへデータを渡すための入れ物
-     * @param session ブラウザ利用者ごとの状態を保存するHTTPセッション
-     * @return 表示するテンプレート名
-     */
-    @PostMapping("/mips/run")
-    public String run(Model model, HttpSession session) {
-        WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
-
-        if (mipsSession == null) {
-            addNoSessionModel(model, "実行状態がありません。先にプログラムを解析してください。");
-
-            return "mips";
-        }
-
-        RunResult runResult = mipsSessionService.runUntilBreakpoint(mipsSession);
-        StepResult result = runResult.getLastStepResult();
-
-        boolean readyToRun = mipsSessionService.canStep(mipsSession);
-
-        if (result == null) {
-            addSessionStateModel(
-                    model,
-                    mipsSession,
-                    createRunMessage(runResult),
-                    MessageType.INFO);
-
-            return "mips";
-        }
-
-        List<String> programLines = mipsSessionService.splitLines(mipsSession.getProgramText());
-
-        StepResultViewData viewData = stepResultViewMapper.toViewData(result);
-
-        ExecutedInstructionView executedInstructionView = stepResultViewMapper.createExecutedInstructionView(
-                result,
-                programLines);
-
-        String message = createRunMessage(runResult);
-
-        MessageType messageType = readyToRun
-                ? MessageType.INFO
-                : MessageType.SUCCESS;
-
-        addStepResultModel(
-                model,
-                mipsSession,
-                result,
-                message,
-                messageType,
-                viewData,
-                executedInstructionView);
-
-        model.addAttribute("message", createRunMessage(runResult));
-        model.addAttribute("messageType", messageType.getCssClassName());
-
-        return "mips";
-    }
-
-    /**
-     * run実行結果の表示メッセージを作成する。
-     *
-     * @param runResult 連続実行の結果
-     * @return 画面に表示するメッセージ
-     */
-    private String createRunMessage(RunResult runResult) {
-        return runResult.getMessage()
-                + "（実行ステップ数: " + runResult.getExecutedStepCount() + "）";
-    }
-
-    /**
-     * 現在のWeb実行状態をModelに設定する。
-     *
-     * @param model       HTMLテンプレートへデータを渡すための入れ物
-     * @param mipsSession Web版の実行状態
-     * @param message     画面に表示するメッセージ
-     * @param messageType メッセージ種別
-     */
-    private void addSessionStateModel(
-            Model model,
+    private void addSessionStateFlashModel(
+            RedirectAttributes redirectAttributes,
             WebMipsSession mipsSession,
             String message,
             MessageType messageType) {
@@ -472,7 +511,7 @@ public class HomeController {
                 message,
                 messageType);
 
-        addViewModel(model, viewModel);
+        addFlashViewModel(redirectAttributes, viewModel);
     }
 
     /**
@@ -488,25 +527,12 @@ public class HomeController {
     }
 
     /**
-     * 入力欄とWeb実行状態をクリアする。
+     * ViewModelをリダイレクト後のFlash属性へ設定する。
      *
-     * textareaだけをブラウザ側で消すと、次回のPOST時に
-     * セッション内のプログラムが再表示されてしまう。
-     * そのため、入力欄のクリア時にはセッション内の実行状態も削除する。
-     *
-     * @param model   HTMLテンプレートへデータを渡すための入れ物
-     * @param session ブラウザ利用者ごとの状態を保存するHTTPセッション
-     * @return 表示するテンプレート名
+     * @param redirectAttributes リダイレクト後の画面へデータを渡すための入れ物
+     * @param viewModel          画面表示用データ
      */
-    @PostMapping("/mips/clear")
-    public String clear(Model model, HttpSession session) {
-        session.removeAttribute("mipsSession");
-
-        MipsViewModel viewModel = viewModelFactory.createClearedViewModel(
-                "入力欄をクリアしました。");
-
-        addViewModel(model, viewModel);
-
-        return "mips";
+    private void addFlashViewModel(RedirectAttributes redirectAttributes, MipsViewModel viewModel) {
+        redirectAttributes.addFlashAttribute("viewModel", viewModel);
     }
 }

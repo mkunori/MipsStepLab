@@ -10,7 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -23,6 +25,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 /**
  * HomeControllerのテストクラス。
@@ -46,6 +49,10 @@ class HomeControllerTest {
     @Autowired
     private WebMipsSessionService service;
 
+    /** テスト用のMipsViewModelFactory。 */
+    @Autowired
+    private MipsViewModelFactory viewModelFactory;
+
     /**
      * GET /mips で画面が表示されることを確認する。
      *
@@ -61,6 +68,24 @@ class HomeControllerTest {
     }
 
     /**
+     * GET /mips でFlash属性のViewModelがある場合、初期ViewModelで上書きしないことを確認する。
+     *
+     * @throws Exception MockMvc実行時に例外が発生した場合
+     */
+    @Test
+    void home_shouldUseFlashViewModel_whenFlashViewModelExists() throws Exception {
+        MipsViewModel flashViewModel = viewModelFactory
+                .createClearedViewModel("入力欄をクリアしました。");
+
+        mockMvc.perform(get("/mips")
+                .flashAttr("viewModel", flashViewModel))
+                .andExpect(status().isOk())
+                .andExpect(view().name("mips"))
+                .andExpect(model().attribute("viewModel", flashViewModel))
+                .andExpect(content().string(containsString("入力欄をクリアしました。")));
+    }
+
+    /**
      * 正常なMIPSプログラムをPOSTすると、WebMipsSessionが作成されることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
@@ -71,50 +96,55 @@ class HomeControllerTest {
                 "addi $t0, $zero, 5",
                 "addi $t1, $zero, 3");
 
-        MvcResult result = mockMvc.perform(post("/mips")
-                .param("programText", programText))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips")
+                .param("programText", programText)))
                 .andExpect(request().sessionAttribute(
                         "mipsSession",
                         instanceOf(WebMipsSession.class)))
                 .andReturn();
 
         HttpSession session = result.getRequest().getSession(false);
+        MipsViewModel viewModel = getFlashViewModel(result);
 
         assertNotNull(session);
         assertNotNull(session.getAttribute("mipsSession"));
+        assertEquals("パース成功: 2 命令", viewModel.getMessage());
+        assertTrue(viewModel.getParseSuccess());
+        assertTrue(viewModel.isReadyToRun());
     }
 
     /**
-     * 不正なプログラムをPOSTすると、入力エラーとして表示されることを確認する。
+     * 不正なプログラムをPOSTすると、入力エラーとして表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
     @Test
     void submitProgram_shouldShowError_whenProgramIsInvalid() throws Exception {
-        mockMvc.perform(post("/mips")
-                .param("programText", "invalid instruction"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("入力エラー")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips")
+                .param("programText", "invalid instruction")))
+                .andReturn();
+
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("入力エラー"));
+        assertFalse(viewModel.getParseSuccess());
+        assertFalse(viewModel.isReadyToRun());
     }
 
     /**
      * セッションなしでPOST /mips/stepすると、
-     * 実行状態なしのエラーメッセージが表示されることを確認する。
+     * 実行状態なしのエラーメッセージが表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
     @Test
     void step_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        mockMvc.perform(post("/mips/step"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("実行状態がありません")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/step")))
+                .andReturn();
+
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("実行状態がありません"));
     }
 
     /**
@@ -133,13 +163,13 @@ class HomeControllerTest {
 
         WebMipsSession session = service.createSession(programText);
 
-        mockMvc.perform(post("/mips/step")
-                .sessionAttr("mipsSession", session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("実行中: 1ステップ実行しました。")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/step")
+                .sessionAttr("mipsSession", session)))
+                .andReturn();
 
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertEquals("実行中: 1ステップ実行しました。", viewModel.getMessage());
         assertEquals(5, session.getCpu().getRegister(8));
         assertEquals(1, session.getStepRunner().getPc());
         assertTrue(session.getExecutedPcs().contains(0));
@@ -162,17 +192,15 @@ class HomeControllerTest {
         WebMipsSession oldSession = service.createSession(programText);
         service.step(oldSession);
 
-        MvcResult result = mockMvc.perform(post("/mips/reset")
-                .sessionAttr("mipsSession", oldSession))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("実行状態をリセットしました。")))
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/reset")
+                .sessionAttr("mipsSession", oldSession)))
                 .andReturn();
 
         WebMipsSession newSession = (WebMipsSession) result.getRequest().getSession()
                 .getAttribute("mipsSession");
+        MipsViewModel viewModel = getFlashViewModel(result);
 
+        assertEquals("実行状態をリセットしました。", viewModel.getMessage());
         assertNotNull(newSession);
         assertEquals(programText, newSession.getProgramText());
         assertEquals(0, newSession.getCpu().getRegister(8));
@@ -196,14 +224,14 @@ class HomeControllerTest {
 
         WebMipsSession session = service.createSession(programText);
 
-        mockMvc.perform(post("/mips/breakpoints")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints")
                 .sessionAttr("mipsSession", session)
-                .param("breakpointPc", "1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("ブレークポイントを追加しました: PC 1")));
+                .param("breakpointPc", "1")))
+                .andReturn();
 
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertEquals("ブレークポイントを追加しました: PC 1", viewModel.getMessage());
         assertTrue(session.getBreakpointManager().contains(1));
     }
 
@@ -222,14 +250,14 @@ class HomeControllerTest {
         WebMipsSession session = service.createSession(programText);
         service.addBreakpoint(session, 1);
 
-        mockMvc.perform(post("/mips/breakpoints/delete")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints/delete")
                 .sessionAttr("mipsSession", session)
-                .param("breakpointPc", "1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("ブレークポイントを削除しました: PC 1")));
+                .param("breakpointPc", "1")))
+                .andReturn();
 
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertEquals("ブレークポイントを削除しました: PC 1", viewModel.getMessage());
         assertFalse(session.getBreakpointManager().contains(1));
     }
 
@@ -249,13 +277,13 @@ class HomeControllerTest {
         WebMipsSession session = service.createSession(programText);
         service.addBreakpoint(session, 2);
 
-        mockMvc.perform(post("/mips/run")
-                .sessionAttr("mipsSession", session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("ブレークポイントに到達しました: PC 2")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/run")
+                .sessionAttr("mipsSession", session)))
+                .andReturn();
 
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("ブレークポイントに到達しました: PC 2"));
         assertEquals(5, session.getCpu().getRegister(8));
         assertEquals(3, session.getCpu().getRegister(9));
         assertEquals(0, session.getCpu().getRegister(10));
@@ -280,13 +308,13 @@ class HomeControllerTest {
         WebMipsSession session = service.createSession(programText);
         service.addBreakpoint(session, 0);
 
-        mockMvc.perform(post("/mips/run")
-                .sessionAttr("mipsSession", session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("現在のPCがブレークポイントです: PC 0")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/run")
+                .sessionAttr("mipsSession", session)))
+                .andReturn();
 
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("現在のPCがブレークポイントです: PC 0"));
         assertEquals(0, session.getCpu().getRegister(8));
         assertEquals(0, session.getStepRunner().getPc());
         assertTrue(session.getExecutedPcs().isEmpty());
@@ -294,69 +322,73 @@ class HomeControllerTest {
 
     /**
      * セッションなしでPOST /mips/runすると、
-     * 実行状態なしのエラーメッセージが表示されることを確認する。
+     * 実行状態なしのエラーメッセージが表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
     @Test
     void run_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        mockMvc.perform(post("/mips/run"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("実行状態がありません")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/run")))
+                .andReturn();
+
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("実行状態がありません"));
     }
 
     /**
      * セッションなしでPOST /mips/resetすると、
-     * 実行状態なしのエラーメッセージが表示されることを確認する。
+     * 実行状態なしのエラーメッセージが表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
     @Test
     void reset_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        mockMvc.perform(post("/mips/reset"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("実行状態がありません")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/reset")))
+                .andReturn();
+
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("実行状態がありません"));
     }
 
     /**
      * セッションなしでPOST /mips/breakpointsすると、
-     * 実行状態なしのエラーメッセージが表示されることを確認する。
+     * 実行状態なしのエラーメッセージが表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
     @Test
     void addBreakpoint_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        mockMvc.perform(post("/mips/breakpoints")
-                .param("breakpointPc", "1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("実行状態がありません")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints")
+                .param("breakpointPc", "1")))
+                .andReturn();
+
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("実行状態がありません"));
     }
 
     /**
      * セッションなしでPOST /mips/breakpoints/deleteすると、
-     * 実行状態なしのエラーメッセージが表示されることを確認する。
+     * 実行状態なしのエラーメッセージが表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
     @Test
     void deleteBreakpoint_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        mockMvc.perform(post("/mips/breakpoints/delete")
-                .param("breakpointPc", "1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("実行状態がありません")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints/delete")
+                .param("breakpointPc", "1")))
+                .andReturn();
+
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("実行状態がありません"));
     }
 
     /**
      * 範囲外PCを指定してPOST /mips/breakpointsすると、
-     * ブレークポイント追加失敗メッセージが表示されることを確認する。
+     * ブレークポイント追加失敗メッセージが表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
@@ -368,21 +400,21 @@ class HomeControllerTest {
 
         WebMipsSession session = service.createSession(programText);
 
-        mockMvc.perform(post("/mips/breakpoints")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints")
                 .sessionAttr("mipsSession", session)
-                .param("breakpointPc", "2"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("ブレークポイント追加失敗")))
-                .andExpect(content().string(containsString("PCがプログラム範囲外です: 2")));
+                .param("breakpointPc", "2")))
+                .andReturn();
 
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("ブレークポイント追加失敗"));
+        assertTrue(viewModel.getMessage().contains("PCがプログラム範囲外です: 2"));
         assertFalse(session.getBreakpointManager().contains(2));
     }
 
     /**
      * PC番号なしでPOST /mips/breakpointsすると、
-     * PC番号入力を促すエラーメッセージが表示されることを確認する。
+     * PC番号入力を促すエラーメッセージが表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
@@ -391,19 +423,19 @@ class HomeControllerTest {
         String programText = "nop";
         WebMipsSession session = service.createSession(programText);
 
-        mockMvc.perform(post("/mips/breakpoints")
-                .sessionAttr("mipsSession", session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("PC番号を入力してください。")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints")
+                .sessionAttr("mipsSession", session)))
+                .andReturn();
 
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertEquals("PC番号を入力してください。", viewModel.getMessage());
         assertTrue(session.getBreakpointManager().getAll().isEmpty());
     }
 
     /**
      * PC番号なしでPOST /mips/breakpoints/deleteすると、
-     * 削除対象PC番号の入力を促すエラーメッセージが表示されることを確認する。
+     * 削除対象PC番号の入力を促すエラーメッセージが表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
@@ -412,17 +444,18 @@ class HomeControllerTest {
         String programText = "nop";
         WebMipsSession session = service.createSession(programText);
 
-        mockMvc.perform(post("/mips/breakpoints/delete")
-                .sessionAttr("mipsSession", session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("削除するPC番号を入力してください。")));
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints/delete")
+                .sessionAttr("mipsSession", session)))
+                .andReturn();
+
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertEquals("削除するPC番号を入力してください。", viewModel.getMessage());
     }
 
     /**
      * 未登録PCを指定してPOST /mips/breakpoints/deleteすると、
-     * 未登録であることを示すメッセージが表示されることを確認する。
+     * 未登録であることを示すメッセージが表示されるViewModelが作られることを確認する。
      *
      * @throws Exception MockMvc実行時に例外が発生した場合
      */
@@ -434,14 +467,14 @@ class HomeControllerTest {
 
         WebMipsSession session = service.createSession(programText);
 
-        mockMvc.perform(post("/mips/breakpoints/delete")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints/delete")
                 .sessionAttr("mipsSession", session)
-                .param("breakpointPc", "1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("ブレークポイントは登録されていません: PC 1")));
+                .param("breakpointPc", "1")))
+                .andReturn();
 
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertEquals("ブレークポイントは登録されていません: PC 1", viewModel.getMessage());
         assertFalse(session.getBreakpointManager().contains(1));
     }
 
@@ -460,18 +493,12 @@ class HomeControllerTest {
         service.step(session);
         service.step(session);
 
-        MvcResult result = mockMvc.perform(post("/mips/clear")
-                .sessionAttr("mipsSession", session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mips"))
-                .andExpect(model().attributeExists("viewModel"))
-                .andExpect(content().string(containsString("入力欄をクリアしました。")))
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/clear")
+                .sessionAttr("mipsSession", session)))
                 .andReturn();
 
         HttpSession httpSession = result.getRequest().getSession(false);
-        MipsViewModel viewModel = (MipsViewModel) result.getModelAndView()
-                .getModel()
-                .get("viewModel");
+        MipsViewModel viewModel = getFlashViewModel(result);
 
         assertNotNull(httpSession);
         assertNull(httpSession.getAttribute("mipsSession"));
@@ -498,4 +525,28 @@ class HomeControllerTest {
                 .allMatch(memory -> memory.getValue() == 0 && !memory.isChanged()));
     }
 
+    /**
+     * POSTリクエストが/mipsへリダイレクトし、ViewModelをFlash属性へ設定することを確認する。
+     *
+     * @param actions POSTリクエストの実行結果
+     * @return 検証後のResultActions
+     * @throws Exception MockMvc実行時に例外が発生した場合
+     */
+    private ResultActions expectRedirectToMips(ResultActions actions) throws Exception {
+        return actions
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/mips"))
+                .andExpect(redirectedUrl("/mips"))
+                .andExpect(flash().attributeExists("viewModel"));
+    }
+
+    /**
+     * リダイレクト用Flash属性からViewModelを取り出す。
+     *
+     * @param result MockMvc実行結果
+     * @return Flash属性に保存されたViewModel
+     */
+    private MipsViewModel getFlashViewModel(MvcResult result) {
+        return (MipsViewModel) result.getFlashMap().get("viewModel");
+    }
 }
