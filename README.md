@@ -197,6 +197,19 @@ Windows PowerShellの場合：
     - メモリ差分アドレスの16進数表示
 - ExecutedInstructionViewTest
     - 実行命令表示用データの生成
+- RunResultTest
+    - run停止理由の保持
+    - 最大ステップ数到達判定
+- RequestRateLimiterTest
+    - 上限回数までは許可すること
+    - 上限を超えると拒否すること
+    - 時間幅を過ぎると再び許可すること
+    - セッションごとに別々にカウントすること
+    - 不正な設定値を拒否すること
+- RequestRateLimitFilterTest
+    - GETリクエストは制限しないこと
+    - `/mips` 以外のPOSTは制限しないこと
+    - `/mips` 系POSTが短時間に集中するとHTTP 429を返すこと
 
 ## CUI版の起動方法
 
@@ -310,14 +323,29 @@ HI/LOは、カード風の表示にしています。
 選択した表示形式と表示範囲は、ブラウザのsessionStorageに保存します。  
 そのため、ステップ実行やrun実行で画面が再読み込みされても、選択状態を維持します。
 
-## Web版の入力制限
+## Web版の入力制限・負荷対策
 
-Web版では、サーバー負荷を避けるため、入力プログラムに制限を設けています。
+Web版では、サーバー負荷を避けるため、入力プログラムや実行処理に制限を設けています。
 
-- 最大行数 (200)
-- 1行の最大文字数 (200)
-- 入力全体の最大文字数 (10,000)
-- runの最大実行ステップ数 (1,000)
+- 最大行数：200行
+- 1行の最大文字数：200文字
+- 入力全体の最大文字数：10,000文字
+- runの最大実行ステップ数：1,000ステップ
+- HTTPセッションタイムアウト：30分
+- 簡易リクエスト制限：10秒間に60回まで
+
+短時間に操作が集中した場合は、HTTP 429 Too Many Requests を返します。  
+対象は、MipsStepLabのPOST操作です。
+
+- POST /mips
+- POST /mips/step
+- POST /mips/run
+- POST /mips/reset
+- POST /mips/clear
+- POST /mips/breakpoints
+- POST /mips/breakpoints/delete
+
+通常の学習用途では制限にかかりにくい設定にしていますが、ボタン連打などで短時間に大量のリクエストが発生した場合は、少し時間をおいてから再操作する必要があります。
 
 ## パッケージ構成
 
@@ -361,6 +389,9 @@ web/
     MemoryValue               // メモリ現在値表示用データ
     ProgramLineView           // プログラム一覧の1行分の表示用データ
     ExecutedInstructionView   // 実行命令情報の表示用データ
+    RunStopReason             // run実行の停止理由
+    RequestRateLimiter        // セッション単位の簡易リクエスト制限
+    RequestRateLimitFilter    // MipsStepLabのPOST操作を制限するFilte
 
 resources/
     templates/
@@ -615,14 +646,39 @@ ExecutedInstructionView には、以下の情報を持たせています。
 現時点では、実行命令テキストは入力行をもとに表示しています。  
 将来的には、Instruction#toString() や表示用InstructionViewへの整理を検討します。
 
+### POST後リロード対策
+
+Web版では、POST処理後に直接 mips.html を返すのではなく、redirect:/mips でGET画面へリダイレクトしています。  
+これは、Post/Redirect/Get パターンと呼ばれる構成です。  
+この構成により、ステップ実行やrun実行の直後にブラウザを更新しても、直前のPOSTリクエストが再送信されにくくなります。  
+POST処理後に表示したいViewModelは、Flash属性を使って次のGET /mips に引き渡しています。
+
+### 簡易リクエスト制限
+
+公開時の最低限の負荷対策として、MipsStepLabのPOST操作に簡易リクエスト制限を入れています。  
+リクエスト制限は、RequestRateLimitFilter でControllerに到達する前に判定します。  
+セッションごとの直近リクエスト時刻は RequestRateLimiter で管理しています。  
+短時間に操作が集中した場合は、HTTP 429 Too Many Requests を返し、処理を中断します。
+
+### セッションタイムアウト
+
+Web版では、CPU状態や命令列などの実行状態をHTTPセッションに保存しています。  
+ブラウザを開いたまま長時間放置された場合でも、サーバー側にセッションが残り続けないよう、セッションタイムアウトを30分に設定しています。
+
 ## 今後の予定
 
-- 公開前の負荷対策
-    - セッション数増加時のメモリ使用量確認
-    - VPS公開前の手動負荷確認
+- VPS上での動作確認
+    - Java 21でのビルド確認
+    - jar起動確認
+    - systemdサービス化の検討
+    - Nginx経由での表示確認
+- 公開前の最終確認
+    - 入力制限・run最大ステップ数・リクエスト制限の確認
+    - セッションタイムアウト設定の確認
+    - READMEの最終整理
 - 実行命令表示のさらなる設計改善
     - 現在は入力行を使って実行命令を表示している
-    - 必要になったら Instruction#toString() または表示用InstructionViewへの整理を検討する
+    - 必要になったら `Instruction#toString()` または表示用InstructionViewへの整理を検討する
 - 命令の追加
     - 現在の対応命令で学習用としてはおおむね十分
     - 必要に応じて追加する
