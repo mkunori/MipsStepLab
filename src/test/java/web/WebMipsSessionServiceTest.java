@@ -267,7 +267,9 @@ class WebMipsSessionServiceTest {
         RunResult result = service.runUntilBreakpoint(session);
 
         assertEquals(2, result.getExecutedStepCount());
+        assertEquals(RunStopReason.BREAKPOINT_REACHED, result.getStopReason());
         assertEquals("ブレークポイントに到達しました: PC 2", result.getMessage());
+        assertFalse(result.isMaxStepsReached());
 
         assertEquals(5, session.getCpu().getRegister(8));
         assertEquals(3, session.getCpu().getRegister(9));
@@ -295,7 +297,9 @@ class WebMipsSessionServiceTest {
         RunResult result = service.runUntilBreakpoint(session);
 
         assertEquals(0, result.getExecutedStepCount());
+        assertEquals(RunStopReason.CURRENT_PC_BREAKPOINT, result.getStopReason());
         assertEquals("現在のPCがブレークポイントです: PC 0", result.getMessage());
+        assertFalse(result.isMaxStepsReached());
 
         assertEquals(0, session.getCpu().getRegister(8));
         assertEquals(0, session.getStepRunner().getPc());
@@ -318,7 +322,9 @@ class WebMipsSessionServiceTest {
         RunResult result = service.runUntilBreakpoint(session);
 
         assertEquals(3, result.getExecutedStepCount());
+        assertEquals(RunStopReason.PROGRAM_FINISHED, result.getStopReason());
         assertEquals("プログラムが終了しました。", result.getMessage());
+        assertFalse(result.isMaxStepsReached());
 
         assertEquals(5, session.getCpu().getRegister(8));
         assertEquals(3, session.getCpu().getRegister(9));
@@ -345,7 +351,11 @@ class WebMipsSessionServiceTest {
         RunResult result = service.runUntilBreakpoint(session);
 
         assertEquals(1000, result.getExecutedStepCount());
-        assertEquals("最大実行ステップ数に到達したため停止しました。", result.getMessage());
+        assertEquals(RunStopReason.MAX_STEPS_REACHED, result.getStopReason());
+        assertEquals(
+                "最大実行ステップ数に到達したため停止しました。必要に応じて、もう一度runを実行すると続きから実行できます。",
+                result.getMessage());
+        assertTrue(result.isMaxStepsReached());
 
         assertTrue(service.canStep(session));
     }

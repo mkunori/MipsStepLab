@@ -339,7 +339,7 @@ public class HomeController {
                     redirectAttributes,
                     mipsSession,
                     createRunMessage(runResult),
-                    MessageType.INFO);
+                    getRunMessageType(runResult, readyToRun));
 
             return REDIRECT_MIPS;
         }
@@ -354,9 +354,7 @@ public class HomeController {
 
         String message = createRunMessage(runResult);
 
-        MessageType messageType = readyToRun
-                ? MessageType.INFO
-                : MessageType.SUCCESS;
+        MessageType messageType = getRunMessageType(runResult, readyToRun);
 
         addStepResultFlashModel(
                 redirectAttributes,
@@ -391,6 +389,26 @@ public class HomeController {
         addFlashViewModel(redirectAttributes, viewModel);
 
         return REDIRECT_MIPS;
+    }
+
+    /**
+     * run実行結果に対応するメッセージ種別を返す。
+     *
+     * 最大実行ステップ数に到達した場合は、
+     * プログラムが終了していないため警告として扱う。
+     *
+     * @param runResult  連続実行の結果
+     * @param readyToRun 次の命令を実行できる状態ならtrue
+     * @return 画面に表示するメッセージ種別
+     */
+    private MessageType getRunMessageType(RunResult runResult, boolean readyToRun) {
+        if (runResult.isMaxStepsReached()) {
+            return MessageType.WARNING;
+        }
+
+        return readyToRun
+                ? MessageType.INFO
+                : MessageType.SUCCESS;
     }
 
     /**

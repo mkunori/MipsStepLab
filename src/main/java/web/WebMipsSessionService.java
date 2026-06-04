@@ -197,7 +197,11 @@ public class WebMipsSessionService {
                         ? "現在のPCがブレークポイントです: PC " + currentPc
                         : "ブレークポイントに到達しました: PC " + currentPc;
 
-                return new RunResult(lastResult, executedStepCount, message);
+                RunStopReason stopReason = executedStepCount == 0
+                        ? RunStopReason.CURRENT_PC_BREAKPOINT
+                        : RunStopReason.BREAKPOINT_REACHED;
+
+                return new RunResult(lastResult, executedStepCount, stopReason, message);
             }
 
             lastResult = step(session);
@@ -208,10 +212,15 @@ public class WebMipsSessionService {
             return new RunResult(
                     lastResult,
                     executedStepCount,
-                    "最大実行ステップ数に到達したため停止しました。");
+                    RunStopReason.MAX_STEPS_REACHED,
+                    "最大実行ステップ数に到達したため停止しました。必要に応じて、もう一度runを実行すると続きから実行できます。");
         }
 
-        return new RunResult(lastResult, executedStepCount, "プログラムが終了しました。");
+        return new RunResult(
+                lastResult,
+                executedStepCount,
+                RunStopReason.PROGRAM_FINISHED,
+                "プログラムが終了しました。");
     }
 
     /**

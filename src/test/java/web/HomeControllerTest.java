@@ -321,6 +321,37 @@ class HomeControllerTest {
     }
 
     /**
+     * POST /mips/run で最大実行ステップ数に到達した場合、
+     * 警告メッセージとして表示されることを確認する。
+     *
+     * @throws Exception MockMvc実行時に例外が発生した場合
+     */
+    @Test
+    void run_shouldShowWarning_whenMaxRunStepsReached() throws Exception {
+        String programText = String.join(System.lineSeparator(),
+                "loop:",
+                "addi $t0, $t0, 1",
+                "j loop");
+
+        WebMipsSession session = service.createSession(programText);
+
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/run")
+                .sessionAttr("mipsSession", session)))
+                .andReturn();
+
+        MipsViewModel viewModel = getFlashViewModel(result);
+
+        assertTrue(viewModel.getMessage().contains("最大実行ステップ数に到達したため停止しました。"));
+        assertTrue(viewModel.getMessage().contains("もう一度runを実行すると続きから実行できます。"));
+        assertTrue(viewModel.getMessage().contains("実行ステップ数: 1000"));
+        assertEquals(MessageType.WARNING.getCssClassName(), viewModel.getMessageType());
+        assertTrue(viewModel.isReadyToRun());
+        // The loop contains two instructions, so $t0 is incremented once every two
+        // executed steps.
+        assertEquals(500, session.getCpu().getRegister(8));
+    }
+
+    /**
      * セッションなしでPOST /mips/runすると、
      * 実行状態なしのエラーメッセージが表示されるViewModelが作られることを確認する。
      *

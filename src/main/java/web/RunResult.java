@@ -17,6 +17,9 @@ public class RunResult {
     /** run操作で実行したステップ数。 */
     private final int executedStepCount;
 
+    /** 停止理由の種別。 */
+    private final RunStopReason stopReason;
+
     /** 停止理由を表すメッセージ。 */
     private final String message;
 
@@ -25,11 +28,18 @@ public class RunResult {
      *
      * @param lastStepResult    最後に実行した1ステップ分の結果
      * @param executedStepCount run操作で実行したステップ数
+     * @param stopReason        停止理由の種別
      * @param message           停止理由を表すメッセージ
      */
-    public RunResult(StepResult lastStepResult, int executedStepCount, String message) {
+    public RunResult(
+            StepResult lastStepResult,
+            int executedStepCount,
+            RunStopReason stopReason,
+            String message) {
+
         this.lastStepResult = lastStepResult;
         this.executedStepCount = executedStepCount;
+        this.stopReason = stopReason;
         this.message = message;
     }
 
@@ -49,6 +59,24 @@ public class RunResult {
      */
     public int getExecutedStepCount() {
         return executedStepCount;
+    }
+
+    /**
+     * 停止理由の種別を返す。
+     *
+     * @return 停止理由の種別
+     */
+    public RunStopReason getStopReason() {
+        return stopReason;
+    }
+
+    /**
+     * 最大実行ステップ数に到達して停止したか判定する。
+     *
+     * @return 最大実行ステップ数に到達した場合はtrue
+     */
+    public boolean isMaxStepsReached() {
+        return stopReason == RunStopReason.MAX_STEPS_REACHED;
     }
 
     /**
