@@ -44,7 +44,7 @@
                         サンプルを選択すると、ここに説明が表示されます。
                     </p>
 
-                    <form id="programParseForm" method="post" action="@{/}">
+                    <form id="programParseForm" method="post" th:action="@{/}">
                         <div>
                             <textarea id="programTextArea" name="programText" rows="6" cols="60"
                                 th:text="${viewModel.programText}"></textarea>
@@ -55,7 +55,7 @@
                         </p>
                     </form>
 
-                    <form id="programClearForm" method="post" action="@{/clear}">
+                    <form id="programClearForm" method="post" th:action="@{/clear}">
                         <div class="program-action-row">
                             <button type="submit" form="programParseForm">
                                 プログラムを解析
@@ -100,15 +100,15 @@
                     </div>
 
                     <div class="button-row" th:if="${viewModel.parseSuccess}">
-                        <form method="post" action="@{/step}" th:if="${viewModel.readyToRun}">
+                        <form method="post" th:action="@{/step}" th:if="${viewModel.readyToRun}">
                             <button type="submit">1ステップ実行</button>
                         </form>
 
-                        <form method="post" action="@{/run}" th:if="${viewModel.readyToRun}">
+                        <form method="post" th:action="@{/run}" th:if="${viewModel.readyToRun}">
                             <button type="submit">ブレークポイントまで実行</button>
                         </form>
 
-                        <form method="post" action="@{/reset}">
+                        <form method="post" th:action="@{/reset}">
                             <button type="submit">PC0からやり直す</button>
                         </form>
                     </div>
@@ -128,13 +128,13 @@
                                 PC 0
                             </span>
 
-                            <form class="inline-form" method="post" action="@{/breakpoints}"
+                            <form class="inline-form" method="post" th:action="@{/breakpoints}"
                                 th:if="${line.instructionLine && !viewModel.breakpoints.contains(line.pc)}">
                                 <input type="hidden" name="breakpointPc" th:value="${line.pc}">
                                 <button class="small-button" type="submit" title="ブレークポイントを追加">BP+</button>
                             </form>
 
-                            <form class="inline-form" method="post" action="@{/breakpoints/delete}"
+                            <form class="inline-form" method="post" th:action="@{/breakpoints/delete}"
                                 th:if="${line.instructionLine && viewModel.breakpoints.contains(line.pc)}">
                                 <input type="hidden" name="breakpointPc" th:value="${line.pc}">
                                 <button class="small-button" type="submit" title="ブレークポイントを削除">BP-</button>
