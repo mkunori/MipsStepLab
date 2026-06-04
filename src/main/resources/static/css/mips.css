@@ -218,7 +218,7 @@ td {
 /* プログラム一覧の各行を横並びで整える。 */
 .program-list li {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
     min-height: 32px;
     padding: 4px 8px;
@@ -288,6 +288,7 @@ td {
 /* PC番号を固定幅で表示する。 */
 .pc-label {
     width: 56px;
+    padding-top: 3px;
     color: #555;
     font-weight: bold;
     flex-shrink: 0;
@@ -297,6 +298,7 @@ td {
 .inline-form {
     width: 48px;
     margin: 0;
+    padding-top: 1px;
     flex-shrink: 0;
 }
 
@@ -311,6 +313,7 @@ td {
 /* ブレークポイント表示用の固定幅エリアを確保する。 */
 .breakpoint-area {
     width: 56px;
+    padding-top: 3px;
     flex-shrink: 0;
 }
 
@@ -323,12 +326,16 @@ td {
 /* 命令文字列が長い場合でも画面外にはみ出しにくくする。 */
 .instruction-text {
     flex: 1;
+    min-width: 0;
+    line-height: 1.5;
+    white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
 
 /* 命令行の状態表示欄を固定幅で確保する。 */
 .instruction-status {
     width: 72px;
+    padding-top: 3px;
     flex-shrink: 0;
     color: #555;
     font-size: 0.9rem;
