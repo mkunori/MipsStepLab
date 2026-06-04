@@ -19,15 +19,15 @@ import jakarta.servlet.ServletException;
 class RequestRateLimitFilterTest {
 
     /**
-     * GET /mips は制限対象にしないことを確認する。
+     * GET / は制限対象にしないことを確認する。
      *
      * @throws ServletException Servlet処理で例外が発生した場合
      * @throws IOException      入出力で例外が発生した場合
      */
     @Test
-    void doFilter_shouldNotLimitGetMips() throws ServletException, IOException {
+    void doFilter_shouldNotLimitGetHome() throws ServletException, IOException {
         RequestRateLimitFilter filter = new RequestRateLimitFilter();
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mips");
+        MockHttpServletRequest request = createRequest("GET", "/");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain filterChain = new MockFilterChain();
 
@@ -45,7 +45,7 @@ class RequestRateLimitFilterTest {
     @Test
     void doFilter_shouldNotLimitOtherPostPath() throws ServletException, IOException {
         RequestRateLimitFilter filter = new RequestRateLimitFilter();
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/other");
+        MockHttpServletRequest request = createRequest("POST", "/other");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain filterChain = new MockFilterChain();
 
@@ -61,19 +61,19 @@ class RequestRateLimitFilterTest {
      * @throws IOException      入出力で例外が発生した場合
      */
     @Test
-    void doFilter_shouldReturnTooManyRequests_whenPostMipsRequestsAreConcentrated()
+    void doFilter_shouldReturnTooManyRequests_whenPostStepRequestsAreConcentrated()
             throws ServletException, IOException {
 
         RequestRateLimitFilter filter = new RequestRateLimitFilter();
         MockHttpSession session = new MockHttpSession();
 
         for (int i = 0; i < 60; i++) {
-            MockHttpServletResponse response = executePostMipsStep(filter, session);
+            MockHttpServletResponse response = executePostStep(filter, session);
 
             assertEquals(200, response.getStatus());
         }
 
-        MockHttpServletResponse blockedResponse = executePostMipsStep(filter, session);
+        MockHttpServletResponse blockedResponse = executePostStep(filter, session);
 
         assertEquals(429, blockedResponse.getStatus());
         assertTrue(blockedResponse.getContentAsString()
@@ -81,7 +81,33 @@ class RequestRateLimitFilterTest {
     }
 
     /**
-     * POST /mips/step をFilterに通す。
+     * context-pathが/mipsの場合でも、アプリ内パス/stepを制限対象にすることを確認する。
+     *
+     * @throws ServletException Servlet処理で例外が発生した場合
+     * @throws IOException      入出力で例外が発生した場合
+     */
+    @Test
+    void doFilter_shouldLimitPostStep_whenContextPathIsMips()
+            throws ServletException, IOException {
+
+        RequestRateLimitFilter filter = new RequestRateLimitFilter();
+        MockHttpSession session = new MockHttpSession();
+
+        for (int i = 0; i < 60; i++) {
+            MockHttpServletResponse response = executePostStepWithMipsContextPath(filter, session);
+
+            assertEquals(200, response.getStatus());
+        }
+
+        MockHttpServletResponse blockedResponse = executePostStepWithMipsContextPath(filter, session);
+
+        assertEquals(429, blockedResponse.getStatus());
+        assertTrue(blockedResponse.getContentAsString()
+                .contains("短時間に操作が集中したため"));
+    }
+
+    /**
+     * POST /step をFilterに通す。
      *
      * @param filter  テスト対象Filter
      * @param session HTTPセッション
@@ -89,11 +115,11 @@ class RequestRateLimitFilterTest {
      * @throws ServletException Servlet処理で例外が発生した場合
      * @throws IOException      入出力で例外が発生した場合
      */
-    private MockHttpServletResponse executePostMipsStep(
+    private MockHttpServletResponse executePostStep(
             RequestRateLimitFilter filter,
             MockHttpSession session) throws ServletException, IOException {
 
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/mips/step");
+        MockHttpServletRequest request = createRequest("POST", "/step");
         request.setSession(session);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -101,5 +127,43 @@ class RequestRateLimitFilterTest {
 
         filter.doFilter(request, response, filterChain);
         return response;
+    }
+
+    /**
+     * context-pathが/mipsのPOST /stepをFilterに通す。
+     *
+     * @param filter  テスト対象Filter
+     * @param session HTTPセッション
+     * @return HTTPレスポンス
+     * @throws ServletException Servlet処理で例外が発生した場合
+     * @throws IOException      入出力で例外が発生した場合
+     */
+    private MockHttpServletResponse executePostStepWithMipsContextPath(
+            RequestRateLimitFilter filter,
+            MockHttpSession session) throws ServletException, IOException {
+
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/mips/step");
+        request.setContextPath("/mips");
+        request.setServletPath("/step");
+        request.setSession(session);
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain filterChain = new MockFilterChain();
+
+        filter.doFilter(request, response, filterChain);
+        return response;
+    }
+
+    /**
+     * servletPathを明示したMockリクエストを作成する。
+     *
+     * @param method HTTPメソッド
+     * @param path   アプリ内パス
+     * @return Mockリクエスト
+     */
+    private MockHttpServletRequest createRequest(String method, String path) {
+        MockHttpServletRequest request = new MockHttpServletRequest(method, path);
+        request.setServletPath(path);
+        return request;
     }
 }

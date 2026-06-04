@@ -1,6 +1,7 @@
 package web;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,8 +21,15 @@ import jakarta.servlet.http.HttpSession;
 @Component
 public class RequestRateLimitFilter extends OncePerRequestFilter {
 
-    /** 制限対象のリクエストパス。 */
-    private static final String MIPS_PATH = "/mips";
+    /** 制限対象のアプリ内POSTパス。 */
+    private static final Set<String> TARGET_POST_PATHS = Set.of(
+            "/",
+            "/step",
+            "/run",
+            "/reset",
+            "/clear",
+            "/breakpoints",
+            "/breakpoints/delete");
 
     /** 一定時間内に許可するPOST操作数。 */
     private static final int MAX_POST_REQUESTS = 60;
@@ -76,6 +84,7 @@ public class RequestRateLimitFilter extends OncePerRequestFilter {
      * リクエスト制限の対象か判定する。
      *
      * GET表示や静的ファイルは制限せず、MipsStepLabのPOST操作だけを制限する。
+     * context-pathが設定されている環境でも同じ判定にするため、getServletPath()を使う。
      *
      * @param request HTTPリクエスト
      * @return 制限対象の場合はtrue
@@ -85,23 +94,6 @@ public class RequestRateLimitFilter extends OncePerRequestFilter {
             return false;
         }
 
-        return getPathWithinApplication(request).startsWith(MIPS_PATH);
-    }
-
-    /**
-     * context-pathを除いたアプリ内パスを取得する。
-     *
-     * @param request HTTPリクエスト
-     * @return context-pathを除いたパス
-     */
-    private String getPathWithinApplication(HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
-        String contextPath = request.getContextPath();
-
-        if (contextPath != null && !contextPath.isBlank() && requestUri.startsWith(contextPath)) {
-            return requestUri.substring(contextPath.length());
-        }
-
-        return requestUri;
+        return TARGET_POST_PATHS.contains(request.getServletPath());
     }
 }

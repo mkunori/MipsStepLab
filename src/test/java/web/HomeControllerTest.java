@@ -60,7 +60,7 @@ class HomeControllerTest {
      */
     @Test
     void home_shouldReturnMipsPage() throws Exception {
-        mockMvc.perform(get("/mips"))
+        mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("mips"))
                 .andExpect(model().attributeExists("viewModel"))
@@ -77,7 +77,7 @@ class HomeControllerTest {
         MipsViewModel flashViewModel = viewModelFactory
                 .createClearedViewModel("入力欄をクリアしました。");
 
-        mockMvc.perform(get("/mips")
+        mockMvc.perform(get("/")
                 .flashAttr("viewModel", flashViewModel))
                 .andExpect(status().isOk())
                 .andExpect(view().name("mips"))
@@ -96,7 +96,7 @@ class HomeControllerTest {
                 "addi $t0, $zero, 5",
                 "addi $t1, $zero, 3");
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/")
                 .param("programText", programText)))
                 .andExpect(request().sessionAttribute(
                         "mipsSession",
@@ -120,7 +120,7 @@ class HomeControllerTest {
      */
     @Test
     void submitProgram_shouldShowError_whenProgramIsInvalid() throws Exception {
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/")
                 .param("programText", "invalid instruction")))
                 .andReturn();
 
@@ -139,7 +139,7 @@ class HomeControllerTest {
      */
     @Test
     void step_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/step")))
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/step")))
                 .andReturn();
 
         MipsViewModel viewModel = getFlashViewModel(result);
@@ -163,7 +163,7 @@ class HomeControllerTest {
 
         WebMipsSession session = service.createSession(programText);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/step")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/step")
                 .sessionAttr("mipsSession", session)))
                 .andReturn();
 
@@ -192,7 +192,7 @@ class HomeControllerTest {
         WebMipsSession oldSession = service.createSession(programText);
         service.step(oldSession);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/reset")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/reset")
                 .sessionAttr("mipsSession", oldSession)))
                 .andReturn();
 
@@ -224,7 +224,7 @@ class HomeControllerTest {
 
         WebMipsSession session = service.createSession(programText);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/breakpoints")
                 .sessionAttr("mipsSession", session)
                 .param("breakpointPc", "1")))
                 .andReturn();
@@ -250,7 +250,7 @@ class HomeControllerTest {
         WebMipsSession session = service.createSession(programText);
         service.addBreakpoint(session, 1);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints/delete")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/breakpoints/delete")
                 .sessionAttr("mipsSession", session)
                 .param("breakpointPc", "1")))
                 .andReturn();
@@ -277,7 +277,7 @@ class HomeControllerTest {
         WebMipsSession session = service.createSession(programText);
         service.addBreakpoint(session, 2);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/run")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/run")
                 .sessionAttr("mipsSession", session)))
                 .andReturn();
 
@@ -308,7 +308,7 @@ class HomeControllerTest {
         WebMipsSession session = service.createSession(programText);
         service.addBreakpoint(session, 0);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/run")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/run")
                 .sessionAttr("mipsSession", session)))
                 .andReturn();
 
@@ -335,7 +335,7 @@ class HomeControllerTest {
 
         WebMipsSession session = service.createSession(programText);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/run")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/run")
                 .sessionAttr("mipsSession", session)))
                 .andReturn();
 
@@ -359,7 +359,7 @@ class HomeControllerTest {
      */
     @Test
     void run_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/run")))
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/run")))
                 .andReturn();
 
         MipsViewModel viewModel = getFlashViewModel(result);
@@ -375,7 +375,7 @@ class HomeControllerTest {
      */
     @Test
     void reset_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/reset")))
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/reset")))
                 .andReturn();
 
         MipsViewModel viewModel = getFlashViewModel(result);
@@ -391,7 +391,7 @@ class HomeControllerTest {
      */
     @Test
     void addBreakpoint_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/breakpoints")
                 .param("breakpointPc", "1")))
                 .andReturn();
 
@@ -408,7 +408,7 @@ class HomeControllerTest {
      */
     @Test
     void deleteBreakpoint_shouldShowError_whenSessionDoesNotExist() throws Exception {
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints/delete")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/breakpoints/delete")
                 .param("breakpointPc", "1")))
                 .andReturn();
 
@@ -431,7 +431,7 @@ class HomeControllerTest {
 
         WebMipsSession session = service.createSession(programText);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/breakpoints")
                 .sessionAttr("mipsSession", session)
                 .param("breakpointPc", "2")))
                 .andReturn();
@@ -454,7 +454,7 @@ class HomeControllerTest {
         String programText = "nop";
         WebMipsSession session = service.createSession(programText);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/breakpoints")
                 .sessionAttr("mipsSession", session)))
                 .andReturn();
 
@@ -475,7 +475,7 @@ class HomeControllerTest {
         String programText = "nop";
         WebMipsSession session = service.createSession(programText);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints/delete")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/breakpoints/delete")
                 .sessionAttr("mipsSession", session)))
                 .andReturn();
 
@@ -498,7 +498,7 @@ class HomeControllerTest {
 
         WebMipsSession session = service.createSession(programText);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/breakpoints/delete")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/breakpoints/delete")
                 .sessionAttr("mipsSession", session)
                 .param("breakpointPc", "1")))
                 .andReturn();
@@ -524,7 +524,7 @@ class HomeControllerTest {
         service.step(session);
         service.step(session);
 
-        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/mips/clear")
+        MvcResult result = expectRedirectToMips(mockMvc.perform(post("/clear")
                 .sessionAttr("mipsSession", session)))
                 .andReturn();
 
@@ -566,8 +566,8 @@ class HomeControllerTest {
     private ResultActions expectRedirectToMips(ResultActions actions) throws Exception {
         return actions
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/mips"))
-                .andExpect(redirectedUrl("/mips"))
+                .andExpect(view().name("redirect:/"))
+                .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attributeExists("viewModel"));
     }
 

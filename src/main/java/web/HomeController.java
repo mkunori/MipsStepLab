@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpSession;
 public class HomeController {
 
     /** POST後に戻るMipsStepLab画面のパス。 */
-    private static final String REDIRECT_MIPS = "redirect:/mips";
+    private static final String REDIRECT_MIPS = "redirect:/";
 
     /** 画面に初期表示するサンプルプログラム。 */
     private static final String DEFAULT_PROGRAM = String.join(System.lineSeparator(),
@@ -64,7 +64,7 @@ public class HomeController {
      * @param model HTMLテンプレートへデータを渡すための入れ物
      * @return 表示するテンプレート名
      */
-    @GetMapping("/mips")
+    @GetMapping("/")
     public String home(Model model) {
         if (!model.containsAttribute("viewModel")) {
             addInitialModel(model);
@@ -84,7 +84,7 @@ public class HomeController {
      * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
      * @return リダイレクト先
      */
-    @PostMapping("/mips")
+    @PostMapping("/")
     public String submitProgram(
             String programText,
             RedirectAttributes redirectAttributes,
@@ -142,7 +142,7 @@ public class HomeController {
      * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
      * @return リダイレクト先
      */
-    @PostMapping("/mips/step")
+    @PostMapping("/step")
     public String step(RedirectAttributes redirectAttributes, HttpSession session) {
         WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
 
@@ -193,7 +193,7 @@ public class HomeController {
      * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
      * @return リダイレクト先
      */
-    @PostMapping("/mips/reset")
+    @PostMapping("/reset")
     public String reset(RedirectAttributes redirectAttributes, HttpSession session) {
         WebMipsSession oldSession = (WebMipsSession) session.getAttribute("mipsSession");
 
@@ -222,7 +222,7 @@ public class HomeController {
      * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
      * @return リダイレクト先
      */
-    @PostMapping("/mips/breakpoints")
+    @PostMapping("/breakpoints")
     public String addBreakpoint(
             Integer breakpointPc,
             RedirectAttributes redirectAttributes,
@@ -271,7 +271,7 @@ public class HomeController {
      * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
      * @return リダイレクト先
      */
-    @PostMapping("/mips/breakpoints/delete")
+    @PostMapping("/breakpoints/delete")
     public String deleteBreakpoint(
             Integer breakpointPc,
             RedirectAttributes redirectAttributes,
@@ -319,7 +319,7 @@ public class HomeController {
      * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
      * @return リダイレクト先
      */
-    @PostMapping("/mips/run")
+    @PostMapping("/run")
     public String run(RedirectAttributes redirectAttributes, HttpSession session) {
         WebMipsSession mipsSession = (WebMipsSession) session.getAttribute("mipsSession");
 
@@ -379,7 +379,7 @@ public class HomeController {
      * @param session            ブラウザ利用者ごとの状態を保存するHTTPセッション
      * @return リダイレクト先
      */
-    @PostMapping("/mips/clear")
+    @PostMapping("/clear")
     public String clear(RedirectAttributes redirectAttributes, HttpSession session) {
         session.removeAttribute("mipsSession");
 

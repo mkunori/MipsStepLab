@@ -44,7 +44,7 @@
                         サンプルを選択すると、ここに説明が表示されます。
                     </p>
 
-                    <form id="programParseForm" method="post" action="/mips">
+                    <form id="programParseForm" method="post" action="@{/}">
                         <div>
                             <textarea id="programTextArea" name="programText" rows="6" cols="60"
                                 th:text="${viewModel.programText}"></textarea>
@@ -55,7 +55,7 @@
                         </p>
                     </form>
 
-                    <form id="programClearForm" method="post" action="/mips/clear">
+                    <form id="programClearForm" method="post" action="@{/clear}">
                         <div class="program-action-row">
                             <button type="submit" form="programParseForm">
                                 プログラムを解析
@@ -100,15 +100,15 @@
                     </div>
 
                     <div class="button-row" th:if="${viewModel.parseSuccess}">
-                        <form method="post" action="/mips/step" th:if="${viewModel.readyToRun}">
+                        <form method="post" action="@{/step}" th:if="${viewModel.readyToRun}">
                             <button type="submit">1ステップ実行</button>
                         </form>
 
-                        <form method="post" action="/mips/run" th:if="${viewModel.readyToRun}">
+                        <form method="post" action="@{/run}" th:if="${viewModel.readyToRun}">
                             <button type="submit">ブレークポイントまで実行</button>
                         </form>
 
-                        <form method="post" action="/mips/reset">
+                        <form method="post" action="@{/reset}">
                             <button type="submit">PC0からやり直す</button>
                         </form>
                     </div>
@@ -128,13 +128,13 @@
                                 PC 0
                             </span>
 
-                            <form class="inline-form" method="post" action="/mips/breakpoints"
+                            <form class="inline-form" method="post" action="@{/breakpoints}"
                                 th:if="${line.instructionLine && !viewModel.breakpoints.contains(line.pc)}">
                                 <input type="hidden" name="breakpointPc" th:value="${line.pc}">
                                 <button class="small-button" type="submit" title="ブレークポイントを追加">BP+</button>
                             </form>
 
-                            <form class="inline-form" method="post" action="/mips/breakpoints/delete"
+                            <form class="inline-form" method="post" action="@{/breakpoints/delete}"
                                 th:if="${line.instructionLine && viewModel.breakpoints.contains(line.pc)}">
                                 <input type="hidden" name="breakpointPc" th:value="${line.pc}">
                                 <button class="small-button" type="submit" title="ブレークポイントを削除">BP-</button>
@@ -260,10 +260,8 @@
                                 <th>addr</th>
                                 <th th:each="col : ${#numbers.sequence(0, 7)}"
                                     th:classappend="${col == 3} ? ' memory-word-boundary' : ''">
-                                    <span class="memory-address-label"
-                                        data-memory-address-role="column"
-                                        th:attr="data-address=${col}"
-                                        th:text="'+' + ${col}">
+                                    <span class="memory-address-label" data-memory-address-role="column"
+                                        th:attr="data-address=${col}" th:text="'+' + ${col}">
                                         +0
                                     </span>
                                 </th>
@@ -271,14 +269,11 @@
                         </thead>
 
                         <tbody>
-                            <tr th:each="row : ${#numbers.sequence(0, 11)}"
-                                class="memory-range-row-item"
+                            <tr th:each="row : ${#numbers.sequence(0, 11)}" class="memory-range-row-item"
                                 th:attr="data-memory-range-start=${row < 4 ? 0 : (row < 8 ? 32 : 64)}">
                                 <th>
-                                    <span class="memory-address-label"
-                                        data-memory-address-role="row"
-                                        th:attr="data-address=${row * 8}"
-                                        th:text="'+' + ${row * 8}">
+                                    <span class="memory-address-label" data-memory-address-role="row"
+                                        th:attr="data-address=${row * 8}" th:text="'+' + ${row * 8}">
                                         +0
                                     </span>
                                 </th>
