@@ -1,55 +1,105 @@
 # MipsStepLab
 
-MipsStepLabは、MIPS命令を1ステップずつ実行しながら、  
-レジスタ・HI/LOレジスタ・メモリの変化を確認できる学習用ステップデバッガです。
+## ■ 概要
+
+MipsStepLabは、MIPS命令を1ステップずつ実行しながら、レジスタ・HI/LOレジスタ・メモリの変化を確認できる学習用ステップデバッガです。
+
+ブラウザ上でMIPSプログラムを入力し、プログラム解析、1ステップ実行、ブレークポイントまでの連続実行、レジスタ・メモリ差分の確認を行えます。  
+Spring Boot / Thymeleaf / JavaScriptを使い、HTTPセッションでCPU状態を保持しながら、ステップ実行の結果を画面に表示しています。
 
 現在は、Spring Bootを用いたWeb版を中心に開発しています。  
-CUI版は、Web版を作る前にステップ実行ロジックやデバッガ機能を確認するためのデモ実装として残しています。
+開発初期に作成したCUI版も、ステップ実行ロジックやデバッガ機能を確認するための参考実装として残しています。
 
-## 主な機能
+本アプリは自己学習の目的で作成しており、実際のMIPS仕様のすべてを再現しているわけではありません。
+
+## ■ 公開URL
+
+Web版を以下のURLで公開しています。  
+https://mkunori.com/mips/
+
+## ■ 使い方
+
+本アプリは、PCブラウザでの利用を主に想定しています。  
+スマートフォンなどの小さい画面では、表示や操作がしづらい場合があります。
+
+公開URLにアクセスし、画面上の入力欄やボタンからMIPSプログラムを操作できます。
+
+1. 必要に応じてサンプルプログラムを選択し、「サンプルを入力」を押す
+2. または、テキストエリアにMIPSプログラムを直接入力する
+3. 「プログラムを解析」を押す
+4. パース成功後、「1ステップ実行」で命令を1つずつ実行する
+5. 必要に応じて、プログラム一覧の `BP+` でブレークポイントを追加する
+6. 「ブレークポイントまで実行」で、ブレークポイントまたはプログラム終了まで連続実行する
+7. `BP-` でブレークポイントを削除できる
+8. 「PC0からやり直す」で、同じプログラムを最初から実行し直す
+9. 「入力欄をクリア」で、入力欄とWeb実行状態をクリアする
+
+## ■ 主な機能
 
 ### Web版
-
 
 - ブラウザ上でのMIPSプログラム入力
 - 入力プログラムのパース成功 / 失敗表示
 - カテゴリ別サンプルプログラムの選択・入力
+- サンプルプログラム選択時の説明表示
 - 入力欄とWeb実行状態のクリア
 - 2カラムレイアウトによるWeb画面表示
-    - 左カラム：プログラム入力、解析・実行操作、プログラム一覧
-    - 右カラム：CPU状態、最後の命令による変化
+  - 左カラム：プログラム入力、解析・実行操作、プログラム一覧
+  - 右カラム：CPU状態、最後の命令による変化
 - 1ステップ実行
 - ブレークポイントの追加 / 削除
 - ブレークポイントまたはプログラム終了までの連続実行
+- run停止理由の表示
+  - 現在PCがブレークポイント
+  - ブレークポイント到達
+  - プログラム終了
+  - 最大ステップ数到達
+- 最大ステップ数到達時の警告表示
 - 実行済み命令・次に実行される命令の表示
 - ブレークポイント行の表示
-- ラベル行・空行を考慮したプログラム一覧表示
+- ラベル行を考慮したプログラム一覧表示
 - ラベル行はPCを持たず、命令行だけPCを持つ表示
+- プログラム一覧のラベル行表示改善
+- 現在PC行が見える位置への自動スクロール
+- 長い命令行の折り返し表示
 - レジスタ現在値の表形式表示
+- レジスタ別名の表示
+  - 例：`R8 / $t0`, `R16 / $s0`, `R31 / $ra`
 - HI / LO 現在値のカード表示
 - メモリ現在値の表形式表示
+- メモリ値の10進数 / 16進数表示切り替え
+- メモリアドレス見出しの10進数 / 16進数表示切り替え
+- メモリ表示範囲の切り替え
+  - `0〜31`
+  - `32〜63`
+  - `64〜95`
+- メモリ表の4バイト区切り表示
 - 最後に実行された1命令による変化の表示
 - レジスタ差分表示
 - HI / LO 差分表示
 - メモリ差分表示
 - 変更されたレジスタ / HI・LO / メモリセルの強調表示
 - HTTPセッションによる実行状態の保持
+- POST後リロード対策
+  - POST処理後はGET画面へリダイレクト
+  - ブラウザ更新時のPOST再送信を抑制
+- セッションタイムアウトの明示設定
+- セッション単位の簡易リクエスト制限
 - run実行時の最大ステップ数制限
 - 入力プログラムのサイズ制限
 - フォーム送信後のスクロール位置保持
 - ボタンの多重送信防止
-- サンプルプログラム選択時の説明表示
-- レジスタ別名の表示
-    - 例：`R8 / $t0`, `R16 / $s0`, `R31 / $ra`
-- メモリ値の10進数 / 16進数表示切り替え
-- メモリアドレス見出しの10進数 / 16進数表示切り替え
-- メモリ表示範囲の切り替え
-    - `0〜31`
-    - `32〜63`
-    - `64〜95`
-- プログラム一覧のラベル行表示改善
-- 現在PC行が見える位置への自動スクロール
-- 実行命令表示用データによる表示整理
+
+### Web版の画面構成
+
+左カラムには、プログラム入力、サンプル選択、実行操作、プログラム一覧を表示します。  
+右カラムには、CPU状態と最後の命令による変化を表示します。
+
+CPU状態では、現在のレジスタ・HI/LO・メモリの値を表示します。  
+初期表示時点でも、レジスタ、HI/LO、メモリは0として表示します。
+
+黄色で強調される値は、最後に実行された1命令で変化した値です。  
+「ブレークポイントまで実行」を押した場合も、run全体で変化した値ではなく、最後に実行された1命令で変化した値だけを強調します。
 
 ### CUI版
 
@@ -60,9 +110,9 @@ CUI版は、Web版を作る前にステップ実行ロジックやデバッガ�
 - ブレークポイント機能
 - runコマンドによる連続実行
 
-※ CUI版はWeb版開発前のデモ実装という位置づけです。
+CUI版は、Web版開発前のデモ実装という位置づけです。
 
-## 対応命令
+## ■ 対応命令
 
 ### 算術
 
@@ -114,575 +164,473 @@ CUI版は、Web版を作る前にステップ実行ロジックやデバッガ�
 - beqz / bnez
 - b
 
-※ 擬似命令は内部で既存命令へ展開、または同等処理で実装しています。
+擬似命令は、内部で既存命令へ展開、または同等処理で実装しています。
 
-## 実行環境
+## ■ 技術構成
 
-- Java 21
-- Maven Wrapper
+### Webアプリケーション
+
+- Java
 - Spring Boot
+- Spring MVC
 - Thymeleaf
+- HTML / CSS
+- JavaScript
+  - sessionStorage を使ったスクロール位置復元
+  - sessionStorage を使ったメモリ表示形式・表示範囲の保持
+- Maven
 
-## ビルド方法
+### アプリケーション設計
 
-```bash
-./mvnw clean package
+- Controller / Service / ViewModel の分離
+- CPU / Instruction / Parser / StepRunner の分離
+- HTTPセッションによるCPU状態の保持
+- StepResultによる1ステップ実行結果の受け渡し
+- ViewModelによる画面表示データの整理
+- BuilderパターンによるViewModel生成
+- ProgramLineViewによる表示行とPCの分離
+- ExecutedInstructionViewによる実行命令表示の整理
+- RequestRateLimitFilterによる簡易リクエスト制限
+
+### テスト
+
+- JUnit
+- MockMvc
+- Spring Boot Test
+
+## ■ 公開環境
+
+このアプリは、さくらのVPS上にデプロイし、独自ドメインとHTTPSで公開しています。
+
+```text
+Browser
+↓
+HTTPS
+↓
+Nginx
+↓
+MipsStepLab Spring Boot Application : 18082
 ```
 
-Windows PowerShellの場合：
+### 主な構成
 
-```bash
-.\mvnw.cmd clean package
-```
+- さくらのVPS
+- Ubuntu Server
+- OpenJDK
+- Nginx
+- systemd
+- Let's Encrypt / Certbot
 
-## テスト実行
+## ■ 負荷対策
 
-```bash
-./mvnw test
-```
+公開環境で動作させるため、以下の最低限の負荷対策を行っています。
 
-Windows PowerShellの場合：
+- Nginxで同一IPからの過剰なリクエストを制限
+- アプリケーション側でセッション単位の簡易リクエスト制限を実装
+- 入力プログラムのサイズ制限
+  - 最大行数：200行
+  - 1行の最大文字数：200文字
+  - 入力全体の最大文字数：10,000文字
+- run実行時の最大ステップ数制限：1,000ステップ
+- HTTPセッションタイムアウト：30分
+- POST後リロード対策
+  - Post/Redirect/Get パターン
+  - ブラウザ更新時のPOST再送信を抑制
 
-```bash
+短時間に操作が集中した場合は、HTTP `429 Too Many Requests` を返します。  
+通常の学習用途では制限にかかりにくい設定にしていますが、ボタン連打などで短時間に大量のリクエストが発生した場合は、少し時間をおいてから再操作する必要があります。
+
+## ■ テスト
+
+このアプリでは、JUnit / MockMvc / Spring Boot Test を使ってテストを追加しています。
+
+### 主なテスト内容
+
+- Spring Bootアプリケーションの起動確認
+- CPUの単体テスト
+  - レジスタ操作
+  - メモリ読み書き
+  - 命令実行時のCPU状態変更
+- 命令クラスの単体テスト
+  - 算術命令
+  - 論理命令
+  - シフト命令
+  - 比較命令
+  - 分岐・ジャンプ命令
+  - メモリアクセス命令
+  - HI/LO命令
+  - 擬似命令
+- Parserのテスト
+  - 命令文字列の解析
+  - ラベル解析
+  - 擬似命令の解析
+- WebMipsSessionServiceのテスト
+  - プログラム解析
+  - 入力制限
+  - ステップ実行
+  - ブレークポイント追加 / 削除
+  - run実行
+  - 最大実行ステップ数制限
+- StepResultViewMapperのテスト
+  - レジスタ表示用データの作成
+  - HI/LO表示用データの作成
+  - メモリ表示用データの作成
+  - 変更有無の changed 判定
+  - 実行命令表示用データの生成
+- MipsViewModelFactoryのテスト
+  - 初期表示用ViewModel生成
+  - エラー表示用ViewModel生成
+  - パース後ViewModel生成
+  - セッション状態ViewModel生成
+  - ステップ実行結果ViewModel生成
+  - ProgramLineView生成
+- HomeControllerのテスト
+  - 画面表示
+  - プログラム解析
+  - ステップ実行
+  - run実行
+  - リセット
+  - 入力欄クリア
+  - ブレークポイント追加 / 削除
+  - セッションなし・範囲外PCなどの異常系
+- 表示用データクラスのテスト
+  - レジスタ別名表示
+  - メモリ値の符号なし表示
+  - メモリ値・アドレスの16進数表示
+  - run停止理由
+- 簡易リクエスト制限のテスト
+  - 上限回数までは許可すること
+  - 上限を超えると拒否すること
+  - 時間幅を過ぎると再び許可すること
+  - セッションごとに別々にカウントすること
+  - context-pathありでも制限対象を判定できること
+
+### テスト実行
+
+```powershell
 .\mvnw.cmd test
 ```
 
-### テスト対象
-
-- WebMipsSessionServiceTest
-    - プログラム解析
-    - 入力制限
-    - ステップ実行
-    - ブレークポイント追加 / 削除
-    - run実行
-    - 最大実行ステップ数制限
-- StepResultViewMapperTest
-    - レジスタ表示用データの作成
-    - HI/LO表示用データの作成
-    - メモリ表示用データの作成
-    - 変更有無の changed 判定
-    - 実行命令テキストの取得
-- MipsViewModelFactoryTest
-    - 初期表示用ViewModel生成
-    - エラー表示用ViewModel生成
-    - パース後ViewModel生成
-    - セッション状態ViewModel生成
-    - ステップ実行結果ViewModel生成
-    - ProgramLineView生成
-    - ラベル行はPCを持たないこと
-    - 空行・空白行が除外された状態でPCがずれないこと
-    - クリア後ViewModelでprogramLineViewsが空になること
-- HomeControllerTest
-    - /mips の画面表示
-    - プログラム解析
-    - ステップ実行
-    - run実行
-    - リセット
-    - 入力欄クリア
-    - ブレークポイント追加 / 削除
-    - セッションなし・範囲外PCなどの異常系
-- RegisterValueTest
-    - レジスタ別名表示
-    - 不正なレジスタ番号の検証
-- RegisterDiffTest
-    - 差分表示用レジスタ別名
-    - 不正なレジスタ番号の検証
-- MemoryValueTest
-    - メモリ値の符号なし表示
-    - メモリ値の16進数表示
-    - メモリアドレスの16進数表示
-- MemoryDiffTest
-    - メモリ差分値の符号なし表示
-    - メモリ差分値の16進数表示
-    - メモリ差分アドレスの16進数表示
-- ExecutedInstructionViewTest
-    - 実行命令表示用データの生成
-- RunResultTest
-    - run停止理由の保持
-    - 最大ステップ数到達判定
-- RequestRateLimiterTest
-    - 上限回数までは許可すること
-    - 上限を超えると拒否すること
-    - 時間幅を過ぎると再び許可すること
-    - セッションごとに別々にカウントすること
-    - 不正な設定値を拒否すること
-- RequestRateLimitFilterTest
-    - GETリクエストは制限しないこと
-    - `/mips` 以外のPOSTは制限しないこと
-    - `/mips` 系POSTが短時間に集中するとHTTP 429を返すこと
-
-## CUI版の起動方法
-
-```bash
-./mvnw compile
-./mvnw exec:java -Dexec.mainClass=MSLMain
-```
-
-## Web版の起動方法
-
-```bash
-./mvnw spring-boot:run
-```
-
-起動後、ブラウザで以下にアクセスします。
+## ■ パッケージ構成
 
 ```text
-http://localhost:8080/mips
+src/main/java
+├─ MSLMain.java                         // CUI版のエントリーポイント
+├─ console
+│  ├─ ConsoleCommand.java               // CUIコマンド種別
+│  ├─ ConsoleStepRunner.java            // CUI操作、入力、コマンド処理
+│  └─ ConsoleStepView.java              // CUI実行結果の表示
+├─ cpu
+│  ├─ Cpu.java                          // CPU本体、レジスタ、HI/LO、メモリを管理
+│  └─ RegisterNames.java                // レジスタ番号と別名の対応を管理
+├─ execution
+│  ├─ BreakpointManager.java            // ブレークポイント管理
+│  ├─ StepResult.java                   // 1ステップ分の実行結果を保持
+│  └─ StepRunner.java                   // 命令を1ステップ実行する
+├─ instruction
+│  ├─ Instruction.java                  // 命令インターフェース
+│  └─ 各命令クラス                       // add, lw, beq などの命令実装
+├─ parser
+│  └─ InstructionParser.java            // 命令文字列をInstructionへ変換する
+└─ web
+   ├─ MipsStepLabWebApplication.java    // Spring Bootアプリケーションのエントリーポイント
+   ├─ HomeController.java               // Web画面のController
+   ├─ WebMipsSession.java               // Web版の実行状態
+   ├─ WebMipsSessionService.java        // Web版の解析・実行処理
+   ├─ MipsViewModel.java                // Web画面に渡す表示用データ
+   ├─ MipsViewModelFactory.java         // MipsViewModel生成
+   ├─ StepResultViewMapper.java         // StepResultを画面表示用データへ変換
+   ├─ StepResultViewData.java           // StepResult由来の表示用データ一式
+   ├─ ExecutedInstructionView.java      // 実行命令情報の表示用データ
+   ├─ ProgramLineView.java              // プログラム一覧の1行分の表示用データ
+   ├─ RunResult.java                    // run実行結果
+   ├─ RunStopReason.java                // run実行の停止理由
+   ├─ MessageType.java                  // メッセージ種別
+   ├─ RegisterDiff.java                 // レジスタ差分表示用データ
+   ├─ RegisterValue.java                // レジスタ現在値表示用データ
+   ├─ HiLoDiff.java                     // HI/LO差分表示用データ
+   ├─ HiLoValue.java                    // HI/LO現在値表示用データ
+   ├─ MemoryDiff.java                   // メモリ差分表示用データ
+   ├─ MemoryValue.java                  // メモリ現在値表示用データ
+   ├─ RequestRateLimiter.java           // セッション単位の簡易リクエスト制限
+   └─ RequestRateLimitFilter.java       // MipsStepLabのPOST操作を制限するFilter
+
+src/main/resources
+├─ application.properties               // セッションタイムアウトなどの基本設定
+├─ templates
+│  └─ mips.html                         // Web版画面テンプレート
+└─ static
+   ├─ css
+   │  └─ mips.css                       // Web版CSS
+   └─ js
+      └─ mips.js                        // Web画面操作補助
+
+src/test/java
+├─ cpu                                  // CPUの単体テスト
+├─ instruction                          // 各命令クラスの単体テスト
+├─ parser                               // InstructionParserのテスト
+└─ web                                  // Web版Service、Controller、ViewModel、Filterのテスト
 ```
 
-## Web版の操作方法
-
-1. `/mips` にアクセスする
-2. 必要に応じてサンプルプログラムを選択し、「サンプルを入力」を押す
-3. または、テキストエリアにMIPSプログラムを直接入力する
-4. 「プログラムを解析」を押す
-5. パース成功後、「1ステップ実行」で命令を1つずつ実行する
-6. 必要に応じて、プログラム一覧の `BP+` でブレークポイントを追加する
-7. 「ブレークポイントまで実行」で、ブレークポイントまたはプログラム終了まで連続実行する
-8. `BP-` でブレークポイントを削除できる
-9. 「PC0からやり直す」で、同じプログラムを最初から実行し直す
-10. 「入力欄をクリア」で、入力欄とWeb実行状態をクリアする
-
-## Web版の画面構成
-
-Web版は、情報を追いやすくするために2カラムレイアウトにしています。
-
-### 左カラム
-
-- プログラム入力
-- サンプルプログラム選択
-- プログラム解析
-- 入力欄クリア
-- ステップ実行
-- ブレークポイントまで実行
-- PC0からやり直し
-- プログラム一覧
-- ブレークポイント追加 / 削除
-
-### 右カラム
-
-- CPU状態
-    - レジスタ現在値
-    - HI / LO 現在値
-    - メモリ現在値
-- 最後の命令による変化
-    - レジスタ差分
-    - HI / LO 差分
-    - メモリ差分
-
-## Web版の表示ルール
-
-### CPU状態
-
-CPU状態では、現在のレジスタ・HI/LO・メモリの値を表示します。  
-初期表示時点でも、レジスタ、HI/LO、メモリは0として表示します。  
-レジスタとメモリは、8列×4行の表形式で表示します。
-
-- レジスタ表
-    - 行見出し：`+0`, `+8`, `+16`, `+24`
-    - 列見出し：`+0`〜`+7`
-    - セルには値のみ表示
-
-- メモリ表
-    - 行見出し：`+0`, `+8`, `+16`, `+24`
-    - 列見出し：`+0`〜`+7`
-    - セルには値のみ表示
-
-HI/LOは、カード風の表示にしています。
-
-### 変更値の強調表示
-
-黄色で強調される値は、最後に実行された1命令で変化した値です。  
-「ブレークポイントまで実行」を押した場合も、run全体で変化した値ではなく、最後に実行された1命令で変化した値だけを強調します。
-
-### プログラム一覧
-
-プログラム一覧では、textarea上の表示行と、実行対象命令のPCを分けて扱います。
-
-- 命令行だけがPCを持つ
-- ラベルだけの行はPCを持たない
-- 空行もPCを持たない
-- ラベル行にはブレークポイントボタンを表示しない
-
-これにより、ラベル行や空行があるプログラムでも、PC表示がずれないようにしています。
-
-### レジスタ表示
-
-レジスタ表では、セル上にマウスを乗せると `R8 / $t0` のように、レジスタ番号とMIPSの別名を確認できます。  
-最後の命令による変化では、変更されたレジスタを `R8 / $t0` のように表示します。
-
-### メモリ表示
-
-メモリ表示では、値とアドレス見出しを10進数 / 16進数で切り替えられます。  
-表示範囲は、以下から選択できます。
-
-- `0〜31`
-- `32〜63`
-- `64〜95`
-
-選択した表示形式と表示範囲は、ブラウザのsessionStorageに保存します。  
-そのため、ステップ実行やrun実行で画面が再読み込みされても、選択状態を維持します。
-
-## Web版の入力制限・負荷対策
-
-Web版では、サーバー負荷を避けるため、入力プログラムや実行処理に制限を設けています。
-
-- 最大行数：200行
-- 1行の最大文字数：200文字
-- 入力全体の最大文字数：10,000文字
-- runの最大実行ステップ数：1,000ステップ
-- HTTPセッションタイムアウト：30分
-- 簡易リクエスト制限：10秒間に60回まで
-
-短時間に操作が集中した場合は、HTTP 429 Too Many Requests を返します。  
-対象は、MipsStepLabのPOST操作です。
-
-- POST /mips
-- POST /mips/step
-- POST /mips/run
-- POST /mips/reset
-- POST /mips/clear
-- POST /mips/breakpoints
-- POST /mips/breakpoints/delete
-
-通常の学習用途では制限にかかりにくい設定にしていますが、ボタン連打などで短時間に大量のリクエストが発生した場合は、少し時間をおいてから再操作する必要があります。
-
-## パッケージ構成
-
-```text
-execution/
-    StepRunner          // 命令を1ステップ実行する
-    StepResult          // 1ステップ分の実行結果を保持
-    BreakpointManager   // ブレークポイント管理
-
-console/
-    ConsoleStepRunner   // CUI操作（入力・コマンド処理）
-    ConsoleStepView     // CUI実行結果の表示
-    ConsoleCommand      // CUIコマンド種別(enum)
-
-cpu/
-    Cpu                 // CPU本体
-
-instruction/
-    Instruction         // 命令インターフェース
-    各命令クラス
-
-parser/
-    InstructionParser   // 命令解析
-
-web/
-    MipsStepLabWebApplication // Spring Boot起動クラス
-    HomeController            // Web画面のController
-    WebMipsSession            // Web版の実行状態
-    WebMipsSessionService     // Web版の実行・解析処理
-    MipsViewModel             // Web画面に渡す表示用データ
-    MipsViewModelFactory      // MipsViewModel生成
-    StepResultViewMapper      // StepResultを画面表示用データへ変換
-    StepResultViewData        // StepResult由来の表示用データ一式
-    RunResult                 // run実行結果
-    MessageType               // メッセージ種別
-    RegisterDiff              // レジスタ差分表示用データ
-    RegisterValue             // レジスタ現在値表示用データ
-    HiLoDiff                  // HI/LO差分表示用データ
-    HiLoValue                 // HI/LO現在値表示用データ
-    MemoryDiff                // メモリ差分表示用データ
-    MemoryValue               // メモリ現在値表示用データ
-    ProgramLineView           // プログラム一覧の1行分の表示用データ
-    ExecutedInstructionView   // 実行命令情報の表示用データ
-    RunStopReason             // run実行の停止理由
-    RequestRateLimiter        // セッション単位の簡易リクエスト制限
-    RequestRateLimitFilter    // MipsStepLabのPOST操作を制限するFilte
-
-resources/
-    templates/
-        mips.html             // Web版画面テンプレート
-
-    static/
-        css/
-            mips.css          // Web版CSS
-
-        js/
-            mips.js           // スクロール位置保持・多重送信防止
-```
-
-## クラス図
+## ■ クラス図
 
 ```mermaid
 classDiagram
+    class MipsStepLabWebApplication
+    class HomeController
+    class WebMipsSessionService
+    class WebMipsSession
+    class MipsViewModelFactory
+    class MipsViewModel
+    class StepResultViewMapper
+    class StepResultViewData
+    class ExecutedInstructionView
+    class ProgramLineView
+    class RunResult
+    class RunStopReason
+    class RequestRateLimitFilter
+    class RequestRateLimiter
 
-class StepRunner
-class StepResult
-class BreakpointManager
+    class StepRunner
+    class StepResult
+    class BreakpointManager
+    class Cpu
+    class RegisterNames
+    class Instruction
+    class InstructionParser
 
-class ConsoleStepRunner
-class ConsoleStepView
-class ConsoleCommand
+    class ConsoleStepRunner
+    class ConsoleStepView
+    class ConsoleCommand
 
-class HomeController
-class WebMipsSession
-class WebMipsSessionService
-class MipsViewModel
-class MipsViewModelFactory
-class StepResultViewMapper
-class StepResultViewData
-class RunResult
-class MessageType
+    MipsStepLabWebApplication ..> HomeController : scans
 
-class Cpu
-class Instruction
-class InstructionParser
+    HomeController --> WebMipsSessionService : 処理を依頼する
+    HomeController --> StepResultViewMapper : 表示用データへ変換する
+    HomeController --> MipsViewModelFactory : ViewModel生成を依頼する
+    HomeController --> WebMipsSession : セッションから取得する
 
-StepRunner --> Cpu : uses
-StepRunner --> Instruction : uses
-StepRunner --> StepResult : creates
+    WebMipsSessionService --> InstructionParser : プログラムを解析する
+    WebMipsSessionService --> WebMipsSession : 作成・利用する
+    WebMipsSessionService --> StepRunner : 1ステップ実行を依頼する
+    WebMipsSessionService --> RunResult : run結果を返す
 
-ConsoleStepRunner --> StepRunner : uses
-ConsoleStepRunner --> ConsoleStepView : uses
-ConsoleStepRunner --> BreakpointManager : uses
-ConsoleStepRunner --> ConsoleCommand : uses
-ConsoleStepView --> StepResult : uses
+    WebMipsSession --> Cpu : CPU状態を持つ
+    WebMipsSession --> StepRunner : 実行器を持つ
+    WebMipsSession --> BreakpointManager : ブレークポイントを持つ
 
-HomeController --> WebMipsSessionService : uses
-HomeController --> StepResultViewMapper : uses
-HomeController --> MipsViewModelFactory : uses
-HomeController --> WebMipsSession : uses
+    MipsViewModelFactory --> MipsViewModel : 生成する
+    MipsViewModelFactory --> ProgramLineView : 生成する
+    MipsViewModelFactory --> StepResultViewData : 利用する
+    MipsViewModelFactory --> ExecutedInstructionView : 利用する
 
-WebMipsSessionService --> WebMipsSession : creates/uses
-WebMipsSessionService --> InstructionParser : uses
-WebMipsSessionService --> RunResult : creates
-WebMipsSessionService --> StepRunner : uses
+    StepResultViewMapper --> StepResult : 変換元として使う
+    StepResultViewMapper --> StepResultViewData : 生成する
+    StepResultViewMapper --> ExecutedInstructionView : 生成する
 
-WebMipsSession --> Cpu : has
-WebMipsSession --> StepRunner : has
-WebMipsSession --> BreakpointManager : has
+    StepRunner --> Cpu : CPUを操作する
+    StepRunner --> Instruction : 実行する
+    StepRunner --> StepResult : 生成する
 
-MipsViewModelFactory --> MipsViewModel : creates
-MipsViewModelFactory --> WebMipsSession : uses
-MipsViewModelFactory --> StepResultViewData : uses
+    Cpu --> RegisterNames : レジスタ名を利用する
+    InstructionParser --> Instruction : 生成する
+    Instruction <|.. AddInstruction : implements
+    Instruction <|.. LwInstruction : implements
+    Instruction <|.. BeqInstruction : implements
 
-StepResultViewMapper --> StepResult : uses
-StepResultViewMapper --> StepResultViewData : creates
+    RequestRateLimitFilter --> RequestRateLimiter : 制限判定を依頼する
 
-Instruction <|.. xxxxInstruction : implements
+    ConsoleStepRunner --> StepRunner : 利用する
+    ConsoleStepRunner --> ConsoleStepView : 表示を依頼する
+    ConsoleStepRunner --> BreakpointManager : 利用する
+    ConsoleStepRunner --> ConsoleCommand : コマンドを判定する
+    ConsoleStepView --> StepResult : 表示する
 ```
 
-## シーケンス図（プログラム解析）
+## ■ シーケンス図
+
+### 初期表示
 
 ```mermaid
 sequenceDiagram
+    actor User
+    participant Browser
+    participant Controller as HomeController
+    participant Factory as MipsViewModelFactory
 
-participant User
-participant Browser
-participant HomeController
-participant WebMipsSessionService
-participant InstructionParser
-participant WebMipsSession
-participant MipsViewModelFactory
-
-User ->> Browser : プログラムを解析
-Browser ->> HomeController : POST /mips
-HomeController ->> WebMipsSessionService : createSession(programText)
-WebMipsSessionService ->> WebMipsSessionService : 入力制限チェック
-WebMipsSessionService ->> InstructionParser : parse(programLines)
-InstructionParser -->> WebMipsSessionService : instructions
-WebMipsSessionService -->> HomeController : WebMipsSession
-HomeController ->> MipsViewModelFactory : createParsedViewModel(...)
-HomeController -->> Browser : mips.html
+    User->>Browser: /mips/ にアクセス
+    Browser->>Controller: GET /
+    Controller->>Factory: createInitialViewModel()
+    Factory-->>Controller: MipsViewModel
+    Controller-->>Browser: mips.html を返す
+    Browser-->>User: 初期画面を表示
 ```
 
-## シーケンス図（ステップ実行）
+### プログラム解析
 
 ```mermaid
 sequenceDiagram
+    actor User
+    participant Browser
+    participant Filter as RequestRateLimitFilter
+    participant Controller as HomeController
+    participant Service as WebMipsSessionService
+    participant Parser as InstructionParser
+    participant Session as WebMipsSession
+    participant Factory as MipsViewModelFactory
 
-participant User
-participant Browser
-participant HomeController
-participant WebMipsSessionService
-participant WebMipsSession
-participant StepRunner
-participant Cpu
-participant StepResultViewMapper
-participant MipsViewModelFactory
-
-User ->> Browser : 1ステップ実行
-Browser ->> HomeController : POST /mips/step
-HomeController ->> WebMipsSession : セッションから取得
-HomeController ->> WebMipsSessionService : step(session)
-WebMipsSessionService ->> StepRunner : step()
-StepRunner ->> Cpu : execute(instruction)
-StepRunner -->> WebMipsSessionService : StepResult
-WebMipsSessionService -->> HomeController : StepResult
-HomeController ->> StepResultViewMapper : toViewData(result)
-HomeController ->> StepResultViewMapper : getExecutedInstructionText(...)
-HomeController ->> MipsViewModelFactory : createStepResultViewModel(...)
-HomeController -->> Browser : mips.html
+    User->>Browser: プログラムを入力して解析
+    Browser->>Filter: POST /
+    Filter->>Filter: リクエスト制限を判定
+    Filter->>Controller: 制限内なら処理を渡す
+    Controller->>Service: createSession(programText)
+    Service->>Service: 入力制限チェック
+    Service->>Parser: parse(programLines)
+    Parser-->>Service: instructions
+    Service-->>Controller: WebMipsSession
+    Controller->>Factory: createParsedViewModel(...)
+    Factory-->>Controller: MipsViewModel
+    Controller-->>Browser: redirect:/
+    Browser->>Controller: GET /
+    Controller-->>Browser: mips.html を返す
 ```
 
-## シーケンス図（run実行）
+### ステップ実行
 
 ```mermaid
 sequenceDiagram
+    actor User
+    participant Browser
+    participant Filter as RequestRateLimitFilter
+    participant Controller as HomeController
+    participant Service as WebMipsSessionService
+    participant Session as WebMipsSession
+    participant Runner as StepRunner
+    participant Cpu
+    participant Mapper as StepResultViewMapper
+    participant Factory as MipsViewModelFactory
 
-participant User
-participant Browser
-participant HomeController
-participant WebMipsSessionService
-participant WebMipsSession
-participant StepRunner
-participant Cpu
-participant MipsViewModelFactory
-
-User ->> Browser : ブレークポイントまで実行
-Browser ->> HomeController : POST /mips/run
-HomeController ->> WebMipsSession : セッションから取得
-HomeController ->> WebMipsSessionService : runUntilBreakpoint(session)
-
-loop ブレークポイント・終了・最大ステップ数到達まで
-    WebMipsSessionService ->> WebMipsSession : 現在PC確認
-    WebMipsSessionService ->> StepRunner : step()
-    StepRunner ->> Cpu : execute(instruction)
-    StepRunner -->> WebMipsSessionService : StepResult
-end
-
-WebMipsSessionService -->> HomeController : RunResult
-HomeController ->> MipsViewModelFactory : createStepResultViewModel(...) または createSessionStateViewModel(...)
-HomeController -->> Browser : mips.html
+    User->>Browser: 1ステップ実行
+    Browser->>Filter: POST /step
+    Filter->>Filter: リクエスト制限を判定
+    Filter->>Controller: 制限内なら処理を渡す
+    Controller->>Session: HTTPセッションから取得
+    Controller->>Service: step(session)
+    Service->>Runner: step()
+    Runner->>Cpu: execute(instruction)
+    Runner-->>Service: StepResult
+    Service-->>Controller: StepResult
+    Controller->>Mapper: toViewData(result)
+    Controller->>Mapper: createExecutedInstructionView(...)
+    Controller->>Factory: createStepResultViewModel(...)
+    Controller-->>Browser: redirect:/
+    Browser->>Controller: GET /
+    Controller-->>Browser: mips.html を返す
 ```
 
-## 設計のポイント
+### run実行
 
-### 実行処理と表示処理の分離
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser
+    participant Filter as RequestRateLimitFilter
+    participant Controller as HomeController
+    participant Service as WebMipsSessionService
+    participant Session as WebMipsSession
+    participant Runner as StepRunner
+    participant Cpu
+    participant Factory as MipsViewModelFactory
 
-StepRunner は、命令を1ステップ実行して StepResult を返すことに集中しています。  
-CUI表示やWeb表示の詳細は、別のクラスに分離しています。
+    User->>Browser: ブレークポイントまで実行
+    Browser->>Filter: POST /run
+    Filter->>Filter: リクエスト制限を判定
+    Filter->>Controller: 制限内なら処理を渡す
+    Controller->>Session: HTTPセッションから取得
+    Controller->>Service: runUntilBreakpoint(session)
 
-- ConsoleStepView：CUI表示
-- StepResultViewMapper：Web画面表示用データへの変換
+    loop ブレークポイント・終了・最大ステップ数到達まで
+        Service->>Session: 現在PCとブレークポイントを確認
+        Service->>Runner: step()
+        Runner->>Cpu: execute(instruction)
+        Runner-->>Service: StepResult
+    end
 
-### StepResultによるデータ受け渡し
+    Service-->>Controller: RunResult
+    Controller->>Factory: createStepResultViewModel(...) または createSessionStateViewModel(...)
+    Controller-->>Browser: redirect:/
+    Browser->>Controller: GET /
+    Controller-->>Browser: mips.html を返す
+```
 
-1ステップの実行結果を StepResult として保持しています。  
-StepResult には、以下のような情報を持たせています。
+## ■ CUI版について
 
-- 実行前PC
-- 実行後PC
-- 実行した命令
-- 実行前後のレジスタ
-- 実行前後のHI / LO
-- 実行前後のメモリ
+本リポジトリには、Web版の前段階として作成したCUI版も含めています。
 
-これにより、CUIとWebの両方で同じ実行結果を利用できます。
+CUI版では、MIPS命令のステップ実行、レジスタ差分表示、メモリ差分表示、HI/LO差分表示、ブレークポイント、runコマンドを実装しました。  
+その後、同じ実行ロジックをSpring Boot版へ発展させ、ブラウザ上で操作できるステップデバッガとして整理しています。
 
-### Web版ではHTTPセッションで実行状態を保持
+現在のメイン実装はSpring Boot版です。  
+CUI版は、開発経緯と学習過程を示す参考実装として残しています。
 
-Webアプリでは、ボタンを押すたびに別のHTTPリクエストになります。  
-そのため、CPU・命令列・StepRunner・ブレークポイント・実行済みPCを WebMipsSession にまとめ、HTTPセッションに保存しています。
+## ■ 学習ポイント
 
-### Serviceによる処理の分離
+このプロジェクトでは、MIPS命令シミュレータを題材に、命令解析、CPU状態管理、ステップ実行、Webアプリケーション化、VPS公開までを実践しました。
 
-HomeController は、リクエストの受付と画面表示に集中します。  
-プログラムの解析、実行状態の作成、ステップ実行、run実行などは WebMipsSessionService に分離しています。
+### MIPS命令シミュレータ
 
-### ViewModelによる画面表示データの整理
+- 命令インターフェースによる各命令クラスの分離
+- レジスタ、HI/LO、メモリを持つCpuクラスの設計
+- InstructionParserによる文字列から命令オブジェクトへの変換
+- ラベル解析と分岐・ジャンプ命令の実装
+- StepRunnerによる1命令ずつの実行制御
+- StepResultによる実行前後の差分管理
+- ブレークポイント管理
 
-Web画面に渡す情報は MipsViewModel にまとめています。  
-HomeController から多数の Model.addAttribute(...) を直接呼ぶのではなく、  
-MipsViewModelFactory で画面表示用データを生成し、Thymeleaf側では viewModel.xxx として参照します。
+### Webアプリケーション開発
 
-### BuilderによるViewModel生成
+- Spring BootによるWebアプリケーション構築
+- Controller / Service / ViewModel の責務分離
+- Thymeleafによる画面表示
+- HTTPセッションを使った実行状態の保持
+- Post/Redirect/Get パターンによるPOST再送信対策
+- JavaScriptによるスクロール位置復元、表示切り替え、ボタン多重送信防止
+- MockMvcによるControllerテスト
 
-MipsViewModel は表示項目が多いため、Builderパターンで生成しています。  
-これにより、コンストラクタ引数の順番ミスを避け、どの値を設定しているかを読みやすくしています。
+### 表示・UI設計
 
-### Web表示用データへの変換
+- 2カラムレイアウトによる入力・状態表示の整理
+- レジスタ・メモリの表形式表示
+- メモリの10進数 / 16進数表示切り替え
+- メモリ表示範囲の切り替え
+- ラベル行と命令行の表示分離
+- 最後に実行された1命令の差分強調
 
-StepResultViewMapper で、StepResult からWeb画面用のデータを作成しています。  
+### 公開・運用
 
-例：
-- RegisterDiff
-- RegisterValue
-- HiLoDiff
-- HiLoValue
-- MemoryDiff
-- MemoryValue
+- VPS上でのSpring Bootアプリケーション公開
+- Nginxによるリバースプロキシ設定
+- systemdによるJavaアプリケーションのサービス化
+- 独自ドメインとLet's Encrypt / CertbotによるHTTPS化
+- context-pathを使った複数Webアプリのパス分離
+- Nginxとアプリケーション側の簡易的な負荷対策
 
-さらに、これらを StepResultViewData にまとめて扱うことで、Controller側の処理を簡潔にしています。
+## ■ 今後改善していくならば
 
-### JavaScriptによる操作性改善
+### アプリケーション機能
 
-mips.js では、画面操作を補助しています。
-
-- フォーム送信後のスクロール位置保持
-- ボタンの多重送信防止
-- 送信中ボタンの無効化
-
-これにより、BP追加・削除やステップ実行後も、画面位置が大きく戻らないようにしています。
-
-### ProgramLineViewによる表示行とPCの分離
-
-textarea上の行番号と、実行対象命令のPCは必ずしも一致しません。  
-たとえば、ラベル行や空行は画面には表示しますが、実行対象命令ではないためPCを持ちません。  
-そのため、Web画面のプログラム一覧では ProgramLineView を使い、以下を分けて管理しています。
-
-- textarea上の行番号
-- 実行対象命令のPC
-- 表示するプログラム行
-- 命令行かどうか
-
-これにより、ラベル行や空行がある場合でも、現在PC、実行済み行、ブレークポイント表示がずれにくくなります。
-
-### ExecutedInstructionViewによる実行命令表示の整理
-
-Web画面で表示する実行命令情報は、ExecutedInstructionView にまとめています。  
-ExecutedInstructionView には、以下の情報を持たせています。
-
-- 実行ステップ番号
-- 実行前PC
-- 実行後PC
-- 実行された命令テキスト
-
-これにより、Thymeleaf側が StepResult の詳細を直接参照しすぎないようにしています。  
-現時点では、実行命令テキストは入力行をもとに表示しています。  
-将来的には、Instruction#toString() や表示用InstructionViewへの整理を検討します。
-
-### POST後リロード対策
-
-Web版では、POST処理後に直接 mips.html を返すのではなく、redirect:/mips でGET画面へリダイレクトしています。  
-これは、Post/Redirect/Get パターンと呼ばれる構成です。  
-この構成により、ステップ実行やrun実行の直後にブラウザを更新しても、直前のPOSTリクエストが再送信されにくくなります。  
-POST処理後に表示したいViewModelは、Flash属性を使って次のGET /mips に引き渡しています。
-
-### 簡易リクエスト制限
-
-公開時の最低限の負荷対策として、MipsStepLabのPOST操作に簡易リクエスト制限を入れています。  
-リクエスト制限は、RequestRateLimitFilter でControllerに到達する前に判定します。  
-セッションごとの直近リクエスト時刻は RequestRateLimiter で管理しています。  
-短時間に操作が集中した場合は、HTTP 429 Too Many Requests を返し、処理を中断します。
-
-### セッションタイムアウト
-
-Web版では、CPU状態や命令列などの実行状態をHTTPセッションに保存しています。  
-ブラウザを開いたまま長時間放置された場合でも、サーバー側にセッションが残り続けないよう、セッションタイムアウトを30分に設定しています。
-
-## 今後の予定
-
-- VPS上での動作確認
-    - Java 21でのビルド確認
-    - jar起動確認
-    - systemdサービス化の検討
-    - Nginx経由での表示確認
-- 公開前の最終確認
-    - 入力制限・run最大ステップ数・リクエスト制限の確認
-    - セッションタイムアウト設定の確認
-    - READMEの最終整理
-- 実行命令表示のさらなる設計改善
-    - 現在は入力行を使って実行命令を表示している
-    - 必要になったら `Instruction#toString()` または表示用InstructionViewへの整理を検討する
 - 命令の追加
-    - 現在の対応命令で学習用としてはおおむね十分
-    - 必要に応じて追加する
+- サンプルプログラムの追加
+- 実行命令表示のさらなる整理
 
-# 備考
+### 画面表示
 
-本アプリは自己学習の目的で作成しており、実際のMIPS仕様のすべてを再現しているわけではありません。
+- スマートフォン表示の調整
+- メモリ表示のさらなる改善
+- エラー表示の改善
+
+### コード設計・テスト
+
+- `Instruction#toString()` または表示用InstructionViewの検討
+- Controller層の異常系テスト追加
+- Parser周りのテスト拡充
